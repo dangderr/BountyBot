@@ -46,9 +46,10 @@
     <Content Include="bot\message_processing\ping_messages.js" />
     <Content Include="database\db_access.js" />
     <Content Include="database\drip.db" />
-    <Content Include="database\load_database.js" />
+    <Content Include="database\main_database.js" />
     <Content Include="package.json" />
     <Content Include="README.md" />
+    <Content Include="TODO.txt" />
     <Content Include="utils\app_tokens.js" />
     <Content Include="utils\channels.js" />
     <Content Include="utils\datetime_methods.js" />

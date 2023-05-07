@@ -5,17 +5,21 @@ const wait = require('node:timers/promises').setTimeout;
 
 async function main() {
     require('dotenv').config();
-
     const client = await new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent] });
-    client.db = await require('./database/load_database.js').load_database();
+
+    //deploy_commands();
+
     await load_bounty_bot(client);
+    await load_db(client);
 
     restart_pings(client);
 }
 
 async function restart_pings(client) {
-    await wait(5000);      //Shit keeps breaking idk why
     ping_messages.restart_ping_timers(client);
+}
+async function load_db(client) {
+    client.db = await require('./database/main_database.js').load_database();
 }
 
 async function load_bounty_bot(client) {
@@ -24,9 +28,8 @@ async function load_bounty_bot(client) {
 }
 
 //Required when new commands are created
-async function deployCommands() {
+function deploy_commands() {
     require('./bot/deploy_commands.js').deployCommands();
 }
 
-//deployCommands();
 main();

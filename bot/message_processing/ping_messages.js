@@ -110,8 +110,7 @@ async function check_ping_message(message) {
 
 async function restart_ping_timers(client) {
     const channel_id = (await db_access.get_channel_id(client.db, 'spit-bot', 'drip')).channel_id;
-    const channel = await client.channels.cache.get(channel_id);
-    //const channel = await client.channels.fetch(channel_id);
+    const channel = await client.channels.fetch(channel_id);
 
     const ping_timer_table = await db_access.get_all_ping_timers(client.db);
     if (!ping_timer_table) return;
