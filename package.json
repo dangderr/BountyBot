@@ -1,0 +1,9 @@
+{
+  "name": "bounty-bot",
+  "version": "0.0.0",
+  "description": "BountyBot",
+  "main": "app.js",
+  "author": {
+    "name": ""
+  }
+}
