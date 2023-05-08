@@ -277,7 +277,7 @@ async function check_soulhounds_message(message) {
         const channel = message.client.channels.cache.get(message.channelId);
         const db = message.client.drip_db;
         if (message.content.includes('] Global: Soulhounds appeared in the Hades!') || message.content.includes('Soulhounds ravaging the Hades...')) {
-            const role_id = await db.get_role_id('soulhounds', 'drip').role_id;
+            const role_id = (await db.get_role_id('soulhounds', 'drip')).role_id;
             let str = '<@&' + role_id + '> ';
 
             if (message.content.includes('] Global: Soulhounds appeared in the Hades!')) {
