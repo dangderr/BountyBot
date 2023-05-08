@@ -100,7 +100,7 @@ class SqlQueryBuilder {
             this.#sql += columns_arr[i] + ' = ?';
             this.#variables.push(values_arr[i]);
             if (i != columns_arr.length - 1) {
-                this.#sql += ' AND ';
+                this.#sql += ', ';
             }
         }
         this.#sql += ' ';
@@ -146,7 +146,7 @@ class SqlQueryBuilder {
 
     distinct() {
         if (this.#sql.includes('SELECT'))
-            this.#sql.replace('SELECT', 'SELECT DISTINCT');
+            this.#sql = this.#sql.replace('SELECT', 'SELECT DISTINCT');
         return this;
     }
 
