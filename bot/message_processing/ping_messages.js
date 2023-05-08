@@ -41,21 +41,18 @@ async function check_ping_message(message) {
             timestamp.setMilliseconds(timestamp.getMilliseconds() + 20 * 60 * 1000);
             db.set_user_ping_timer(user.id, 'replanted', timestamp.toISOString());
             replanting_timer(message, delay);
-        }
-        else if (message.content.includes("will be able to drink in:")) {
+        } else if (message.content.includes("will be able to drink in:")) {
             if (message_arr.length < 2) return;
             delay += 60 * 1000; //Add a minute because of cauldron timer imprecision
             str = '<@' + user.id + '>' + ' Your cauldron is ready now.';
             timestamp.setMilliseconds(timestamp.getMilliseconds() + delay);
             db.set_user_ping_timer(user.id, 'cauldron', timestamp.toISOString());
-        }
-        else if (message.content.includes("have successfully started to rise") || message.content.includes("are rising from the Dead!")) {
+        } else if (message.content.includes("have successfully started to rise") || message.content.includes("are rising from the Dead!")) {
             if (message_arr.length < 2) return;
             str = '<@' + user.id + '>' + ' Yo, time to check Hades.';
             timestamp.setMilliseconds(timestamp.getMilliseconds() + delay);
             db.set_user_ping_timer(user.id, 'hell_training', timestamp.toISOString());
-        }
-        else if (message.content.includes("Wild Captcha Event in:")) {
+        } else if (message.content.includes("Wild Captcha Event in:")) {
             if (message_arr.length < 2) return;
             delay -= (29 * 60 * 1000);
             if (delay <= 0) {
@@ -65,34 +62,32 @@ async function check_ping_message(message) {
             str = '<@' + user.id + '>' + ' Botcheck within half an hour.';
             timestamp.setMilliseconds(timestamp.getMilliseconds() + delay);
             db.set_user_ping_timer(user.id, 'botcheck', timestamp.toISOString());
-        }
-        else if (message.content.includes("Your Pet is Exploring")) {
+        } else if (message.content.includes("Your Pet is Exploring")) {
             str = '<@' + user.id + '>' + ' Your pet is done exploring.';
             timestamp.setMilliseconds(timestamp.getMilliseconds() + delay);
             db.set_user_ping_timer(user.id, 'pet_exploration', timestamp.toISOString());
-        }
-        else if (message.content.includes("Your Pet is Training.")) {
+        } else if (message.content.includes("Your Pet is Training.")) {
             str = '<@' + user.id + '>' + ' Your pet is done training.';
             timestamp.setMilliseconds(timestamp.getMilliseconds() + delay);
             db.set_user_ping_timer(user.id, 'pet_training', timestamp.toISOString());
-        }
-        else if (message.content.includes("Time left: ")) {
+        } else if (message.content.includes('Soulhounds ravaging the Hades...') && message.content.includes("You can't attack for:")) {
+            str = '<@' + user.id + '>' + ' You can attack Soulhounds again.';
+            timestamp.setMilliseconds(timestamp.getMilliseconds() + delay);
+            db.set_user_ping_timer(user.id, 'soulhounds', timestamp.toISOString());
+        } else if (message.content.includes("Time left: ")) {
             if (message_arr.length > 1) {
                 str = '<@' + user.id + '>' + "Not sure why I'm pinging you. Maybe it was for: " + message_arr[0] + "\nBut I ain't an AI bot so idk";
-            }
-            else {
+            } else {
                 str = '<@' + user.id + '>' + ' Why am I pinging you again? Prolly aint important.';
             }
-        }
-        else {
+        } else {
             return;
         }
 
         if (delay <= 0) {
             message.reply('Something went wrong, idk what time to ping you.');
             return;
-        }
-        else {
+        } else {
             const channel = message.client.channels.cache.get(message.channelId);
             message.reply(replies[reply_index]);
             await wait(delay);

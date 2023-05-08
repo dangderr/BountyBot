@@ -15,7 +15,8 @@ schema = [
         discord_id NVARCHAR(50) PRIMARY KEY NOT NULL,
         bountydone NVARCHAR(50),
         activehoursstart NVARCHAR(50),
-        activehoursend NVARCHAR(50)
+        activehoursend NVARCHAR(50),
+        follow_upcoming_events NVARCHAR(50)
     );`
     ,
     `CREATE TABLE user_ping_timers (
@@ -26,7 +27,9 @@ schema = [
         pet_training NVARCHAR(50),
         pet_exploration NVARCHAR(50),
         hell_training NVARCHAR(50),
-        replanted NVARCHAR(50)
+        replanted NVARCHAR(50),
+        soulhounds NVARCHAR(50),
+
     );`
     ,
     `CREATE TABLE item_drops (

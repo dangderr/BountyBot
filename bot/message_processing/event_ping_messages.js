@@ -2,10 +2,10 @@ const { ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
 const datetime_methods = require('../../utils/datetime_methods.js');
 const wait = require('node:timers/promises').setTimeout;
 
-async function check_double_ping(db, category) {
+async function check_double_ping(db, category, delay = 5) {
     const last_ping_obj = await db.get_event_timers_timestamp(category);
     const last_ping_timestamp = (last_ping_obj.length > 0) ? last_ping_obj.timestamp : null;
-    return datetime_methods.check_for_double_ping(last_ping_timestamp);
+    return datetime_methods.check_for_double_ping(last_ping_timestamp, delay);
 }
 
 async function build_blace_buttons() {
@@ -272,11 +272,51 @@ async function check_hell_message(message) {
     }
 }
 
+async function check_soulhounds_message(message) {
+    try {
+        const channel = message.client.channels.cache.get(message.channelId);
+        const db = message.client.drip_db;
+        if (message.content.includes('] Global: Soulhounds appeared in the Hades!') || message.content.includes('Soulhounds ravaging the Hades...')) {
+            const role_id = await db.get_role_id('soulhounds', 'drip').role_id;
+            let str = '<@&' + role_id + '> ';
+
+            if (message.content.includes('] Global: Soulhounds appeared in the Hades!')) {
+                const global_str = get_global_line_from_multi_line_ping(message);
+                const soulhound_spawn_time = new Date(datetime_methods.parse_global_timestamp(global_str));
+                const minutes_ago = Math.round((Date.now() - soulhound_spawn_time.getTime()) / 1000 / 60);
+                str += 'spawned ' + minutes_ago + ' minutes ago';
+                db.set_event_timers_timestamp('soulhounds', soulhound_spawn_time.toISOString());
+            } else {
+                let str_arr = message.content.split('\n');
+                for (const s of str_arr) {
+                    if (s.includes('Soulhounds ravaging the Hades...')) {
+                        str += s;
+                        break;
+                    }
+                }
+            }
+            channel.send(str);
+        }else if (message.content.includes('No Soulhounds to be seen...') && message.content.includes('Last time appeared: ')) {
+            const milliseconds = datetime_methods.parse_drip_time_string(message.content.split('\n'));
+            const soulhound_spawn_time = new Date();
+            soulhound_spawn_time.setMilliseconds(soulhound_spawn_time.getUTCMilliseconds() - milliseconds);
+            db.set_event_timers_timestamp('soulhounds', soulhound_spawn_time.toISOString());
+            channel.send('Soulhound respawn time updated');
+        }
+    } catch (err) {
+        console.log('Error in processing Soulhounds message');
+        console.log(err);
+    }
+}
+
+
+
 module.exports = {
     check_blace_frenzy,
     check_drops_message,
     check_aura_message,
     check_dt_frenzy_message,
     check_event_message,
-    check_hell_message
+    check_hell_message,
+    check_soulhounds_message
 }

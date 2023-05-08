@@ -51,7 +51,7 @@ async function execute(message) {
                     ping_messages.check_ping_message(message);
                     break;
                 case 'soulhounds':
-                    /////////////////////////////
+                    event_pings.check_soulhounds_message(message);
                     break;
                 default:
                     console.log(`Error: Message type ${message_type} does not exist`);
