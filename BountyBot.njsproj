@@ -44,6 +44,9 @@
     <Content Include="bot\message_processing\bounty_ping_messages.js" />
     <Content Include="bot\message_processing\event_ping_messages.js" />
     <Content Include="bot\message_processing\ping_messages.js" />
+    <Content Include="database\Database.js">
+      <SubType>Code</SubType>
+    </Content>
     <Content Include="database\db_access.js" />
     <Content Include="database\drip.db" />
     <Content Include="database\main_database.js" />
