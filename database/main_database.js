@@ -1,27 +1,38 @@
 const sqlite3 = require('sqlite3').verbose();
 const fs = require('fs');
+const wait = require('node:timers/promises').setTimeout;
 
 const db_path = './database/drip.db';
 
 async function load_database() {
-    return new Promise((resolve, reject) => {
-        if (fs.existsSync(db_path)) {
-            let db = new sqlite3.Database(db_path, sqlite3.OPEN_READWRITE, (err) => {
-                if (err) reject(err);
-                else resolve(db);
-                //run_testing_query(db);
-            });
-        }
-        else {
-            let db = new sqlite3.Database(db_path, (err) => {
-                if (err) reject(err);
-                else {
-                    create_tables(db);
-                    resolve(db);
-                }
-            });
-        }
-    });
+    if (!fs.existsSync(db_path)) {
+        return create_db();
+    }
+    else {
+        return load_existing_db();
+    }
+}
+
+async function load_existing_db() {
+    return await new Promise(resolve => {
+        let db = new sqlite3.Database(db_path, sqlite3.OPEN_READWRITE, (err) => {
+            if (err) reject(err);
+            else resolve(db);
+            //run_testing_query(db);
+        });
+    })
+}
+
+async function create_db() {
+    return await new Promise(resolve => {
+        let db = new sqlite3.Database(db_path, (err) => {
+            if (err) reject(err);
+            else {
+                create_tables(db);
+                resolve(db);
+            }
+        });
+    })
 }
 
 async function create_tables(db) {
