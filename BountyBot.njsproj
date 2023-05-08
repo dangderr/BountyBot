@@ -52,7 +52,7 @@
     <Content Include="database\DripDatabase.js">
       <SubType>Code</SubType>
     </Content>
-    <Content Include="database\drip_database_schema.js">
+    <Content Include="database\drip_database_data.js">
       <SubType>Code</SubType>
     </Content>
     <Content Include="database\main_database.js" />
@@ -63,10 +63,7 @@
     <Content Include="README.md" />
     <Content Include="TODO.txt" />
     <Content Include="utils\app_tokens.js" />
-    <Content Include="utils\channels.js" />
     <Content Include="utils\datetime_methods.js" />
-    <Content Include="utils\mobs.js" />
-    <Content Include="utils\roles.js" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="bot\commands\" />
