@@ -212,6 +212,4 @@ class SqlQueryBuilder {
     }
 }
 
-module.exports = {
-    SqlQueryBuilder
-}
+module.exports = SqlQueryBuilder;

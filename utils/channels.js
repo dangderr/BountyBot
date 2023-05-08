@@ -20,5 +20,7 @@ const channel_message_types = [
     ["spit-bot", "drip", "pings"]
 ]
 
-module.exports.channels = channels;
-module.exports.channel_message_types = channel_message_types;
+module.exports = {
+    channels,
+    channel_message_types
+}

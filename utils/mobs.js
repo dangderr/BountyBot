@@ -121,4 +121,4 @@ const mobs = [
     ['Terror', 'ff', '12'],
 ];
 
-module.exports.mobs = mobs;
+module.exports = mobs;

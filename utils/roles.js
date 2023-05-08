@@ -8,4 +8,4 @@ const roles = [
     ["1067145939720097894", "aura", "drip"]
 ];
 
-module.exports.roles = roles;
+module.exports = roles;
