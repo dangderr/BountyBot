@@ -6,11 +6,11 @@ async function check_amar_storm_message(message) {
         let location;
 
         if (message.content.includes("Time to grab a kite, a thunderstorm is rolling into")) {
-            role_id = await db.get_role_id('thunderstorm', 'amar');
+            role_id = (await db.get_role_id('thunderstorm', 'amar')).role_id;
             location = message.content.split(" into ")[1];
         }
         else if (message.content.includes("A rainbow emerges as a light rain begins to fall in")) {
-            role_id = await db.get_role_id('event', 'amar');
+            role_id = (await db.get_role_id('event', 'amar')).role_id;
             location = message.content.split(" fall in ")[1];
         }
         else {
