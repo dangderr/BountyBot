@@ -1,7 +1,7 @@
 const tokens = require('../utils/app_tokens');
 
 async function generate_console_message(msg) {
-    //if (msg.includes("Success")) return;
+    if (msg.includes("Success")) return;
 
     //TODO: Add to db?
     let timestamp = "[" + (new Date()).toUTCString() + "] ";

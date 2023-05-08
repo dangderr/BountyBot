@@ -9,10 +9,17 @@ async function main() {
 
     //deploy_commands();
 
-    await load_bounty_bot(client);
-    await load_db(client);
+    await Promise.all([
+        load_bounty_bot(client),
+        load_db(client)
+    ]);
 
     restart_pings(client);
+    //testing(client.db);
+}
+
+async function testing(db) {
+    await db_access.add_user(db, 'asdfasdfasdf', 'asdfasdf', 'asdfasdf');
 }
 
 async function restart_pings(client) {
