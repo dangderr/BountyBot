@@ -426,6 +426,16 @@ class DripDatabase extends Database {
                 .get_result()
         );
     }
+
+    async get_users_following_event_timers() {
+        return await this.query_all(
+            new SqlQueryBuilder()
+                .select(['discord_id'])
+                .from('bounty_preferences')
+                .where_column_equals(['follow_upcoming_events'],['1'])
+                .get_result()
+        );
+    }
 }
 
 module.exports = DripDatabase;

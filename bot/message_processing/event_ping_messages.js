@@ -286,6 +286,7 @@ async function check_soulhounds_message(message) {
                 const minutes_ago = Math.round((Date.now() - soulhound_spawn_time.getTime()) / 1000 / 60);
                 str += 'spawned ' + minutes_ago + ' minutes ago';
                 db.set_event_timers_timestamp('soulhounds', soulhound_spawn_time.toISOString());
+                schedule_upcoming_soulhound_ping(db, channel, soulhound_spawn_time.toISOString());
             } else {
                 let str_arr = message.content.split('\n');
                 for (const s of str_arr) {
@@ -302,6 +303,7 @@ async function check_soulhounds_message(message) {
             soulhound_spawn_time.setMilliseconds(soulhound_spawn_time.getUTCMilliseconds() - milliseconds);
             db.set_event_timers_timestamp('soulhounds', soulhound_spawn_time.toISOString());
             channel.send('Soulhound respawn time updated');
+            schedule_upcoming_soulhound_ping(db, channel, soulhound_spawn_time.toISOString());
         }
     } catch (err) {
         console.log('Error in processing Soulhounds message');
@@ -309,7 +311,33 @@ async function check_soulhounds_message(message) {
     }
 }
 
+async function schedule_upcoming_soulhound_ping(db, channel, last_spawn_timestamp) {
+    const last_spawn_time = new Date(last_spawn_timestamp);
+    const spawn_delay = 330 * 60 * 1000; //5.5 hours min between spawns
+    const delay = spawn_delay - (Date.now() - last_spawn_time.getTime()) + 10000;
+    const user_ids = (await db.get_users_following_event_timers()).map(i => i.discord_id);
 
+    if (delay <= 0) {
+        return;
+    }
+
+    let str = '';
+    for (const id of user_ids) {
+        str += '<@' + id + '> ';
+    }
+    str += 'Soulhounds spawned 5.5 hours ago, afaik';
+
+    await wait(delay);
+
+    const new_last_spawn_timestamp = (await db.get_event_timers_timestamp('soulhounds')).timestamp;
+    const new_last_spawn_time = new Date(new_last_spawn_timestamp);
+
+    if ((Date.now() - new_last_spawn_time.getTime()) < spawn_delay) {
+        return;
+    }
+
+    channel.send(str);
+}
 
 module.exports = {
     check_blace_frenzy,
