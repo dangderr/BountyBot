@@ -1,6 +1,6 @@
 const Database = require('./Database.js');
 const SqlQueryBuilder = require('./SqlQueryBuilder.js');
-const dds = require('./drip_database_data.js');
+const dds = require('./data/drip_database_data.js');
 
 class DripDatabase extends Database {
     cache = {};
