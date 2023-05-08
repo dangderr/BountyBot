@@ -1,5 +1,4 @@
 const { SlashCommandBuilder } = require('discord.js');
-const db_access = require('../../database/db_access.js');
 const datetime_methods = require('../../utils/datetime_methods.js');
 
 const data = (new SlashCommandBuilder()
@@ -18,6 +17,10 @@ const data = (new SlashCommandBuilder()
 )
 
 async function execute(interaction) {
+    const db = interaction.client.drip_db;
+    const user = interaction.user;
+    await db.add_user(user.id, user.username, null);
+
     const starttime = interaction.options.getString('start_time');
     const endtime = interaction.options.getString('end_time');
 
@@ -28,7 +31,7 @@ async function execute(interaction) {
             return;
         }
 
-        await db_access.set_active_hours(interaction.client.db, interaction.user.id, starttime, endtime);
+        await db.set_active_hours(user.id, starttime, endtime);
 
         let str = 'Bounty active hours set to ' + starttime + " until " + endtime;
         interaction.reply(str);

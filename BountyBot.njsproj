@@ -47,7 +47,6 @@
     <Content Include="database\Database.js">
       <SubType>Code</SubType>
     </Content>
-    <Content Include="database\db_access.js" />
     <Content Include="database\data\drip.db" />
     <Content Include="database\DripDatabase.js">
       <SubType>Code</SubType>
@@ -55,7 +54,6 @@
     <Content Include="database\data\drip_database_data.js">
       <SubType>Code</SubType>
     </Content>
-    <Content Include="database\main_database.js" />
     <Content Include="database\SqlQueryBuilder.js">
       <SubType>Code</SubType>
     </Content>

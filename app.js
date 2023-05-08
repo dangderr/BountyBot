@@ -1,10 +1,6 @@
 const { Client, GatewayIntentBits } = require('discord.js');
 const ping_messages = require('./bot/message_processing/ping_messages.js');
 const DripDatabase = require('./database/DripDatabase.js');
-
-const wait = require('node:timers/promises').setTimeout;
-const db_access = require('./database/db_access.js')
-const SqlQueryBuilder = require('./database/SqlQueryBuilder.js');
 const drip_db_tests = require('./testing/tests_for_DripDatabase_queries.js');
 
 async function main() {
@@ -32,7 +28,8 @@ async function restart_pings(client) {
     ping_messages.restart_ping_timers(client);
 }
 async function load_db(client) {
-    client.db = await require('./database/main_database.js').load_database();
+    client.drip_db = new DripDatabase('./database/data/drip.db');
+    await client.drip_db.init();
 }
 
 async function load_bounty_bot(client) {

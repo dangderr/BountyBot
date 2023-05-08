@@ -1,11 +1,10 @@
-const db_access = require('../../database/db_access.js');
 const datetime_methods = require('../../utils/datetime_methods.js');
 
 async function get_users_to_ping(db, bounties_followed_table, mobs_to_ping) {
     const users_to_ping = new Array();
     const unique_users = [...new Set(bounties_followed_table.map(i => i.discord_id))];                                  // [ user_id, user_id, user_id ]
 
-    const bountydone_arr = await db_access.get_bountydone(db);                                                          // [ { discord_id: text, bountydone: iso_string } ]
+    const bountydone_arr = await db.get_bountydone();                                                                   // [ { discord_id: text, bountydone: iso_string } ]
     const bountydone = new Array();                                                                                     // [ discord_id ]
     for (const obj of bountydone_arr) {
         if (datetime_methods.check_same_day(Date.now(), obj.bountydone)) {
@@ -17,7 +16,7 @@ async function get_users_to_ping(db, bounties_followed_table, mobs_to_ping) {
         if (bountydone.includes(user)) {
             continue;
         }
-        const activehours = await db_access.get_active_hours(db, user);
+        const activehours = await db.get_active_hours(user);
         if (!datetime_methods.check_active_time(activehours.activehoursstart, activehours.activehoursend)) continue;
 
         const users_bounties_followed = bounties_followed_table.filter(i => i.discord_id == user).map(i => i.mob);      // [ mob, mob, mob ]
@@ -50,7 +49,7 @@ async function filtered_mobs_to_ping(db, mobs_to_ping, ping_history) {
         if (match) continue;
 
         filtered_mobs_to_ping.push(mob_to_ping.mob);
-        db_access.add_bounty_ping_history(db, mob_to_ping.mob, mob_to_ping.timestamp);
+        db.add_bounty_ping_history(mob_to_ping.mob, mob_to_ping.timestamp);
     }
 
     return filtered_mobs_to_ping;
@@ -85,6 +84,10 @@ async function get_mobs(db, message_arr, ping_history) {
 }
 
 async function check_bounty_message(message) {
+    const db = message.client.drip_db;
+    const user = message.author;
+    await db.add_user(user.id, user.username, null);
+
     if (!message.content.includes('LVL'))
         return;
 
@@ -92,13 +95,12 @@ async function check_bounty_message(message) {
     if (message_arr.length <= 0) {
         return;
     }
-    const db = message.client.db;
 
-    const ping_history = await db_access.get_bounty_ping_history(db);       // [ { mob: mob_name, timestamp: iso_string } ]
+    const ping_history = await db.get_bounty_ping_history();       // [ { mob: mob_name, timestamp: iso_string } ]
     const mobs_to_ping = await get_mobs(db, message_arr, ping_history);           // [ mob, mob, mob ]
     if (mobs_to_ping.length == 0) return;
 
-    const bounties_followed_table = await db_access.get_bounties_followed_table(db);                        // [ { discord_id: text, mob: text } ]
+    const bounties_followed_table = await db.get_bounties_followed();                        // [ { discord_id: text, mob: text } ]
     const users_to_ping = await get_users_to_ping(db, bounties_followed_table, mobs_to_ping);               // [ { discord_id: text, mob_list: [ mob, mob, mob ] } ]
     if (users_to_ping.length == 0) return;
 

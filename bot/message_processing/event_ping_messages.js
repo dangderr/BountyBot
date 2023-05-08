@@ -1,10 +1,10 @@
 const { ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
-const db_access = require('../../database/db_access.js');
 const datetime_methods = require('../../utils/datetime_methods.js');
 const wait = require('node:timers/promises').setTimeout;
 
 async function check_double_ping(db, category) {
-    const last_ping_timestamp = await db_access.get_event_timers_timestamp(db, category);
+    const last_ping_obj = await db.get_event_timers_timestamp(category);
+    const last_ping_timestamp = (last_ping_obj.length > 0) ? last_ping_obj.timestamp : null;
     return datetime_methods.check_for_double_ping(last_ping_timestamp);
 }
 
@@ -43,10 +43,10 @@ async function build_blace_buttons() {
     return buttons;
 }
 
-async function create_blace_button_collector(message, db) {
+async function create_blace_button_collector(db, message) {
     //const filter = i => i.user.id === message.author.id;
     //const collector = message.channel.createMessageComponentCollector({ filter, time: 5000 });
-    const collector = message.channel.createMessageComponentCollector({ time: 60000, max: 5 });
+    const collector = message.channel.createMessageComponentCollector({ time: 60000, max: 1 });
 
     collector.on('end', collector => { });
     collector.on('collect', async i => {
@@ -58,7 +58,7 @@ async function create_blace_button_collector(message, db) {
 
         try {
             await i.update({ content: messageReply, components: [] });
-            const frenzy_role_id = await db_access.get_role_id(db, 'frenzy', 'drip');
+            const frenzy_role_id = (await db.get_role_id('frenzy', 'drip')).role_id;
 
             const str = '<@&' + frenzy_role_id + '> ' + time + " mins from Blaze/Ace";
             const channel = message.client.channels.cache.get(message.channelId);
@@ -72,6 +72,7 @@ async function create_blace_button_collector(message, db) {
 }
 
 async function check_blace_frenzy(message) {
+
     try {
         let name;
         if (message.content.includes("Event: Ace appeared in the Arctic Ruins!"))
@@ -81,7 +82,7 @@ async function check_blace_frenzy(message) {
         else
             return;
 
-        const db = message.client.db;
+        const db = message.client.drip_db;
 
         if (await check_double_ping(db, 'blace')) return;
 
@@ -90,10 +91,10 @@ async function check_blace_frenzy(message) {
         let messageReply = 'Select ' + name + ' HP/Color';
         await message.reply({ content: messageReply, components: [buttons] });
 
-        create_blace_button_collector(message, db);
+        create_blace_button_collector(db, message);
 
         const current_time = new Date();
-        db_access.set_event_timers_timestamp(db, 'blace', current_time.toISOString());
+        db.set_event_timers_timestamp('blace', current_time.toISOString());
     }
     catch (err) {
         console.log('Error in processing Blaze/Ace Frenzy Notification');
@@ -107,45 +108,48 @@ function get_username_from_global_string(str) {
     return index === 0 ? null : index;
 }
 
+function get_global_line_from_multi_line_ping(message) {
+    const message_arr = message.content.split('\n');
+    let global_str = message_arr[0];
+    for (const line of message_arr) {
+        if (line.includes(' Global: ') || line.includes(' Event: ')) {
+            global_str = line;
+            break;
+        }
+    }
+    return global_str;
+}
+
 async function check_drops_message(message) {
     try {
         if (!message.content.includes("Global: "))
             return;
 
-        const db = message.client.db;
+        const db = message.client.drip_db;
 
-        //Get the global line in case of multi line ping
-        const message_arr = message.content.split(/\r?\n/);
-        let global_str = message_arr[0];
-        for (const line of message_arr) {
-            if (line.includes("Global: ")) {
-                global_str = line;
-                break;
-            }
-        }
-        db_access.add_item_drop(db, global_str);
+        let global_str = get_global_line_from_multi_line_ping(message);
+        db.add_item_drop(global_str);
 
         if ((message.content.includes("killed") && message.content.includes("and obtained")) ||
             (message.content.includes("Treasure and obtained")) ||
             (message.content.includes("completed") && message.content.includes("Bounty") && message.content.includes("and obtained"))
         ) {
             const username = get_username_from_global_string(global_str);
-            const user_id = await db_access.get_discord_id_from_drip_name(db, username);
-            const hiroID = "468512328757805059";
+            const user_obj = (await db.get_discord_id_from_drip_name(username));
+            const hiro_obj = (await db.get_discord_id_from_drip_name('Hiro'));
+            const chronos_obj = (await db.get_discord_id_from_drip_name('Chronos'));
 
             let str = "";
-            if (message.content.includes("Hiro")) {
-                str = "Congrats," + '<@' + hiroID + '>! ' + "Finally found something on your main account!!?!!";
-            }
-            else if (message.content.includes("Chronos")) {
-                const chronosID = "573415328466599936";
-                str = "Congrats," + '<@' + chronosID + '>! ' + "You deserve it more than anyone else here!";
-            }
-            else if (user_id) {
-                str = "Congrats," + '<@' + user_id + '>! ' + "Awesome, someone here other than a Hiro multi found something!!";
-            }
-            else {
-                str = "Congrats," + '<@' + hiroID + '>! ' + "That's one of your multis, right?";
+            if (hiro_obj && message.content.includes("Hiro")) {
+                str = "Congrats," + '<@' + hiro_obj.discord_id + '>! ' + "Finally found something on your main account!!?!!";
+            } else if (chronos_obj && message.content.includes("Chronos")) {
+                str = "Congrats," + '<@' + chronos_obj.discord_id + '>! ' + "You deserve it more than anyone else here!";
+            } else if (user_obj) {
+                str = "Congrats," + '<@' + user_obj.discord_id + '>! ' + "Awesome, someone here other than a Hiro multi found something!!";
+            } else if (hiro_obj) {
+                str = "Congrats," + '<@' + hiro_obj.discord_id + '>! ' + "That's one of your multis, right?";
+            } else {
+                str = "Looks like someone found an item, but Chronos's programming failed and idk how to ping Hiro for it.";
             }
 
             const channel = message.client.channels.cache.get(message.channelId);
@@ -165,16 +169,16 @@ async function check_aura_message(message) {
             return;
 
         const channel = message.client.channels.cache.get(message.channelId);
-        const db = message.client.db;
+        const db = message.client.drip_db;
         if (await check_double_ping(db, 'dt_aura')) return;
 
-        const role_id = await db_access.get_role_id(db, 'aura', 'drip');
+        const role_id = (await db.get_role_id('aura', 'drip')).role_id;
 
         str = '<@&' + role_id + '>' + message.content;
         channel.send(str);
 
         const current_time = new Date();
-        db_access.set_event_timers_timestamp(db, 'dt_aura', current_time.toISOString());
+        db.set_event_timers_timestamp('dt_aura', current_time.toISOString());
     }
     catch (err) {
         console.log('Error in processing Aura Notification');
@@ -188,16 +192,16 @@ async function check_dt_frenzy_message(message) {
             return;
 
         const channel = message.client.channels.cache.get(message.channelId);
-        const db = message.client.db;
+        const db = message.client.drip_db;
         if (await check_double_ping(db, 'dt_frenzy')) return;
 
-        const role_id = await db_access.get_role_id(db, 'frenzy', 'drip');
+        const role_id = await db.get_role_id('frenzy', 'drip').role_id;
 
         str = '<@&' + role_id + '>' + message.content;
         channel.send(str);
 
         const current_time = new Date();
-        db_access.set_event_timers_timestamp(db, 'dt_frenzy', current_time.toISOString());
+        db.set_event_timers_timestamp('dt_frenzy', current_time.toISOString());
     }
     catch (err) {
         console.log('Error in processing DT Frenzy Notification');
@@ -213,43 +217,21 @@ async function check_event_message(message) {
             return;
 
         const channel = message.client.channels.cache.get(message.channelId);
-        const db = message.client.db;
+        const db = message.client.drip_db;
         if (await check_double_ping(db, 'event')) return;
 
-        const role_id = await db_access.get_role_id(db, 'event', 'drip');
+        const role_id = await db.get_role_id('event', 'drip').role_id;
 
         str = '<@&' + role_id + '>';
         channel.send(str);
 
         const current_time = new Date();
-        db_access.set_event_timers_timestamp(db, 'event', current_time.toISOString());
+        db.set_event_timers_timestamp('event', current_time.toISOString());
     }
     catch (err) {
         console.log('Error in processing Event Notification');
         console.log(err);
     }
-}
-
-function get_hell_wait_time(message_timestamp) {
-    const timeArr = message_timestamp.slice(1).split(':');
-    const currentTime = new Date();
-    const event_notification_time = new Date(Date.UTC(
-        currentTime.getUTCFullYear(),
-        currentTime.getUTCMonth(),
-        currentTime.getUTCDate(),
-        parseInt(timeArr[0]),
-        parseInt(timeArr[1]),
-        parseInt(timeArr[2])
-    ));;
-
-    let wait_time = event_notification_time.getTime() + 10 * 60 * 1000 - Date.now();
-
-    //Correction if Hell spans the daily reset
-    if (parseInt(timeArr[0]) == 23 && parseInt(timeArr[1]) >= 50 && currentTime.getUTCHours() != 23) {
-        wait_time -= 1000 * 60 * 60 * 24;
-    }
-
-    return wait_time;
 }
 
 async function hell_open_ping(wait_time, role_id, channel) {
@@ -261,22 +243,23 @@ async function hell_open_ping(wait_time, role_id, channel) {
 
 async function check_hell_message(message) {
     try {
-        const checkTimeStamp = message.content.split(']');
-        if (checkTimeStamp.length <= 1)
-            return;
-        if (!checkTimeStamp[1].includes("Event: Gates of Hell will open in 10 minutes") || checkTimeStamp[0].indexOf('[') != 0)
+        if (!message.content.includes("Event: Gates of Hell will open in 10 minutes") || message.content.indexOf('[') != 0)
             return;
 
         const channel = message.client.channels.cache.get(message.channelId);
-        const db = message.client.db;
+        const db = message.client.drip_db;
         if (await check_double_ping(db, 'hell', 15)) return;
 
-        const role_id = await db_access.get_role_id(db, 'hell', 'drip');
+        const role_id = await db.get_role_id('hell', 'drip').role_id;
 
-        const wait_time = get_hell_wait_time(checkTimeStamp[0]);
+        const global_str = get_global_line_from_multi_line_ping(message);
+        const event_notification_time = new Date(datetime_methods.parse_global_timestamp(global_str));
+
+        let wait_time = event_notification_time.getTime() + 10 * 60 * 1000 - Date.now();
+
         let hell_open_time = new Date();
         hell_open_time.setMilliseconds(hell_open_time.getMilliseconds() + wait_time);
-        db_access.set_event_timers_timestamp(db, 'hell', hell_open_time.toISOString());
+        db.set_event_timers_timestamp('hell', hell_open_time.toISOString());
 
         let str = '<@&' + role_id + '> opening in ' + Math.round(wait_time / 1000 / 60 * 10) / 10 + ' minutes';
         channel.send(str);

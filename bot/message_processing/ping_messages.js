@@ -1,18 +1,18 @@
-const db_access = require('../../database/db_access.js');
 const datetime_methods = require('../../utils/datetime_methods.js');
 const wait = require('node:timers/promises').setTimeout;
 
 async function replanting_timer(message, delay) {
     const channel = message.client.channels.cache.get(message.channelId);
+    const db = message.client.drip_db;
+    const user = message.author;
+
     let replanting_reminder_delay = 20 * 60 * 1000 + 5000;
 
     await wait(delay + replanting_reminder_delay);
 
     let current_time = new Date().getTime();
-    let timestamp = new Date(await db_access.get_user_ping_timer(message.client.db, message.author.id, 'replanted')).getTime();
+    let timestamp = new Date((await db.get_user_ping_timer(user.id, 'replanted')).replanted).getTime();
 
-    console.log(current_time + " " + timestamp);
-    console.log(current_time > timestamp);
     if (current_time > timestamp) {
         str = '<@' + message.author.id + '>' + ' You forgot to ask me to ping for herbalism. Did you forget to replant?';
         channel.send(str);
@@ -24,12 +24,8 @@ async function check_ping_message(message) {
     let reply_index = Math.floor(Math.random() * replies.length);
 
     try {
-        const db = message.client.db;
+        const db = message.client.drip_db;
         const user = message.author;
-
-        if (!(await db_access.check_user_is_in_db(db, user.id))) {
-            await db_access.add_user(db, user.id, user.username, null);
-        }
 
         let str;
         let message_arr = message.content.split('\n');
@@ -40,10 +36,10 @@ async function check_ping_message(message) {
             if (message_arr.length < 2) return;
             str = '<@' + user.id + '>' + ' Pick your plants.';
             timestamp.setMilliseconds(timestamp.getMilliseconds() + delay);
-            db_access.set_user_ping_timer(db, user.id, 'planting', timestamp.toISOString());
+            db.set_user_ping_timer(user.id, 'planting', timestamp.toISOString());
 
             timestamp.setMilliseconds(timestamp.getMilliseconds() + 20 * 60 * 1000);
-            db_access.set_user_ping_timer(db, user.id, 'replanted', timestamp.toISOString());
+            db.set_user_ping_timer(user.id, 'replanted', timestamp.toISOString());
             replanting_timer(message, delay);
         }
         else if (message.content.includes("will be able to drink in:")) {
@@ -51,13 +47,13 @@ async function check_ping_message(message) {
             delay += 60 * 1000; //Add a minute because of cauldron timer imprecision
             str = '<@' + user.id + '>' + ' Your cauldron is ready now.';
             timestamp.setMilliseconds(timestamp.getMilliseconds() + delay);
-            db_access.set_user_ping_timer(db, user.id, 'cauldron', timestamp.toISOString());
+            db.set_user_ping_timer(user.id, 'cauldron', timestamp.toISOString());
         }
         else if (message.content.includes("have successfully started to rise") || message.content.includes("are rising from the Dead!")) {
             if (message_arr.length < 2) return;
             str = '<@' + user.id + '>' + ' Yo, time to check Hades.';
             timestamp.setMilliseconds(timestamp.getMilliseconds() + delay);
-            db_access.set_user_ping_timer(db, user.id, 'hell_training', timestamp.toISOString());
+            db.set_user_ping_timer(user.id, 'hell_training', timestamp.toISOString());
         }
         else if (message.content.includes("Wild Captcha Event in:")) {
             if (message_arr.length < 2) return;
@@ -68,17 +64,17 @@ async function check_ping_message(message) {
             }
             str = '<@' + user.id + '>' + ' Botcheck within half an hour.';
             timestamp.setMilliseconds(timestamp.getMilliseconds() + delay);
-            db_access.set_user_ping_timer(db, user.id, 'botcheck', timestamp.toISOString());
+            db.set_user_ping_timer(user.id, 'botcheck', timestamp.toISOString());
         }
         else if (message.content.includes("Your Pet is Exploring")) {
             str = '<@' + user.id + '>' + ' Your pet is done exploring.';
             timestamp.setMilliseconds(timestamp.getMilliseconds() + delay);
-            db_access.set_user_ping_timer(db, user.id, 'pet_exploration', timestamp.toISOString());
+            db.set_user_ping_timer(user.id, 'pet_exploration', timestamp.toISOString());
         }
         else if (message.content.includes("Your Pet is Training.")) {
             str = '<@' + user.id + '>' + ' Your pet is done training.';
             timestamp.setMilliseconds(timestamp.getMilliseconds() + delay);
-            db_access.set_user_ping_timer(db, user.id, 'pet_training', timestamp.toISOString());
+            db.set_user_ping_timer(user.id, 'pet_training', timestamp.toISOString());
         }
         else if (message.content.includes("Time left: ")) {
             if (message_arr.length > 1) {
@@ -111,10 +107,11 @@ async function check_ping_message(message) {
 }
 
 async function restart_ping_timers(client) {
-    const channel_id = (await db_access.get_channel_id(client.db, 'spit-bot', 'drip')).channel_id;
+    const db = client.drip_db;
+    const channel_id = (await db.get_channel_id('spit-bot', 'drip')).channel_id;
     const channel = await client.channels.fetch(channel_id);
 
-    const ping_timer_table = await db_access.get_all_ping_timers(client.db);
+    const ping_timer_table = await db.get_all_ping_timers();
     if (!ping_timer_table) return;
 
     const current_time = new Date();
@@ -132,7 +129,7 @@ async function restart_ping_timers(client) {
                 case 'pet_training': timer_restart_handler(channel, current_time, ping_timer_row[property], '<@' + discord_id + '>' + ' Your pet is done training.', console_message); break;
                 case 'pet_exploration': timer_restart_handler(channel, current_time, ping_timer_row[property], '<@' + discord_id + '>' + ' Your pet is done exploring.', console_message); break;
                 case 'hell_training': timer_restart_handler(channel, current_time, ping_timer_row[property], '<@' + discord_id + '>' + ' Yo, time to check Hades.', console_message); break;
-                case 'replanted': replanting_timer_restart_handler(channel, current_time, ping_timer_row[property], '<@' + discord_id + '>' + ' You forgot to ask me to ping for herbalism. Did you forget to replant?', console_message); break;
+                case 'replanted': replanting_timer_restart_handler(client, discord_id, channel, current_time, ping_timer_row[property], '<@' + discord_id + '>' + ' You forgot to ask me to ping for herbalism. Did you forget to replant?', console_message); break;
                 default:
             }
         }
@@ -149,26 +146,25 @@ async function timer_restart_handler(channel, current_time, ping_time_iso_string
     channel.send(str);
 }
 
-async function replanting_timer_restart_handler(channel, current_time, ping_time_iso_string, str, console_message) {
+async function replanting_timer_restart_handler(client, discord_id, channel, current_time, ping_time_iso_string, str, console_message) {
+    const db = client.drip_db;
     let delay = new Date(ping_time_iso_string).getTime() - current_time.getTime();
     if (delay < 0) return;
-    console.log(console_message);
     await wait(delay + 10000);
 
     let new_current_time = new Date().getTime();
-    let timestamp = new Date(await db_access.get_user_ping_timer(message.client.db, message.author.id, 'replanted')).getTime();
+    let timestamp = new Date((await db.get_user_ping_timer(discord_id, 'replanted')).replanted).getTime();
 
-    console.log(new_current_time + " " + timestamp);
-    console.log(new_current_time > timestamp);
     if (new_current_time > timestamp) {
         channel.send(str);
     }
 }
 
 async function restart_hell_timer(client) {
-    const db = client.db;
-    const timestamp_iso = await db_access.get_event_timers_timestamp(db, 'hell');
-    if (!timestamp_iso) return;
+    const db = client.drip_db;
+    const timestamp_obj = await db.get_event_timers_timestamp('hell');
+    if (!timestamp_obj) return;
+    const timestamp_iso = timestamp_obj.timestamp;
 
     const hell_open_time = new Date(timestamp_iso).getTime();
     const current_time = new Date().getTime();
@@ -176,10 +172,10 @@ async function restart_hell_timer(client) {
 
     const wait_time = hell_open_time - current_time;
 
-    const channel_id = (await db_access.get_channel_id(client.db, 'llamainchat', 'drip')).channel_id;
+    const channel_id = (await db.get_channel_id('llamainchat', 'drip')).channel_id;
     const channel = await client.channels.cache.get(channel_id);
 
-    const role_id = await db_access.get_role_id(db, 'hell', 'drip');
+    const role_id = (await db.get_role_id('hell', 'drip')).role_id;
 
     console.log('Restarted hell ping timer');
 

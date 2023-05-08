@@ -8,6 +8,8 @@ class DripDatabase extends Database {
 
     constructor(path) {
         super(path);
+        this.cache.check_user_is_in_db = new Object();
+        this.cache.get_role_id = new Object();
     }
 
     async init() {
@@ -25,6 +27,9 @@ class DripDatabase extends Database {
     }
 
     async add_user(discord_id, discord_username, drip_username) {
+        if (await this.check_user_is_in_db(discord_id)) {
+            return;
+        }
         this.query_run(
             new SqlQueryBuilder()
                 .insert_into_values(
@@ -46,6 +51,9 @@ class DripDatabase extends Database {
     }
 
     async remove_user(discord_id) {
+        if (this.cache.check_user_is_in_db[discord_id]) {
+            delete this.cache.check_user_is_in_db[discord_id];
+        }
         this.query_run(
             new SqlQueryBuilder()
                 .delete_from('users')
@@ -91,13 +99,23 @@ class DripDatabase extends Database {
 
     ///Change code. used to return true/false, now will return obj or undefined
     async check_user_is_in_db(discord_id) {
-        return await this.query_get(
+        if (this.cache.check_user_is_in_db[discord_id]) {
+            return this.cache.check_user_is_in_db[discord_id];
+        }
+
+        const result_obj = await this.query_get(
             new SqlQueryBuilder()
                 .select(['discord_id'])
                 .from('users')
                 .where_column_equals(['discord_id'], [discord_id])
                 .get_result()
         );
+
+        if (result_obj) {
+            this.cache.check_user_is_in_db[discord_id] = result_obj;
+        }
+
+        return result_obj;
     }
 
     async get_mobs(category, subcategory) {
@@ -251,13 +269,23 @@ class DripDatabase extends Database {
     }
 
     async get_role_id(role, server) {
-        return await this.query_get(
+        if (this.cache.get_role_id[role + server]) {
+            return this.cache.get_role_id[role + server];
+        }
+
+        const result_obj = await this.query_get(
             new SqlQueryBuilder()
                 .select(['role_id'])
                 .from('role_ids')
                 .where_column_equals(['role', 'server'], [role, server])
                 .get_result()
         );
+
+        if (result_obj) {
+            this.cache.get_role_id[role + server] = result_obj;
+        }
+
+        return result_obj;
     }
 
     //Will remove this in refactor of PingScheduler
@@ -324,12 +352,20 @@ class DripDatabase extends Database {
         );
     }
 
-    async add_item_drop(message) {
-        this.query_run(
-            new SqlQueryBuilder()
-                .insert_into_values('item_drops', ['message'], [message])
-                .get_result()
-        );
+    async add_item_drop(message, timestamp) {
+        if (timestamp) {
+            this.query_run(
+                new SqlQueryBuilder()
+                    .insert_into_values('item_drops', ['message', 'date'], [message, timestamp])
+                    .get_result()
+            );
+        } else {
+            this.query_run(
+                new SqlQueryBuilder()
+                    .insert_into_values('item_drops', ['message'], [message])
+                    .get_result()
+            );
+        }
     }
 
     async get_discord_id_from_drip_name(drip_username) {
@@ -393,35 +429,3 @@ class DripDatabase extends Database {
 }
 
 module.exports = DripDatabase;
-
-/*
-    add_user,
-    add_bounty,
-    remove_bounty,
-    check_user_is_in_db,
-    get_mobs,
-    get_bounties_followed_table,
-    get_bounties_followed,
-    get_distinct_users_in_bounties_followed,
-    get_bountydone,
-    set_bountydone,
-    get_active_hours,
-    set_active_hours,
-    get_usernames,
-
-
-    get_channel_info,
-    get_channel_id,
-    get_channel_message_types,
-    get_all_message_types,
-    get_role_id,
-    get_user_ping_timer,
-    set_user_ping_timer,
-    get_all_ping_timers,
-    get_event_timers_timestamp,
-    set_event_timers_timestamp,
-    add_item_drop,
-    get_discord_id_from_drip_name,
-    get_bounty_ping_history,
-    add_bounty_ping_history
-*/

@@ -190,6 +190,41 @@ function check_active_time(activehourstart, activehourend) {  //hh:mm format
     return true;
 }
 
+function parse_global_timestamp(message) {
+    message = message.trim();
+    if (message.includes(' Global: ')) {
+        message = message.split(' Global: ')[0];      // '[HH:MM:SS]'
+    } else if (message.includes(' Event: ')) {
+        message = message.split(' Event: ')[0];      // '[HH:MM:SS]'
+    }
+
+    if (message.length != 10 || message.charAt(0) != '[' || message.charAt(9) != ']') {
+        return;
+    }
+
+    try {
+        const timeArr = message.slice(1, 9).split(':');      // '[HH:MM:SS]' => ['HH', 'MM', 'SS']
+        const current_time = new Date();
+        const event_notification_time = new Date(Date.UTC(
+            current_time.getUTCFullYear(),
+            current_time.getUTCMonth(),
+            current_time.getUTCDate(),
+            parseInt(timeArr[0]),
+            parseInt(timeArr[1]),
+            parseInt(timeArr[2])
+        ));;
+
+        //Correction if original message vs paste time spans the daily reset
+        if (parseInt(timeArr[0]) > current_time.getUTCHours()) {
+            event_notification_time.setUTCDate(event_notification_time.getUTCDate() - 1);
+        }
+
+        return event_notification_time.toISOString();
+    } catch {
+        return;
+    }
+}
+
 module.exports = {
     sqlite_date_string_to_Date_obj,
     check_same_day,
@@ -197,5 +232,6 @@ module.exports = {
     parse_drip_time_string,
     check_for_double_ping,
     calculate_bounty_time_remaining,
-    check_active_time
+    check_active_time,
+    parse_global_timestamp
 }
