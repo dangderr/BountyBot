@@ -1,14 +1,14 @@
 const { Client, GatewayIntentBits } = require('discord.js');
 const ping_messages = require('./bot/message_processing/ping_messages.js');
-const db_access = require('./database/db_access.js')
-const wait = require('node:timers/promises').setTimeout;
-const SqlQueryBuilder = require('./database/SqlQueryBuilder.js').SqlQueryBuilder;
+const DripDatabase = require('./database/DripDatabase.js');
+const drip_db_tests = require('./testing/tests_for_DripDatabase_queries.js');
 
 async function main() {
+    
     require('dotenv').config();
     const client = await new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent] });
 
-    deploy_commands();
+    //deploy_commands();
 
     await Promise.all([
         load_bounty_bot(client),
@@ -16,13 +16,20 @@ async function main() {
     ]);
 
     restart_pings(client);
+
+    //testing();
+}
+
+async function testing() {
+    drip_db_tests.run_all();
 }
 
 async function restart_pings(client) {
     ping_messages.restart_ping_timers(client);
 }
 async function load_db(client) {
-    client.db = await require('./database/main_database.js').load_database();
+    client.drip_db = new DripDatabase('./database/data/drip.db');
+    await client.drip_db.init();
 }
 
 async function load_bounty_bot(client) {

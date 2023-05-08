@@ -1,5 +1,4 @@
 const { SlashCommandBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
-const db_access = require('../../database/db_access.js');
 
 const data = (new SlashCommandBuilder()
     .setName('bounty')
@@ -47,14 +46,14 @@ const data = (new SlashCommandBuilder()
 );
 
 async function execute(interaction) {
-    let db = interaction.client.db;
-
-    if (!(await db_access.check_user_is_in_db(db, interaction.user.id))) {
-        await db_access.add_user(db, interaction.user.id, interaction.user.username, null);
-    }
+    const db = interaction.client.drip_db;
+    const user = interaction.user;
+    await db.add_user(user.id, user.username, null);
 
     const mob_arr = await get_mob_array(db, interaction.options);
-    const bounties_followed = mob_obj_arr_to_str_arr(await db_access.get_bounties_followed(db, interaction.user.id));
+
+    const bounties_followed = (await db.get_bounties_followed(user.id)).map(i => i.mob);
+
     const component_arr = generate_component_array(mob_arr, bounties_followed);
 
     await interaction.reply({ content: 'Select bounties to follow', components: component_arr });
@@ -65,15 +64,16 @@ async function execute(interaction) {
 async function get_mob_array(db, options) {
     let mob_arr;
     if (options.getSubcommand() === 'dungeons') {
-        mob_arr = await db_access.get_mobs(db, 'dungeons', null);
+        mob_arr = await db.get_mobs('dungeons', null);
     }
     else if (options.getSubcommand() === 'summons') {
-        mob_arr = await db_access.get_mobs(db, 'summons', options.getString('level'));
+        mob_arr = await db.get_mobs('summons', options.getString('level'));
     }
     else if (options.getSubcommand() === 'ff') {
-        mob_arr = await db_access.get_mobs(db, 'ff', options.getString('area'));
+        mob_arr = await db.get_mobs('ff', options.getString('area'));
     }
-    return mob_obj_arr_to_str_arr(mob_arr);
+
+    return mob_arr.map(i => i.mob);
 }
 
 function generate_component_array(mob_arr, bounties_followed) {
@@ -102,19 +102,8 @@ function generate_component_array(mob_arr, bounties_followed) {
     return component_arr;
 }
 
-function mob_obj_arr_to_str_arr(obj_arr) {
-    if (obj_arr.length === 0) return obj_arr;
-
-    let key = Object.keys(obj_arr[0])[0];
-    let str_arr = [];
-    obj_arr.forEach((obj) => {
-        str_arr.push(obj[key]);
-    })
-    return str_arr;
-}
-
 async function create_collector(db, interaction, mob_arr, component_arr) {
-    const filter = i => i.user.id === interaction.user.id;
+    const filter = (i => i.user.id === interaction.user.id);
     const collector = interaction.channel.createMessageComponentCollector({ filter, time: 60000 });
     collector.on('collect', async i => {
         let mob = i.component.customId;
@@ -129,10 +118,10 @@ async function create_collector(db, interaction, mob_arr, component_arr) {
         let buttonClicked = component_arr[row].components[col];
 
         if (i.component.style == ButtonStyle.Success) {
-            await db_access.remove_bounty(db, interaction.user.id, mob);
+            await db.remove_bounty(interaction.user.id, mob);
             buttonClicked.setStyle(ButtonStyle.Secondary);
         } else {
-            await db_access.add_bounty(db, interaction.user.id, mob);
+            await db.add_bounty(interaction.user.id, mob);
             buttonClicked.setStyle(ButtonStyle.Success);
         }
         await i.update({

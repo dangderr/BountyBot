@@ -1,5 +1,4 @@
 const { SlashCommandBuilder } = require('discord.js');
-const db_access = require('../../database/db_access.js');
 const datetime_methods = require('../../utils/datetime_methods.js');
 
 const data = new SlashCommandBuilder()
@@ -7,13 +6,11 @@ const data = new SlashCommandBuilder()
     .setDescription('Ugh, can I stop pasting bounties?');
 
 async function execute(interaction) {
-    let db = interaction.client.db;
+    const db = interaction.client.drip_db;
+    const user = interaction.user;
+    await db.add_user(user.id, user.username, null);
 
-    if (!(await db_access.check_user_is_in_db(db, interaction.user.id))) {
-        await db_access.add_user(db, interaction.user.id, interaction.user.username, null);
-    }
-
-    const bountydone_arr = await db_access.get_bountydone(db);
+    const bountydone_arr = await db.get_bountydone();
 
     let current_time = new Date();
     let notdone = new Array();
@@ -29,7 +26,7 @@ async function execute(interaction) {
         return;
     }
 
-    const notdone_names = await db_access.get_usernames(db, notdone);
+    const notdone_names = (await db.get_usernames(notdone)).map(i => i.drip_username ?? i.discord_username );
     interaction.reply(notdone_names.join(', ') + " are still slacking off!");
 }
 
