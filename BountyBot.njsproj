@@ -47,6 +47,9 @@
     <Content Include="database\db_access.js" />
     <Content Include="database\drip.db" />
     <Content Include="database\main_database.js" />
+    <Content Include="database\SqlQueryBuilder.js">
+      <SubType>Code</SubType>
+    </Content>
     <Content Include="package.json" />
     <Content Include="README.md" />
     <Content Include="TODO.txt" />
