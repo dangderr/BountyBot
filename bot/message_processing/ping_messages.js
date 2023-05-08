@@ -11,6 +11,8 @@ async function replanting_timer(message, delay) {
     let current_time = new Date().getTime();
     let timestamp = new Date(await db_access.get_user_ping_timer(message.client.db, message.author.id, 'replanted')).getTime();
 
+    console.log(current_time + " " + timestamp);
+    console.log(current_time > timestamp);
     if (current_time > timestamp) {
         str = '<@' + message.author.id + '>' + ' You forgot to ask me to ping for herbalism. Did you forget to replant?';
         channel.send(str);
@@ -156,6 +158,8 @@ async function replanting_timer_restart_handler(channel, current_time, ping_time
     let new_current_time = new Date().getTime();
     let timestamp = new Date(await db_access.get_user_ping_timer(message.client.db, message.author.id, 'replanted')).getTime();
 
+    console.log(new_current_time + " " + timestamp);
+    console.log(new_current_time > timestamp);
     if (new_current_time > timestamp) {
         channel.send(str);
     }

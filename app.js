@@ -2,12 +2,13 @@ const { Client, GatewayIntentBits } = require('discord.js');
 const ping_messages = require('./bot/message_processing/ping_messages.js');
 const db_access = require('./database/db_access.js')
 const wait = require('node:timers/promises').setTimeout;
+const SqlQueryBuilder = require('./database/SqlQueryBuilder.js').SqlQueryBuilder;
 
 async function main() {
     require('dotenv').config();
     const client = await new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent] });
 
-    //deploy_commands();
+    deploy_commands();
 
     await Promise.all([
         load_bounty_bot(client),
@@ -15,11 +16,6 @@ async function main() {
     ]);
 
     restart_pings(client);
-    //testing(client.db);
-}
-
-async function testing(db) {
-    await db_access.add_user(db, 'asdfasdfasdf', 'asdfasdf', 'asdfasdf');
 }
 
 async function restart_pings(client) {
