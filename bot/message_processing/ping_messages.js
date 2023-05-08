@@ -124,6 +124,7 @@ async function restart_ping_timers(client) {
                 case 'pet_training': timer_restart_handler(channel, current_time, ping_timer_row[property], '<@' + discord_id + '>' + ' Your pet is done training.', console_message); break;
                 case 'pet_exploration': timer_restart_handler(channel, current_time, ping_timer_row[property], '<@' + discord_id + '>' + ' Your pet is done exploring.', console_message); break;
                 case 'hell_training': timer_restart_handler(channel, current_time, ping_timer_row[property], '<@' + discord_id + '>' + ' Yo, time to check Hades.', console_message); break;
+                case 'soulhounds': timer_restart_handler(channel, current_time, ping_timer_row[property], '<@' + discord_id + '>' + ' You can attack Soulhounds again.', console_message); break;
                 case 'replanted': replanting_timer_restart_handler(client, discord_id, channel, current_time, ping_timer_row[property], '<@' + discord_id + '>' + ' You forgot to ask me to ping for herbalism. Did you forget to replant?', console_message); break;
                 default:
             }

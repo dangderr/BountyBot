@@ -60,31 +60,50 @@ function parse_drip_time_string(msg_arr) {
     let seconds = 0;
 
     for (let row = 0; row < msg_arr.length; row++) {
+        //let arr = msg_arr[row].replace('Hades...','').split(' ');
         let arr = msg_arr[row].split(' ');
         try {
             for (let i = 0; i < arr.length; i++) {
                 if (arr[i].includes('h.')) {
-                    if (arr[i] === 'h.' && i > 0) {
-                        hours += parseInt(arr[i - 1]);
+                    if (arr[i] == 'h.' && i > 0) {
+                        try {
+                            let temp = parseInt(arr[i - 1]);
+                            if (temp) hours = temp;
+                        } catch (err) { }
                     }
                     else {
-                        hours += parseInt(arr[i]);
+                        try {
+                            let temp = parseInt(arr[i]);
+                            if (temp) hours = temp;
+                        } catch (err) { }
                     }
                 }
                 else if (arr[i].includes('min.')) {
-                    if (arr[i] === 'min.' && i > 0) {
-                        minutes += parseInt(arr[i - 1]);
+                    if (arr[i] == 'min.' && i > 0) {
+                        try {
+                            let temp = parseInt(arr[i - 1]);
+                            if (temp) minutes = temp;
+                        } catch (err) { }
                     }
                     else {
-                        minutes += parseInt(arr[i]);
+                        try {
+                            let temp = parseInt(arr[i]);
+                            if (temp) minutes = temp;
+                        } catch (err) { }
                     }
                 }
                 else if (arr[i].includes('s.')) {
-                    if (arr[i] === 's.' && i > 0) {
-                        seconds += parseInt(arr[i - 1]);
+                    if (arr[i] == 's.' && i > 0) {
+                        try {
+                            let temp = parseInt(arr[i - 1]);
+                            if (temp) seconds = temp;
+                        } catch (err) { }
                     }
                     else {
-                        seconds += parseInt(arr[i]);
+                        try {
+                            let temp = parseInt(arr[i]);
+                            if (temp) seconds = temp;
+                        } catch (err) { }
                     }
                 }
             }
@@ -94,7 +113,6 @@ function parse_drip_time_string(msg_arr) {
             console.log(err);
         }
     }
-
     return ((hours * 60 + minutes) * 60 + seconds) * 1000;
 }
 
