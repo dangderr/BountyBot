@@ -128,16 +128,18 @@ async function check_drops_message(message) {
         const db = message.client.drip_db;
 
         let global_str = get_global_line_from_multi_line_ping(message);
-        db.add_item_drop(global_str);
 
         if ((message.content.includes("killed") && message.content.includes("and obtained")) ||
             (message.content.includes("Treasure and obtained")) ||
             (message.content.includes("completed") && message.content.includes("Bounty") && message.content.includes("and obtained"))
         ) {
+            db.add_item_drop(global_str);
+
             const username = get_username_from_global_string(global_str);
             const user_obj = (await db.get_discord_id_from_drip_name(username));
             const hiro_obj = (await db.get_discord_id_from_drip_name('Hiro'));
             const chronos_obj = (await db.get_discord_id_from_drip_name('Chronos'));
+
 
             let str = "";
             if (hiro_obj && message.content.includes("Hiro")) {

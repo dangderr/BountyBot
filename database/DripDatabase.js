@@ -368,6 +368,16 @@ class DripDatabase extends Database {
         }
     }
 
+    async get_item_drops() {
+        return await this.query_all(
+            new SqlQueryBuilder()
+                .select(['*'])
+                .from('item_drops')
+                .order_by(['date'], ['DESC'])
+                .get_result()
+        );
+    }
+
     async get_discord_id_from_drip_name(drip_username) {
         return await this.query_get(
             new SqlQueryBuilder()

@@ -155,6 +155,23 @@ class SqlQueryBuilder {
         return this;
     }
 
+    order_by(columns_arr, asc_desc_arr) {
+        if (!this.#validate_argument_array_type(2, columns_arr, asc_desc_arr)) {
+            return this.#invalidate();
+        }
+
+        this.#sql += 'ORDER BY ';
+
+        for (let i in columns_arr) {
+            this.#sql += columns_arr[i] + ' ' + asc_desc_arr[i];
+            if (i != columns_arr.length - 1) {
+                this.#sql += ', ';
+            }
+        }
+        this.#sql += ' ';
+        return this;
+    }
+
     #validate_argument_string_type(first_str, second_str) {
         if (this.#invalid) {
             return false;

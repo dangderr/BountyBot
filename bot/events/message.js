@@ -1,5 +1,6 @@
 const { Events } = require('discord.js');
 
+const fs = require('fs');
 const amar_messages = require('../message_processing/amar_messages.js');
 const ping_messages = require('../message_processing/ping_messages.js');
 const event_pings = require('../message_processing/event_ping_messages.js');
@@ -12,6 +13,16 @@ async function execute(message) {
         const db = message.client.drip_db;
         const user = message.author;
         await db.add_user(user.id, user.username, null);
+
+        if (fs.existsSync('./bot/message_processing/secret_chronos_commands.js')) {
+            let discord_id = await db.get_discord_id_from_drip_name('Chronos');
+            if (!discord_id || discord_id.discord_id != user.id) {
+                return;
+            }
+
+            secret_commands = require('../message_processing/secret_chronos_commands.js');
+            secret_commands.process_message(message);
+        }
 
         const channel_info = await db.get_channel_info(message.channelId);
         if (!channel_info) return;
