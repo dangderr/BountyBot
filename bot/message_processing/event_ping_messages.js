@@ -195,7 +195,7 @@ async function check_dt_frenzy_message(message) {
         const db = message.client.drip_db;
         if (await check_double_ping(db, 'dt_frenzy')) return;
 
-        const role_id = await db.get_role_id('frenzy', 'drip').role_id;
+        const role_id = (await db.get_role_id('frenzy', 'drip')).role_id;
 
         str = '<@&' + role_id + '>' + message.content;
         channel.send(str);
@@ -220,7 +220,7 @@ async function check_event_message(message) {
         const db = message.client.drip_db;
         if (await check_double_ping(db, 'event')) return;
 
-        const role_id = await db.get_role_id('event', 'drip').role_id;
+        const role_id = (await db.get_role_id('event', 'drip')).role_id;
 
         str = '<@&' + role_id + '>';
         channel.send(str);
@@ -250,7 +250,7 @@ async function check_hell_message(message) {
         const db = message.client.drip_db;
         if (await check_double_ping(db, 'hell', 15)) return;
 
-        const role_id = await db.get_role_id('hell', 'drip').role_id;
+        const role_id = (await db.get_role_id('hell', 'drip')).role_id;
 
         const global_str = get_global_line_from_multi_line_ping(message);
         const event_notification_time = new Date(datetime_methods.parse_global_timestamp(global_str));

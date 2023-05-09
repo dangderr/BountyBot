@@ -51,7 +51,7 @@ async function check_ping_message(message) {
             if (message_arr.length < 2) return;
             str = '<@' + user.id + '>' + ' Yo, time to check Hades.';
             timestamp.setMilliseconds(timestamp.getMilliseconds() + delay);
-            db.set_user_ping_timer(user.id, 'hell_training', timestamp.toISOString());
+            db.set_user_ping_timer(user.id, 'hades_training', timestamp.toISOString());
         } else if (message.content.includes("Wild Captcha Event in:")) {
             if (message_arr.length < 2) return;
             delay -= (29 * 60 * 1000);
@@ -74,6 +74,10 @@ async function check_ping_message(message) {
             str = '<@' + user.id + '>' + ' You can attack Soulhounds again.';
             timestamp.setMilliseconds(timestamp.getMilliseconds() + delay);
             db.set_user_ping_timer(user.id, 'soulhounds', timestamp.toISOString());
+        } else if (message.content.includes('Attack the others and take their Dark Crystals!') && message.content.includes("You can't attack for:")) {
+            str = '<@' + user.id + '>' + ' Your Hades attack timer is up.';
+            timestamp.setMilliseconds(timestamp.getMilliseconds() + delay);
+            db.set_user_ping_timer(user.id, 'hades_attack', timestamp.toISOString());
         } else if (message.content.includes("Time left: ")) {
             if (message_arr.length > 1) {
                 str = '<@' + user.id + '>' + "Not sure why I'm pinging you. Maybe it was for: " + message_arr[0] + "\nBut I ain't an AI bot so idk";
@@ -123,8 +127,9 @@ async function restart_ping_timers(client) {
                 case 'planting': timer_restart_handler(channel, current_time, ping_timer_row[property], '<@' + discord_id + '>' + ' Pick your plants.', console_message); break;
                 case 'pet_training': timer_restart_handler(channel, current_time, ping_timer_row[property], '<@' + discord_id + '>' + ' Your pet is done training.', console_message); break;
                 case 'pet_exploration': timer_restart_handler(channel, current_time, ping_timer_row[property], '<@' + discord_id + '>' + ' Your pet is done exploring.', console_message); break;
-                case 'hell_training': timer_restart_handler(channel, current_time, ping_timer_row[property], '<@' + discord_id + '>' + ' Yo, time to check Hades.', console_message); break;
+                case 'hades_training': timer_restart_handler(channel, current_time, ping_timer_row[property], '<@' + discord_id + '>' + ' Yo, time to check Hades.', console_message); break;
                 case 'soulhounds': timer_restart_handler(channel, current_time, ping_timer_row[property], '<@' + discord_id + '>' + ' You can attack Soulhounds again.', console_message); break;
+                case 'hades_attack': timer_restart_handler(channel, current_time, ping_timer_row[property], '<@' + discord_id + '>' + ' Your Hades attack timer is up.', console_message); break;
                 case 'replanted': replanting_timer_restart_handler(client, discord_id, channel, current_time, ping_timer_row[property], '<@' + discord_id + '>' + ' You forgot to ask me to ping for herbalism. Did you forget to replant?', console_message); break;
                 default:
             }

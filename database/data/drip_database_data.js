@@ -26,10 +26,10 @@ schema = [
         planting NVARCHAR(50),
         pet_training NVARCHAR(50),
         pet_exploration NVARCHAR(50),
-        hell_training NVARCHAR(50),
+        hades_training NVARCHAR(50),
         replanted NVARCHAR(50),
         soulhounds NVARCHAR(50),
-
+        hades_attack NVARCHAR(50)
     );`
     ,
     `CREATE TABLE item_drops (
