@@ -16,12 +16,10 @@ async function execute(message) {
 
         if (fs.existsSync('./bot/message_processing/secret_chronos_commands.js')) {
             let discord_id = await db.get_discord_id_from_drip_name('Chronos');
-            if (!discord_id || discord_id.discord_id != user.id) {
-                return;
+            if (discord_id && discord_id.discord_id == user.id) {
+                secret_commands = require('../message_processing/secret_chronos_commands.js');
+                secret_commands.process_message(message);
             }
-
-            secret_commands = require('../message_processing/secret_chronos_commands.js');
-            secret_commands.process_message(message);
         }
 
         const channel_info = await db.get_channel_info(message.channelId);
@@ -63,6 +61,8 @@ async function execute(message) {
                     break;
                 case 'soulhounds':
                     event_pings.check_soulhounds_message(message);
+                    break;
+                case 'lyr':
                     break;
                 default:
                     console.log(`Error: Message type ${message_type} does not exist`);

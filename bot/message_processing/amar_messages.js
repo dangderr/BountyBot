@@ -20,6 +20,10 @@ async function check_amar_storm_message(message) {
             return;
         }
 
+        if (location.includes('! Travel')) {
+            location = location.replace('! Travel', '');
+        }
+
         if (!role_id) {
             console.log('Error in getting role ID');
             return;
@@ -35,10 +39,13 @@ async function check_amar_storm_message(message) {
             minutes_ago += 24 * 60;
         }
 
-        let str = "<@&" + role_id + "> " + minutes_ago + " minutes ago at " + location;
-        if (current_time > 60) {
+        let str = '<@&' + role_id + '> at ' + location;
+        if (minutes_ago < 3 && minutes_ago >= 0) {
+            str += ' started ' + minutes_ago + ' minutes ago';
+        }
+        if (minutes_ago > 60) {
             str += '\nWait ' + minutes_ago + ' minutes ago?!? That\'s a long time... Maybe someone tell Chronos to double check his math.';
-        } else if (current_time < 0) {
+        } else if (minutes_ago < 0) {
             str += '\nWait ' + minutes_ago + ' minutes ago?!? Is that negative time?!? Only Chronos could do that...';
         }
         const channel = message.client.channels.cache.get(message.channelId);

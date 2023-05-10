@@ -110,7 +110,8 @@ const channel_message_types = [
     ["llamainchat", "drip", "blace_frenzy"],
     ["llamainchat", "drip", "aura"],
     ["llamainchat", "drip", "drops"],
-    ["spit-bot", "drip", "pings"]
+    ["spit-bot", "drip", "pings"],
+    ["general", "testserver", "lyr"]
 ];
 
 const mobs = [
