@@ -29,7 +29,8 @@ schema = [
         hades_training NVARCHAR(50),
         replanted NVARCHAR(50),
         soulhounds NVARCHAR(50),
-        hades_attack NVARCHAR(50)
+        hades_attack NVARCHAR(50),
+        hades_dragon NVARCHAR(50)
     );`
     ,
     `CREATE TABLE item_drops (
