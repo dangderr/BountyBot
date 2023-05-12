@@ -51,6 +51,9 @@
       <SubType>Code</SubType>
     </Content>
     <Content Include="database\data\drip.db" />
+    <Content Include="database\data\mobs.js">
+      <SubType>Code</SubType>
+    </Content>
     <Content Include="database\DripDatabase.js">
       <SubType>Code</SubType>
     </Content>

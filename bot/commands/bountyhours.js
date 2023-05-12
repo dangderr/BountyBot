@@ -17,9 +17,7 @@ const data = (new SlashCommandBuilder()
 )
 
 async function execute(interaction) {
-    const db = interaction.client.drip_db;
-    const user = interaction.user;
-    await db.add_user(user.id, user.username, null);
+    const user = await interaction.client.Users.add_user(interaction.user);
 
     const starttime = interaction.options.getString('start_time');
     const endtime = interaction.options.getString('end_time');
@@ -31,7 +29,7 @@ async function execute(interaction) {
             return;
         }
 
-        await db.set_active_hours(user.id, starttime, endtime);
+        user.set_active_hours(starttime, endtime);
 
         let str = 'Bounty active hours set to ' + starttime + " until " + endtime;
         interaction.reply(str);

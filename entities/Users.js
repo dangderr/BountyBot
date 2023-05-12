@@ -60,7 +60,7 @@ class Users {
         }
     }
 
-    async add_new_user(discord_user_object) {
+    async add_user(discord_user_object) {
         if(!this.#check_user_in_arr(discord_user_object.discord_id))
             await this.#db.add_user(discord_user_object.id, discord_user_object.username , null);
         return this.get_user(discord_user_object.id);
@@ -73,6 +73,21 @@ class Users {
         }
         return user_filter.length > 0;
     }
+
+    async get_bounty_not_done() {
+        const discord_id_arr = (await this.#db.get_distinct_users_in_bounties_followed()).map(i => i.discord_id);
+        const users_id_arr = this.#users.map(i => i.discord_id);
+
+        let promises = new Array();
+        for (const discord_id of discord_id_arr) {
+            if (!users_id_arr.includes(discord_id)) {
+                promises.push(this.get_user(discord_id));
+            }
+        }
+        await Promise.all(promises);
+
+        return this.#users.filter(i => !i.bountydone).map(i => i.drip_username ?? i.discord_username);
+    }
 }
 
 class User {
@@ -83,10 +98,12 @@ class User {
 
     #bountydone;                //timestamp in ISOstring format
     #follow_upcoming_events;
+    #pause_notifications;       
 
     #active_hours_start;
     #active_hours_end;
-    #pause_notifications;       //Have to add this to db
+
+    #bounties_followed;
 
     constructor(db, discord_id) {
         this.#db = db;
@@ -95,8 +112,10 @@ class User {
 
     async init() {
         //Get all info from database
-        const users_record = await this.#db.get_users_table_record(this.discord_id);
-        const bounty_preferences_record = await this.#db.get_bounty_preferences_table_record(this.discord_id);
+        const users_record = await this.#db.get_users_table_record(this.#discord_id);
+        const bounty_preferences_record = await this.#db.get_bounty_preferences_table_record(this.#discord_id);
+
+        this.#bounties_followed = (await this.#db.get_bounties_followed(this.#discord_id)).map(i => i.mob);
 
         this.#discord_username = users_record.discord_username;
         this.#drip_username = users_record.drip_username;
@@ -105,15 +124,7 @@ class User {
         this.#follow_upcoming_events = bounty_preferences_record.follow_upcoming_events;
         this.#pause_notifications = bounty_preferences_record.pause_notifications;
 
-        const start_arr = bounty_preferences_record.activehoursstart.split(':');
-        const end_arr = bounty_preferences_record.activehoursend.split(':');
-
-        this.#active_hours_start = parseInt(start_arr[0]) + parseInt(start_arr[1]) / 60;
-        this.#active_hours_end = parseInt(end_arr[0]) + parseInt(end_arr[1]) / 60;
-        if (this.#active_hours_end < this.#active_hours_start) {
-            //These eases active time calculations to always have start before end.
-            this.#active_hours_end += 24;
-        }
+        this.#parse_and_update_active_hours(bounty_preferences_record.activehoursstart, bounty_preferences_record.activehoursend);
     }
 
     get discord_id() { return this.#discord_id; }
@@ -149,8 +160,8 @@ class User {
 
         const input_value = bool_value ? 1 : 0;
         if (input_value !== this.#follow_upcoming_events) {
-            this.#db.set_follow_upcoming_events(this.#discord_id, input_value);
             this.#follow_upcoming_events = input_value;
+            this.#db.set_follow_upcoming_events(this.#discord_id, input_value);
         }
     }
 
@@ -162,8 +173,8 @@ class User {
 
         const input_value = bool_value ? 1 : 0;
         if (input_value !== this.#pause_notifications) {
-            this.#db.set_pause_notifications(this.#discord_id, input_value);
             this.#pause_notifications = input_value;
+            this.#db.set_pause_notifications(this.#discord_id, input_value);
         }
     }
 
@@ -173,7 +184,7 @@ class User {
         }
         const current_time = new Date();
         let current_hours = current_time.getUTCHours() + current_time.getUTCMinutes() / 60;
-        if (current_hours < this.#active_hours_start) {
+        if (current_hours <= this.#active_hours_start) {
             current_hours += 24;
 
             //End time may have been shifted up 24 hours
@@ -185,8 +196,46 @@ class User {
         return (this.#active_hours_start < current_hours && current_hours < this.#active_hours_end);
     }
 
-    async get_bounties_followed() {
-        return (await this.#db.get_bounties_followed(this.#discord_id)).map(i => i.mob);
+    async set_active_hours(starttime, endtime) {
+        this.#parse_and_update_active_hours(starttime, endtime);
+        await this.#db.set_active_hours(this.#discord_id, starttime, endtime);
+    }
+
+    #parse_and_update_active_hours(starttime, endtime) {
+        if (!starttime || !endtime) {
+            this.#active_hours_start = 0;
+            this.#active_hours_end = 0;
+            return;
+        }
+
+        const start_arr = starttime.split(':');
+        const end_arr = endtime.split(':');
+
+        this.#active_hours_start = parseInt(start_arr[0]) + parseInt(start_arr[1]) / 60;
+        this.#active_hours_end = parseInt(end_arr[0]) + parseInt(end_arr[1]) / 60;
+        if (this.#active_hours_end < this.#active_hours_start) {
+            //These eases active time calculations to always have start before end.
+            this.#active_hours_end += 24;
+        }
+    }
+
+    get_bounties_followed() {
+        return this.#bounties_followed;
+    }
+
+    async add_bounty(mob) {
+        this.#bounties_followed.push(mob);
+        this.#db.add_bounty(this.discord_id, mob);
+    }
+
+    async remove_bounty(mob) {
+        const index = this.#bounties_followed.indexOf(mob);
+        if (index < 0) {
+            console.log('Tried to remove a bounty that did not exist');
+            return;
+        }
+        this.#bounties_followed.splice(index, 1);
+        this.#db.remove_bounty(this.discord_id, mob);
     }
 }
 
