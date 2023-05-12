@@ -47,12 +47,14 @@ const data = (new SlashCommandBuilder()
 
 async function execute(interaction) {
     const db = interaction.client.drip_db;
+    //const user = await interaction.client.users.add_user(interaction.user);
     const user = interaction.user;
     await db.add_user(user.id, user.username, null);
 
     const mob_arr = await get_mob_array(db, interaction.options);
 
     const bounties_followed = (await db.get_bounties_followed(user.id)).map(i => i.mob);
+    //const bounties_followed = (await db.get_bounties_followed(user.id)).map(i => i.mob);
 
     const component_arr = generate_component_array(mob_arr, bounties_followed);
 

@@ -446,6 +446,46 @@ class DripDatabase extends Database {
                 .get_result()
         );
     }
-}
+
+    async get_users_table_record(discord_id) {
+        return await this.query_get(
+            new SqlQueryBuilder()
+                .select(['*'])
+                .from('users')
+                .where_column_equals(['discord_id'], [discord_id])
+                .get_result()
+        );
+    }
+
+    async get_bounty_preferences_table_record(discord_id) {
+        return await this.query_get(
+            new SqlQueryBuilder()
+                .select(['*'])
+                .from('bounty_preferences')
+                .where_column_equals(['discord_id'], [discord_id])
+                .get_result()
+        );
+    }
+
+    async set_follow_upcoming_events(discord_id, follow_upcoming_events) {
+        this.query_run(
+            new SqlQueryBuilder()
+                .update('bounty_preferences')
+                .set(['follow_upcoming_events'], [follow_upcoming_events])
+                .where_column_equals(['discord_id'], [discord_id])
+                .get_result()
+        );
+    }
+
+    async set_pause_notifications(discord_id, pause_notifications) {
+        this.query_run(
+            new SqlQueryBuilder()
+                .update('bounty_preferences')
+                .set(['pause_notifications'], [pause_notifications])
+                .where_column_equals(['discord_id'], [discord_id])
+                .get_result()
+        );
+    }
+} 
 
 module.exports = DripDatabase;

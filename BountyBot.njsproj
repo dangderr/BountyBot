@@ -60,11 +60,16 @@
     <Content Include="database\SqlQueryBuilder.js">
       <SubType>Code</SubType>
     </Content>
+    <Content Include="entities\Users.js">
+      <SubType>Code</SubType>
+    </Content>
     <Content Include="package.json" />
     <Content Include="README.md" />
+    <Content Include="testing\tests_for_Users_class.js" />
     <Content Include="testing\tests_for_DripDatabase_queries.js">
       <SubType>Code</SubType>
     </Content>
+    <Content Include="scripts.txt" />
     <Content Include="TODO.txt" />
     <Content Include="utils\app_tokens.js" />
     <Content Include="utils\datetime_methods.js" />
@@ -74,6 +79,7 @@
     <Folder Include="bot\events\" />
     <Folder Include="bot\message_processing\" />
     <Folder Include="database\data\" />
+    <Folder Include="entities\" />
     <Folder Include="utils\" />
     <Folder Include="database\" />
     <Folder Include="bot\" />

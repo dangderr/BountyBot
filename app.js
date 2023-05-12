@@ -2,6 +2,8 @@ const { Client, GatewayIntentBits } = require('discord.js');
 const ping_messages = require('./bot/message_processing/ping_messages.js');
 const DripDatabase = require('./database/DripDatabase.js');
 const drip_db_tests = require('./testing/tests_for_DripDatabase_queries.js');
+const drip_users_tests = require('./testing/tests_for_Users_class.js');
+const Users = require('./entities/Users.js');
 
 async function main() {
     
@@ -11,17 +13,19 @@ async function main() {
     //deploy_commands();
 
     await Promise.all([
-        load_bounty_bot(client),
+        //load_bounty_bot(client),
         load_db(client)
     ]);
 
-    restart_pings(client);
+    client.users = new Users(client.drip_db);
+    //restart_pings(client);
 
-    //testing();
+    //testing(client);
 }
 
-async function testing() {
-    drip_db_tests.run_all();
+async function testing(client) {
+    //drip_db_tests.run_all();
+    //drip_users_tests.run_all(client);
 }
 
 async function restart_pings(client) {
