@@ -22,6 +22,8 @@ async function check_amar_storm_message(message) {
 
         if (location.includes('! Travel')) {
             location = location.replace('! Travel', '');
+        } else if (location.includes('!')) {
+            location = location.replace('!', '');
         }
 
         if (!role_id) {
@@ -40,9 +42,10 @@ async function check_amar_storm_message(message) {
         }
 
         let str = '<@&' + role_id + '> at ' + location;
-        if (minutes_ago < 3 && minutes_ago >= 0) {
+        if (minutes_ago > 3) {
             str += ' started ' + minutes_ago + ' minutes ago';
         }
+
         if (minutes_ago > 60) {
             str += '\nWait ' + minutes_ago + ' minutes ago?!? That\'s a long time... Maybe someone tell Chronos to double check his math.';
         } else if (minutes_ago < 0) {

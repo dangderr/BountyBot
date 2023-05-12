@@ -286,9 +286,11 @@ async function check_soulhounds_message(message) {
                 const global_str = get_global_line_from_multi_line_ping(message);
                 const soulhound_spawn_time = new Date(datetime_methods.parse_global_timestamp(global_str));
                 const minutes_ago = Math.round((Date.now() - soulhound_spawn_time.getTime()) / 1000 / 60);
-                str += 'spawned ' + minutes_ago + ' minutes ago';
+                channel.send('Soulhound respawn time updated');
                 db.set_event_timers_timestamp('soulhounds', soulhound_spawn_time.toISOString());
                 schedule_upcoming_soulhound_ping(db, channel, soulhound_spawn_time.toISOString());
+
+                str += 'spawned ' + minutes_ago + ' minutes ago';
             } else {
                 let str_arr = message.content.split('\n');
                 for (const s of str_arr) {
@@ -303,8 +305,8 @@ async function check_soulhounds_message(message) {
             const milliseconds = datetime_methods.parse_drip_time_string(message.content.split('\n'));
             const soulhound_spawn_time = new Date();
             soulhound_spawn_time.setMilliseconds(soulhound_spawn_time.getUTCMilliseconds() - milliseconds);
-            db.set_event_timers_timestamp('soulhounds', soulhound_spawn_time.toISOString());
             channel.send('Soulhound respawn time updated');
+            db.set_event_timers_timestamp('soulhounds', soulhound_spawn_time.toISOString());
             schedule_upcoming_soulhound_ping(db, channel, soulhound_spawn_time.toISOString());
         }
     } catch (err) {
