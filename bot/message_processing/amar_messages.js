@@ -1,5 +1,5 @@
 async function check_amar_storm_message(message) {
-    const db = message.client.drip_db;
+    const channel = message.Channel;
 
     try {
         let role_id;
@@ -7,12 +7,12 @@ async function check_amar_storm_message(message) {
         let time_str;
 
         if (message.content.includes("Time to grab a kite, a thunderstorm is rolling into")) {
-            role_id = (await db.get_role_id('thunderstorm', 'amar')).role_id;
+            role_id = message.client.Channels.get_role_id('thunderstorm', 'amar');
             location = message.content.split(" into ")[1];
             time_str = message.content.split(' Time to grab')[0];
         }
         else if (message.content.includes("A rainbow emerges as a light rain begins to fall in")) {
-            role_id = (await db.get_role_id('event', 'amar')).role_id;
+            role_id = message.client.Channels.get_role_id('event', 'amar');
             location = message.content.split(" fall in ")[1];
             time_str = message.content.split(' A rainbow emerges')[0];
         }
@@ -51,8 +51,8 @@ async function check_amar_storm_message(message) {
         } else if (minutes_ago < 0) {
             str += '\nWait ' + minutes_ago + ' minutes ago?!? Is that negative time?!? Only Chronos could do that...';
         }
-        const channel = message.client.channels.cache.get(message.channelId);
-        channel.send(str);
+
+        channel.channel.send(str);
     }
     catch (err) {
         console.log('Error in processing Amar Storm Notification');

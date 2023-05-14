@@ -58,11 +58,10 @@ async function create_blace_button_collector(db, message) {
 
         try {
             await i.update({ content: messageReply, components: [] });
-            const frenzy_role_id = (await db.get_role_id('frenzy', 'drip')).role_id;
+            const role_id = message.client.Channels.get_role_id('frenzy', 'drip');
 
-            const str = '<@&' + frenzy_role_id + '> ' + time + " mins from Blaze/Ace";
-            const channel = message.client.channels.cache.get(message.channelId);
-            channel.send(str);
+            const str = '<@&' + role_id + '> ' + time + " mins from Blaze/Ace";
+            message.Channel.channel.send(str);
         }
         catch (err) {
             console.log('Error in frenzy button update');
@@ -87,8 +86,8 @@ async function check_blace_frenzy(message) {
 
         const buttons = await build_blace_buttons();
 
-        let messageReply = 'Select ' + name + ' HP/Color';
-        await message.reply({ content: messageReply, components: [buttons] });
+        let message_reply = 'Select ' + name + ' HP/Color';
+        await message.reply({ content: message_reply, components: [buttons] });
 
         create_blace_button_collector(db, message);
 
@@ -153,8 +152,7 @@ async function check_drops_message(message) {
                 str = "Looks like someone found an item, but Chronos's programming failed and idk how to ping Hiro for it.";
             }
 
-            const channel = message.client.channels.cache.get(message.channelId);
-            channel.send(str);
+            message.Channel.channel.send(str);
             console.log(str);
         }
     }
@@ -169,14 +167,13 @@ async function check_aura_message(message) {
         if (!message.content.includes("] Global") || !message.content.includes("Dragon Tokens to Diabolos") || !message.content.includes("of Diabolic Aura."))
             return;
 
-        const channel = message.client.channels.cache.get(message.channelId);
         const db = message.client.drip_db;
         if (await check_double_ping(db, 'dt_aura')) return;
 
-        const role_id = (await db.get_role_id('aura', 'drip')).role_id;
+        const role_id = message.client.Channels.get_role_id('aura', 'drip');
 
         str = '<@&' + role_id + '>' + message.content;
-        channel.send(str);
+        message.Channel.channel.send(str);
 
         const current_time = new Date();
         db.set_event_timers_timestamp('dt_aura', current_time.toISOString());
@@ -192,14 +189,13 @@ async function check_dt_frenzy_message(message) {
         if (!message.content.includes("] Global") || !message.content.includes("Frenzy in the Realm of Dragonrip!"))
             return;
 
-        const channel = message.client.channels.cache.get(message.channelId);
         const db = message.client.drip_db;
         if (await check_double_ping(db, 'dt_frenzy')) return;
 
-        const role_id = (await db.get_role_id('frenzy', 'drip')).role_id;
+        const role_id = message.client.Channels.get_role_id('frenzy', 'drip');
 
         str = '<@&' + role_id + '>' + message.content;
-        channel.send(str);
+        message.Channel.channel.send(str);
 
         const current_time = new Date();
         db.set_event_timers_timestamp('dt_frenzy', current_time.toISOString());
@@ -217,14 +213,13 @@ async function check_event_message(message) {
         )
             return;
 
-        const channel = message.client.channels.cache.get(message.channelId);
         const db = message.client.drip_db;
         if (await check_double_ping(db, 'event')) return;
 
-        const role_id = (await db.get_role_id('event', 'drip')).role_id;
+        const role_id = message.client.Channels.get_role_id('event', 'drip');
 
         str = '<@&' + role_id + '>';
-        channel.send(str);
+        message.Channel.channel.send(str);
 
         const current_time = new Date();
         db.set_event_timers_timestamp('event', current_time.toISOString());
@@ -247,11 +242,10 @@ async function check_hell_message(message) {
         if (!message.content.includes("Event: Gates of Hell will open in 10 minutes") || message.content.indexOf('[') != 0)
             return;
 
-        const channel = message.client.channels.cache.get(message.channelId);
         const db = message.client.drip_db;
         if (await check_double_ping(db, 'hell', 15)) return;
 
-        const role_id = (await db.get_role_id('hell', 'drip')).role_id;
+        const role_id = message.client.Channels.get_role_id('hell', 'drip');
 
         const global_str = get_global_line_from_multi_line_ping(message);
         const event_notification_time = new Date(datetime_methods.parse_global_timestamp(global_str));
@@ -263,9 +257,9 @@ async function check_hell_message(message) {
         db.set_event_timers_timestamp('hell', hell_open_time.toISOString());
 
         let str = '<@&' + role_id + '> opening in ' + Math.round(wait_time / 1000 / 60 * 10) / 10 + ' minutes';
-        channel.send(str);
+        message.Channel.channel.send(str);
 
-        hell_open_ping(wait_time, role_id, channel);
+        hell_open_ping(wait_time, role_id, message.Channel.channel);
     }
     catch (err) {
         console.log('Error in processing Hell Notification');
@@ -275,19 +269,19 @@ async function check_hell_message(message) {
 
 async function check_soulhounds_message(message) {
     try {
-        const channel = message.client.channels.cache.get(message.channelId);
         const db = message.client.drip_db;
         if (message.content.includes('] Global: Soulhounds appeared in the Hades!') || message.content.includes('Soulhounds ravaging the Hades...')) {
-            const role_id = (await db.get_role_id('soulhounds', 'drip')).role_id;
+
+            const role_id = message.client.Channels.get_role_id('soulhounds', 'drip');
             let str = '<@&' + role_id + '> ';
 
             if (message.content.includes('] Global: Soulhounds appeared in the Hades!')) {
                 const global_str = get_global_line_from_multi_line_ping(message);
                 const soulhound_spawn_time = new Date(datetime_methods.parse_global_timestamp(global_str));
                 const minutes_ago = Math.round((Date.now() - soulhound_spawn_time.getTime()) / 1000 / 60);
-                channel.send('Soulhound respawn time updated');
+                message.Channel.channel.send('Soulhound respawn time updated');
                 db.set_event_timers_timestamp('soulhounds', soulhound_spawn_time.toISOString());
-                schedule_upcoming_soulhound_ping(db, message, channel, soulhound_spawn_time.toISOString());
+                schedule_upcoming_soulhound_ping(db, message, soulhound_spawn_time.toISOString());
 
                 str += 'spawned ' + minutes_ago + ' minutes ago';
             } else {
@@ -299,14 +293,14 @@ async function check_soulhounds_message(message) {
                     }
                 }
             }
-            channel.send(str);
+            message.Channel.channel.send(str);
         }else if (message.content.includes('No Soulhounds to be seen...') && message.content.includes('Last time appeared: ')) {
             const milliseconds = datetime_methods.parse_drip_time_string(message.content.split('\n'));
             const soulhound_spawn_time = new Date();
             soulhound_spawn_time.setMilliseconds(soulhound_spawn_time.getUTCMilliseconds() - milliseconds);
-            channel.send('Soulhound respawn time updated');
+            message.Channel.channel.send('Soulhound respawn time updated');
             db.set_event_timers_timestamp('soulhounds', soulhound_spawn_time.toISOString());
-            schedule_upcoming_soulhound_ping(db, message, channel, soulhound_spawn_time.toISOString());
+            schedule_upcoming_soulhound_ping(db, message, soulhound_spawn_time.toISOString());
         }
     } catch (err) {
         console.log('Error in processing Soulhounds message');
@@ -314,7 +308,7 @@ async function check_soulhounds_message(message) {
     }
 }
 
-async function schedule_upcoming_soulhound_ping(db, message, channel, last_spawn_timestamp) {
+async function schedule_upcoming_soulhound_ping(db, message, last_spawn_timestamp) {
     const last_spawn_time = new Date(last_spawn_timestamp);
     const spawn_delay = 330 * 60 * 1000; //5.5 hours min between spawns
     const delay = spawn_delay - (Date.now() - last_spawn_time.getTime()) + 10000;
@@ -334,7 +328,7 @@ async function schedule_upcoming_soulhound_ping(db, message, channel, last_spawn
 
     let str = message.client.Users.get_user_ids_following_respawn_timers().map(i => '<@' + id + '>').join(' ');
     str += 'Soulhounds spawned 5.5 hours ago, afaik';
-    channel.send(str);
+    message.Channel.channel.send(str);
 }
 
 module.exports = {

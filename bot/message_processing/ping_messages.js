@@ -68,11 +68,7 @@ async function check_ping_message(message) {
             timestamp.setMilliseconds(timestamp.getMilliseconds() + delay);
             db.set_user_ping_timer(user.discord_id , 'hades_dragon', timestamp.toISOString());
         } else if (message.content.includes("Time left: ")) {
-            if (message_arr.length > 1) {
-                str = '<@' + user.discord_id  + '>' + "Not sure why I'm pinging you. Maybe it was for: " + message_arr[0] + "\nBut I ain't an AI bot so idk";
-            } else {
-                str = '<@' + user.discord_id  + '>' + ' Why am I pinging you again? Prolly aint important.';
-            }
+            str = '<@' + user.discord_id  + '>' + ' Why am I pinging you again? Prolly aint important.';
         } else {
             return;
         }
@@ -81,13 +77,12 @@ async function check_ping_message(message) {
             message.reply('Something went wrong, idk what time to ping you.');
             return;
         } else {
-            const channel = message.client.channels.cache.get(message.channelId);
             message.reply(replies[reply_index]);
 
             await wait(delay);
             if (!user.active) return;
 
-            channel.send(str);
+            message.reply(str);
         }
     }
     catch (err) {
@@ -100,7 +95,7 @@ async function check_ping_message(message) {
 async function planting_timer(message, message_arr, delay) {
     const db = message.client.drip_db;
     const user = message.User;
-    let timestamp = new Date();
+    const timestamp = new Date();
 
     if (message_arr.length < 2) return;
     timestamp.setMilliseconds(timestamp.getMilliseconds() + delay);
@@ -171,8 +166,7 @@ async function replanting_timer(message, delay) {
 
 async function restart_ping_timers(client) {
     const db = client.drip_db;
-    const channel_id = (await db.get_channel_id('spit-bot', 'drip')).channel_id;
-    const channel = await client.channels.fetch(channel_id);
+    const channel = client.Channels.get_channel_by_name_server('spit-bot', 'drip');
 
     const ping_timer_table = await db.get_all_ping_timers();
     if (!ping_timer_table) return;
@@ -213,7 +207,7 @@ async function timer_restart_handler(user, channel, current_time, ping_time_iso_
     await wait(delay);
     if (!user.active) return;
 
-    channel.send(str);
+    channel.channel.send(str);
 }
 
 async function replanting_timer_restart_handler(user, client, channel, current_time, ping_time_iso_string, str, console_message) {
@@ -229,7 +223,7 @@ async function replanting_timer_restart_handler(user, client, channel, current_t
     let timestamp = new Date((await db.get_user_ping_timer(user.discord_id, 'replanted')).replanted).getTime();
 
     if (new_current_time > timestamp) {
-        channel.send(str);
+        channel.channel.send(str);
     }
 }
 
@@ -248,7 +242,8 @@ async function restart_hell_timer(client) {
     const channel_id = (await db.get_channel_id('llamainchat', 'drip')).channel_id;
     const channel = await client.channels.cache.get(channel_id);
 
-    const role_id = (await db.get_role_id('hell', 'drip')).role_id;
+    const role_id = client.Channels.get_role_id('hell', 'drip');
+    
 
     console.log('Restarted hell ping timer');
 

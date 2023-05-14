@@ -51,6 +51,9 @@
     <Content Include="database\Database.js">
       <SubType>Code</SubType>
     </Content>
+    <Content Include="database\data\channel_info.js">
+      <SubType>Code</SubType>
+    </Content>
     <Content Include="database\data\drip.db" />
     <Content Include="database\data\mobs.js">
       <SubType>Code</SubType>
@@ -62,6 +65,9 @@
       <SubType>Code</SubType>
     </Content>
     <Content Include="database\SqlQueryBuilder.js">
+      <SubType>Code</SubType>
+    </Content>
+    <Content Include="entities\Channels.js">
       <SubType>Code</SubType>
     </Content>
     <Content Include="entities\Users.js">
