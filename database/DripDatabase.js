@@ -175,72 +175,6 @@ class DripDatabase extends Database {
 
 
 
-    //Channels Class, probably remove channel_list, channel_whitelist, and role_ids from db
-
-    async get_channel_info(channel_id) {
-        return await this.query_get(
-            new SqlQueryBuilder()
-                .select(['*'])
-                .from('channel_list')
-                .where_column_equals(['channel_id'], [channel_id])
-                .get_result()
-        );
-    }
-
-    async get_channel_id(channel_name, channel_server) {
-        return await this.query_get(
-            new SqlQueryBuilder()
-                .select(['channel_id'])
-                .from('channel_list')
-                .where_column_equals(['channel_name', 'channel_server'], [channel_name, channel_server])
-                .get_result()
-        );
-    }
-
-    async get_channel_message_types(channel_name, channel_server) {
-        return await this.query_all(
-            new SqlQueryBuilder()
-                .select(['message_type'])
-                .from('channel_whitelist')
-                .where_column_equals(['channel_name', 'channel_server'], [channel_name, channel_server])
-                .get_result()
-        );
-    }
-
-    async get_all_message_types() {
-        return await this.query_all(
-            new SqlQueryBuilder()
-                .select(['message_type'])
-                .distinct()
-                .from('channel_whitelist')
-                .get_result()
-        );
-    }
-
-    async get_role_id(role, server) {
-        if (this.cache.get_role_id[role + server]) {
-            return this.cache.get_role_id[role + server];
-        }
-
-        const result_obj = await this.query_get(
-            new SqlQueryBuilder()
-                .select(['role_id'])
-                .from('role_ids')
-                .where_column_equals(['role', 'server'], [role, server])
-                .get_result()
-        );
-
-        if (result_obj) {
-            this.cache.get_role_id[role + server] = result_obj;
-        }
-
-        return result_obj;
-    }
-
-
-
-
-
     /*********************
      *                   *
      *  item_drops table *
@@ -310,7 +244,6 @@ class DripDatabase extends Database {
                 .get_result()
         );
     }
-
 
     //Will remove this in refactor of PingScheduler
     async get_event_timers_timestamp(category = null) {
