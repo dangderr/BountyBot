@@ -1,3 +1,4 @@
+const { ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
 const datetime_methods = require('../../utils/datetime_methods.js');
 const wait = require('node:timers/promises').setTimeout;
 
@@ -15,14 +16,16 @@ async function check_ping_message(message) {
         let timestamp = new Date();
         
         if (message.content.includes("is still growing!")) {
-            if (message_arr.length < 2) return;
-            str = '<@' + user.discord_id + '>' + ' Pick your plants.';
-            timestamp.setMilliseconds(timestamp.getMilliseconds() + delay);
-            db.set_user_ping_timer(user.discord_id , 'planting', timestamp.toISOString());
 
-            timestamp.setMilliseconds(timestamp.getMilliseconds() + 20 * 60 * 1000);
-            db.set_user_ping_timer(user.discord_id , 'replanted', timestamp.toISOString());
-            replanting_timer(message, delay);
+            if (delay <= 0) {
+                message.reply('Something went wrong, idk what time to ping you.');
+                return;
+            } else {
+                message.reply(replies[reply_index]);
+            }
+
+            planting_timer(message, message_arr, delay, timestamp);
+            return;
         } else if (message.content.includes("will be able to drink in:")) {
             if (message_arr.length < 2) return;
             delay += 60 * 1000; //Add a minute because of cauldron timer imprecision
@@ -91,6 +94,57 @@ async function check_ping_message(message) {
         console.log('Error in processing ping timer');
         console.log(err);
         console.log(message);
+    }
+}
+
+async function planting_timer(message, message_arr, delay, timestamp) {
+    const db = message.client.drip_db;
+    const user = message.User;
+
+    if (message_arr.length < 2) return;
+    timestamp.setMilliseconds(timestamp.getMilliseconds() + delay);
+    db.set_user_ping_timer(user.discord_id, 'planting', timestamp.toISOString());
+
+    timestamp.setMilliseconds(timestamp.getMilliseconds() + 20 * 60 * 1000);
+    db.set_user_ping_timer(user.discord_id, 'replanted', timestamp.toISOString());
+    replanting_timer(message, delay);
+
+    await wait(delay);
+    if (!user.active) return;
+
+    let str = '<@' + user.discord_id + '>' + ' Pick your plants.';
+
+    const replant_button = new ActionRowBuilder()
+        .addComponents(
+            new ButtonBuilder()
+                .setCustomId('Replanted')
+                .setLabel('Replanted')
+                .setStyle(ButtonStyle.Success)
+        );
+
+    const bot_message = await message.reply({ content: str, components: [replant_button] });
+
+    const filter = i => i.user.id === message.author.id;
+    const collector = message.channel.createMessageComponentCollector({ filter, time: 1000 * 60 * 5, max: 1 });
+
+    let replanted = false;
+    collector.on('end', collector => { });
+    collector.on('collect', async i => {
+        const minutes = Math.round(delay / 1000 / 60 * 10) / 10;
+        try {
+            await i.update({ content: 'Your planting timer was restarted for ' + minutes + ' minutes', components: [] });
+            replanted = true;
+            planting_timer(message, message_arr, delay, timestamp);
+        }
+        catch (err) {
+            console.log('Error in replanting button update');
+            console.log(err);
+        }
+    });
+
+    await wait(1000 * 60 * 5);
+    if (!replanted) {
+        bot_message.edit({ content: str, components: [] });
     }
 }
 

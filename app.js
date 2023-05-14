@@ -14,7 +14,7 @@ async function main() {
     require('dotenv').config();
     const client = await new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent] });
 
-    deploy_commands();
+    //deploy_commands();
 
     await Promise.all([
         load_bounty_bot(client),
