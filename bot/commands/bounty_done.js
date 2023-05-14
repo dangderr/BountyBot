@@ -1,7 +1,7 @@
 const { SlashCommandBuilder } = require('discord.js');
 
 const data = new SlashCommandBuilder()
-    .setName('bountydone')
+    .setName('bounty_done')
     .setDescription('Stops bounty notifications for the rest of the day, or reactivates them if already paused');
 
 async function execute(interaction) {

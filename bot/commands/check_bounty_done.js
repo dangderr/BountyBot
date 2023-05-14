@@ -1,7 +1,7 @@
 const { SlashCommandBuilder } = require('discord.js');
 
 const data = new SlashCommandBuilder()
-    .setName('checkbountydone')
+    .setName('check_bounty_done')
     .setDescription('Ugh, can I stop pasting bounties?');
 
 async function execute(interaction) {

@@ -1,7 +1,7 @@
 const { SlashCommandBuilder } = require('discord.js');
 
 const data = (new SlashCommandBuilder()
-    .setName('bountyhours')
+    .setName('bounty_hours')
     .setDescription('Set active hours to receive bounty pings')
     .addStringOption(option => option
         .setName('start_time')
