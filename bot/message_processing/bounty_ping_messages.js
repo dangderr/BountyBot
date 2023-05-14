@@ -89,9 +89,10 @@ async function check_bounty_message(message) {
     const users_to_ping = new Set(user_mob_ping_list.map(i => i[0]));
 
     for (const user of users_to_ping) {
-        if (user == message.author.id) continue;                     // No self pings
-        if (!message.client.Users.get_user(user).active) continue;   // Don't ping inactives
+        if (user == message.author.id) continue;                            // No self pings
+        if (!message.client.Users.get_user(user).active) continue;          // Don't ping inactives
         if (message.client.Users.get_user(user).bounty_done) continue;     // Don't ping people done with bounties
+      
         const mob_list = user_mob_ping_list.filter(i => i[0] == user).map(i => i[1]);
 
         let str = '<@' + user + '> ';
