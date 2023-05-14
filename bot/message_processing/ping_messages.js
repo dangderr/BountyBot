@@ -24,7 +24,7 @@ async function check_ping_message(message) {
                 message.reply(replies[reply_index]);
             }
 
-            planting_timer(message, message_arr, delay, timestamp);
+            planting_timer(message, message_arr, delay);
             return;
         } else if (message.content.includes("will be able to drink in:")) {
             if (message_arr.length < 2) return;
@@ -97,9 +97,10 @@ async function check_ping_message(message) {
     }
 }
 
-async function planting_timer(message, message_arr, delay, timestamp) {
+async function planting_timer(message, message_arr, delay) {
     const db = message.client.drip_db;
     const user = message.User;
+    let timestamp = new Date();
 
     if (message_arr.length < 2) return;
     timestamp.setMilliseconds(timestamp.getMilliseconds() + delay);
