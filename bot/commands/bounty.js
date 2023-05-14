@@ -46,34 +46,30 @@ const data = (new SlashCommandBuilder()
 );
 
 async function execute(interaction) {
-    const db = interaction.client.drip_db;
-    const user = interaction.user;
-    await db.add_user(user.id, user.username, null);
+    const user = interaction.User;
 
-    const mob_arr = await get_mob_array(db, interaction.options);
-
-    const bounties_followed = (await db.get_bounties_followed(user.id)).map(i => i.mob);
-
+    const mob_arr = get_mob_array(interaction.client.mobs, interaction.options);
+    const bounties_followed = user.get_bounties_followed();
     const component_arr = generate_component_array(mob_arr, bounties_followed);
 
     await interaction.reply({ content: 'Select bounties to follow', components: component_arr });
-
-    create_collector(db, interaction, mob_arr, component_arr);
+    create_collector(interaction, user, mob_arr, component_arr);
 }
 
-async function get_mob_array(db, options) {
-    let mob_arr;
+function get_mob_array(mobs, options) {
+    let filter;
+
     if (options.getSubcommand() === 'dungeons') {
-        mob_arr = await db.get_mobs('dungeons', null);
+        filter = i => i[1] == 'dungeons';
     }
     else if (options.getSubcommand() === 'summons') {
-        mob_arr = await db.get_mobs('summons', options.getString('level'));
+        filter = i => i[1] == 'summons' && i[2] == options.getString('level');
     }
     else if (options.getSubcommand() === 'ff') {
-        mob_arr = await db.get_mobs('ff', options.getString('area'));
+        filter = i => i[1] == 'ff' && i[2] == options.getString('area');
     }
 
-    return mob_arr.map(i => i.mob);
+    return mobs.filter(filter).map(i => i[0]);
 }
 
 function generate_component_array(mob_arr, bounties_followed) {
@@ -102,8 +98,8 @@ function generate_component_array(mob_arr, bounties_followed) {
     return component_arr;
 }
 
-async function create_collector(db, interaction, mob_arr, component_arr) {
-    const filter = (i => i.user.id === interaction.user.id);
+async function create_collector(interaction, user, mob_arr, component_arr) {
+    const filter = (i => i.user.id === user.discord_id);
     const collector = interaction.channel.createMessageComponentCollector({ filter, time: 60000 });
     collector.on('collect', async i => {
         let mob = i.component.customId;
@@ -118,10 +114,10 @@ async function create_collector(db, interaction, mob_arr, component_arr) {
         let buttonClicked = component_arr[row].components[col];
 
         if (i.component.style == ButtonStyle.Success) {
-            await db.remove_bounty(interaction.user.id, mob);
+            await user.remove_bounty(mob);
             buttonClicked.setStyle(ButtonStyle.Secondary);
         } else {
-            await db.add_bounty(interaction.user.id, mob);
+            await user.add_bounty(mob);
             buttonClicked.setStyle(ButtonStyle.Success);
         }
         await i.update({

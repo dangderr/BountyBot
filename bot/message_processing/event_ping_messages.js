@@ -72,7 +72,6 @@ async function create_blace_button_collector(db, message) {
 }
 
 async function check_blace_frenzy(message) {
-
     try {
         let name;
         if (message.content.includes("Event: Ace appeared in the Arctic Ruins!"))
@@ -136,20 +135,20 @@ async function check_drops_message(message) {
             db.add_item_drop(global_str);
 
             const username = get_username_from_global_string(global_str);
-            const user_obj = (await db.get_discord_id_from_drip_name(username));
-            const hiro_obj = (await db.get_discord_id_from_drip_name('Hiro'));
-            const chronos_obj = (await db.get_discord_id_from_drip_name('Chronos'));
 
+            const luck_sack = await message.client.Users.get_user_by_drip_username(username);
+            const hiro = await message.client.Users.get_user_by_drip_username('Hiro');
+            const chronos = await message.client.Users.get_user_by_drip_username('Chronos');
 
             let str = "";
-            if (hiro_obj && message.content.includes("Hiro")) {
-                str = "Congrats," + '<@' + hiro_obj.discord_id + '>! ' + "Finally found something on your main account!!?!!";
-            } else if (chronos_obj && message.content.includes("Chronos")) {
-                str = "Congrats," + '<@' + chronos_obj.discord_id + '>! ' + "You deserve it more than anyone else here!";
-            } else if (user_obj) {
-                str = "Congrats," + '<@' + user_obj.discord_id + '>! ' + "Awesome, someone here other than a Hiro multi found something!!";
-            } else if (hiro_obj) {
-                str = "Congrats," + '<@' + hiro_obj.discord_id + '>! ' + "That's one of your multis, right?";
+            if (hiro && username == 'Hiro') {
+                str = "Congrats," + '<@' + hiro.discord_id + '>! ' + "Finally found something on your main account!!?!!";
+            } else if (chronos && username == "Chronos") {
+                str = "Congrats," + '<@' + chronos.discord_id + '>! ' + "You deserve it more than anyone else here!";
+            } else if (luck_sack) {
+                str = "Congrats," + '<@' + luck_sack.discord_id + '>! ' + "Awesome, someone here other than a Hiro multi found something!!";
+            } else if (hiro) {
+                str = "Congrats," + '<@' + hiro.discord_id + '>! ' + "That's one of your multis, right?";
             } else {
                 str = "Looks like someone found an item, but Chronos's programming failed and idk how to ping Hiro for it.";
             }
@@ -288,7 +287,7 @@ async function check_soulhounds_message(message) {
                 const minutes_ago = Math.round((Date.now() - soulhound_spawn_time.getTime()) / 1000 / 60);
                 channel.send('Soulhound respawn time updated');
                 db.set_event_timers_timestamp('soulhounds', soulhound_spawn_time.toISOString());
-                schedule_upcoming_soulhound_ping(db, channel, soulhound_spawn_time.toISOString());
+                schedule_upcoming_soulhound_ping(db, message, channel, soulhound_spawn_time.toISOString());
 
                 str += 'spawned ' + minutes_ago + ' minutes ago';
             } else {
@@ -307,7 +306,7 @@ async function check_soulhounds_message(message) {
             soulhound_spawn_time.setMilliseconds(soulhound_spawn_time.getUTCMilliseconds() - milliseconds);
             channel.send('Soulhound respawn time updated');
             db.set_event_timers_timestamp('soulhounds', soulhound_spawn_time.toISOString());
-            schedule_upcoming_soulhound_ping(db, channel, soulhound_spawn_time.toISOString());
+            schedule_upcoming_soulhound_ping(db, message, channel, soulhound_spawn_time.toISOString());
         }
     } catch (err) {
         console.log('Error in processing Soulhounds message');
@@ -315,21 +314,14 @@ async function check_soulhounds_message(message) {
     }
 }
 
-async function schedule_upcoming_soulhound_ping(db, channel, last_spawn_timestamp) {
+async function schedule_upcoming_soulhound_ping(db, message, channel, last_spawn_timestamp) {
     const last_spawn_time = new Date(last_spawn_timestamp);
     const spawn_delay = 330 * 60 * 1000; //5.5 hours min between spawns
     const delay = spawn_delay - (Date.now() - last_spawn_time.getTime()) + 10000;
-    const user_ids = (await db.get_users_following_event_timers()).map(i => i.discord_id);
 
     if (delay <= 0) {
         return;
     }
-
-    let str = '';
-    for (const id of user_ids) {
-        str += '<@' + id + '> ';
-    }
-    str += 'Soulhounds spawned 5.5 hours ago, afaik';
 
     await wait(delay);
 
@@ -340,6 +332,8 @@ async function schedule_upcoming_soulhound_ping(db, channel, last_spawn_timestam
         return;
     }
 
+    let str = message.client.Users.get_user_ids_following_respawn_timers().map(i => '<@' + id + '>').join(' ');
+    str += 'Soulhounds spawned 5.5 hours ago, afaik';
     channel.send(str);
 }
 
