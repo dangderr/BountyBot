@@ -13,7 +13,7 @@ async function execute(interaction) {
         interaction.reply('Your bounty notifications will be paused for the rest of the game day');
     }
 
-    user.bountydone = Date.now();
+    user.bounty_done = Date.now();
 }
 
 module.exports = {
