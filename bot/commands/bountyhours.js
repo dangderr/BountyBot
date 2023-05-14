@@ -1,5 +1,4 @@
 const { SlashCommandBuilder } = require('discord.js');
-const datetime_methods = require('../../utils/datetime_methods.js');
 
 const data = (new SlashCommandBuilder()
     .setName('bountyhours')
@@ -17,16 +16,14 @@ const data = (new SlashCommandBuilder()
 )
 
 async function execute(interaction) {
-    const user = await interaction.client.Users.add_user(interaction.user);
+    const user = interaction.User;
 
     const starttime = interaction.options.getString('start_time');
     const endtime = interaction.options.getString('end_time');
 
     try {
-        const time_arr = datetime_methods.parse_starttime_endtime(starttime, endtime);
-        if (!time_arr) {
-            interaction.reply({ content: 'Time was invalid', ephemeral: true });
-            return;
+        if (!validate_times(starttime, endtime)) {
+            throw new Error('');
         }
 
         user.set_active_hours(starttime, endtime);
@@ -37,6 +34,34 @@ async function execute(interaction) {
     catch (err) {
         interaction.reply({ content: 'Time was invalid', ephemeral: true });
     }
+}
+
+function validate_times(starttime, endtime) {
+    if (starttime.length > 5 || endtime.length > 5) {
+        return false;
+    }
+
+    startarr = starttime.split(":");
+    endarr = endtime.split(":");
+
+    if (startarr.length != 2 || endarr.length != 2) {
+        return false;
+    }
+
+    starthour = parseInt(startarr[0]);
+    startminutes = parseInt(startarr[1]);
+    endhour = parseInt(endarr[0]);
+    endminutes = parseInt(endarr[1]);
+
+    if (starthour < 0 || starthour > 23 ||
+        endhour < 0 || endhour > 23 ||
+        startminutes < 0 || startminutes > 59 ||
+        endminutes < 0 || endminutes > 59
+    ) {
+        return false;
+    }
+
+    return true;
 }
 
 module.exports = {

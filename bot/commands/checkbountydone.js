@@ -5,8 +5,6 @@ const data = new SlashCommandBuilder()
     .setDescription('Ugh, can I stop pasting bounties?');
 
 async function execute(interaction) {
-    await interaction.client.Users.add_user(interaction.user);
-
     const bounty_not_done_arr = await interaction.client.Users.get_bounty_not_done();
 
     if (bounty_not_done_arr.length == 0) {

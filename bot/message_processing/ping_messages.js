@@ -156,6 +156,8 @@ async function replanting_timer_restart_handler(client, discord_id, channel, cur
     const db = client.drip_db;
     let delay = new Date(ping_time_iso_string).getTime() - current_time.getTime();
     if (delay < 0) return;
+    console.log(console_message);
+
     await wait(delay + 10000);
 
     let new_current_time = new Date().getTime();

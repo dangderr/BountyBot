@@ -7,20 +7,23 @@ const event_pings = require('../message_processing/event_ping_messages.js');
 const bounty_pings = require('../message_processing/bounty_ping_messages.js');
 
 async function execute(message) {
+    if (message.author.bot) return;
+
     try {
-        if (message.author.bot) return;
+        message.User = await message.client.Users.add_user(message.author);
 
         const db = message.client.drip_db;
-        const user = message.author;
-        await db.add_user(user.id, user.username, null);
 
         if (fs.existsSync('./bot/message_processing/secret_chronos_commands.js')) {
-            let discord_id = await db.get_discord_id_from_drip_name('Chronos');
-            if (discord_id && discord_id.discord_id == user.id) {
+            let chronos = await message.client.Users.get_user_by_drip_username('Chronos');
+            if (chronos && chronos.discord_id == message.User.discord_id) {
                 secret_commands = require('../message_processing/secret_chronos_commands.js');
                 secret_commands.process_message(message);
             }
         }
+
+        ///////////////////
+        //This section requires Channels class to remove db use
 
         const channel_info = await db.get_channel_info(message.channelId);
         if (!channel_info) return;
@@ -28,6 +31,8 @@ async function execute(message) {
         const channel_message_types = (channel_info.channel_server == 'testserver')
             ? await db.get_all_message_types()
             : await db.get_channel_message_types(channel_info.channel_name, channel_info.channel_server);
+
+        //////////////////
 
         for (const obj of channel_message_types) {
             const message_type = obj.message_type;

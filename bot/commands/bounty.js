@@ -46,7 +46,7 @@ const data = (new SlashCommandBuilder()
 );
 
 async function execute(interaction) {
-    const user = await interaction.client.Users.add_user(interaction.user);
+    const user = interaction.User;
 
     const mob_arr = get_mob_array(interaction.client.mobs, interaction.options);
     const bounties_followed = user.get_bounties_followed();

@@ -22,6 +22,7 @@ async function main() {
     ]);
 
     client.Users = new Users(client.drip_db);
+    await client.Users.init();
     client.mobs = mobs;
     restart_pings(client);
 

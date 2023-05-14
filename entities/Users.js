@@ -10,83 +10,60 @@ class Users {
         this.#db = db;
     }
 
-    async get_user(discord_id) {
-        //Check if user in array
-        const user_filter = this.#users.filter(i => i.discord_id == discord_id);
+    async init() {
+        const user_ids = (await this.#db.get_all_user_ids()).map(i => i.discord_id);
 
-        //If 1 result, then working as expected
-        if (user_filter.length == 1) {
-            return user_filter[0];
+        let promises = new Array();
+        for (const discord_id of user_ids) {
+            promises.push(this.#create_user_obj(discord_id));
         }
-
-        //If 2 or more results, something went wrong
-        if (user_filter.length > 1) {
-            console.log('Found ' + user_filter.length + ' users with discord_id ' + discord_id + ' in #users array');
-            return user_filter[0];
-        }
-
-        //If not, create new user and return;
-        if (user_filter.length == 0) {
-            const user = new User(this.#db, discord_id);
-            await user.init();
-            this.#users.push(user);
-            return user;
-        } else {
-            return user_filter[0];
-        }
+        await Promise.all(promises);
     }
 
-    async get_user_by_drip_username(drip_username) {
-        //Check if user in array
-        const user_filter = this.#users.filter(i => i.drip_username == drip_username);
+    //Make sure the user exists in the db before you can call this function
+    //      Only called from init() and #add_new_user_to_db()
+    async #create_user_obj(discord_id) {
+        const user = new User(this.#db, discord_id);
+        await user.init();
+        this.#users.push(user);
+        return user;
+    }
 
-        //If 1 result, then working as expected
-        if (user_filter.length == 1) {
-            return user_filter[0];
-        }
+    get_user(discord_id) {
+        return this.#users.find(i => i.discord_id == discord_id);
+    }
 
-        //If 2 or more results, something went wrong
-        if (user_filter.length > 1) {
-            console.log('Found ' + user_filter.length + ' users with drip_username ' + drip_username + ' in #users array');
-            return user_filter[0];
-        }
-
-        //If 0 results, must check db to find discord_id, then get user by discord_id
-        const query_result = await this.#db.get_discord_id_from_drip_name(drip_username);
-        if (query_result) {
-            return this.get_user(query_result.discord_id);
-        } else {
-            return null;
-        }
+    get_user_by_drip_username(drip_username) {
+        return this.#users.find(i => i.drip_username == drip_username);
     }
 
     async add_user(discord_user_object) {
-        if(!this.#check_user_in_arr(discord_user_object.discord_id))
-            await this.#db.add_user(discord_user_object.id, discord_user_object.username , null);
-        return this.get_user(discord_user_object.id);
+        return this.#users.find(i => i.discord_id == discord_user_object.id)
+            ?? await this.#add_new_user_to_db(discord_user_object.id, discord_user_object.username)
     }
 
-    #check_user_in_arr(discord_id) {
-        const user_filter = this.#users.filter(i => i.discord_id == discord_id);
-        if (user_filter.length > 1) {
-            console.log('Something went wrong. User' + user_filter[0].discord_username + 'is in the Users array multiple times');
-        }
-        return user_filter.length > 0;
+    async #add_new_user_to_db(discord_id, discord_username) {
+        await this.#db.add_user(discord_id, discord_username);
+        return await this.#create_user_obj(discord_id);
     }
 
-    async get_bounty_not_done() {
-        const discord_id_arr = (await this.#db.get_distinct_users_in_bounties_followed()).map(i => i.discord_id);
-        const users_id_arr = this.#users.map(i => i.discord_id);
+    get_bounty_not_done() {
+        //return this.#users.filter(i => !i.bounty_done).map(i => i.drip_username ?? i.discord_username);
+        return this.#users.filter(i => i.drip_username && !i.bounty_done).map(i => i.drip_username);
+    }
 
-        let promises = new Array();
-        for (const discord_id of discord_id_arr) {
-            if (!users_id_arr.includes(discord_id)) {
-                promises.push(this.get_user(discord_id));
+    get_bounties_followed() {
+        const bounties_followed = new Array();
+        for (const user of this.#users) {
+            for (const mob of user.get_bounties_followed()) {
+                bounties_followed.push([user.discord_id, mob]);
             }
         }
-        await Promise.all(promises);
+        return bounties_followed;           // [ [id, mob], [id, mob] ]
+    }
 
-        return this.#users.filter(i => !i.bountydone).map(i => i.drip_username ?? i.discord_username);
+    get_user_ids_following_respawn_timers() {
+        return this.#users.filter(i => i.follow_respawn_timers).map(i => i.discord_id);
     }
 }
 
@@ -96,14 +73,14 @@ class User {
     #discord_username;
     #drip_username;
 
-    #bountydone;                //timestamp in ISOstring format
-    #follow_upcoming_events;
-    #pause_notifications;       
+    #bounty_done;               // timestamp in ISOstring format
+    #follow_respawn_timers;     // 1 or 0
+    #pause_notifications;       // 1 or 0
 
-    #active_hours_start;
-    #active_hours_end;
+    #active_hours_start;        // hh:dd
+    #active_hours_end;          // hh:dd
 
-    #bounties_followed;
+    #bounties_followed;         // [ mob, mob ]
 
     constructor(db, discord_id) {
         this.#db = db;
@@ -113,29 +90,26 @@ class User {
     async init() {
         //Get all info from database
         const users_record = await this.#db.get_users_table_record(this.#discord_id);
-        const bounty_preferences_record = await this.#db.get_bounty_preferences_table_record(this.#discord_id);
-
-        this.#bounties_followed = (await this.#db.get_bounties_followed(this.#discord_id)).map(i => i.mob);
 
         this.#discord_username = users_record.discord_username;
         this.#drip_username = users_record.drip_username;
+        this.#bounty_done = users_record.bounty_done;
+        this.#follow_respawn_timers = users_record.follow_respawn_timers;
+        this.#pause_notifications = users_record.pause_notifications;
+        this.#parse_and_update_active_hours(users_record.active_hours_start, users_record.active_hours_end);
 
-        this.#bountydone = bounty_preferences_record.bountydone;
-        this.#follow_upcoming_events = bounty_preferences_record.follow_upcoming_events;
-        this.#pause_notifications = bounty_preferences_record.pause_notifications;
-
-        this.#parse_and_update_active_hours(bounty_preferences_record.activehoursstart, bounty_preferences_record.activehoursend);
+        this.#bounties_followed = (await this.#db.get_bounties_followed(this.#discord_id)).map(i => i.mob);
     }
 
     get discord_id() { return this.#discord_id; }
     get discord_username() { return this.#discord_username; }
     get drip_username() { return this.#drip_username; }
 
-    get bountydone() {
-        return datetime_methods.check_same_day(new Date(this.#bountydone), Date.now());
+    get bounty_done() {
+        return datetime_methods.check_same_day(new Date(this.#bounty_done), Date.now());
     }
 
-    get follow_upcoming_events() { return this.#follow_upcoming_events == 1; }
+    get follow_respawn_timers() { return this.#follow_respawn_timers == 1; }
     get pause_notifications() { return this.#pause_notifications == 1; }
 
 
@@ -143,25 +117,25 @@ class User {
     set discord_username(invalid_action) { console.log('Something tried to set discord_username of a User object'); }
     set drip_username(invalid_action) { console.log('Something tried to set drip_username of a User object'); }
 
-    set bountydone(timestamp) {
-        if (this.bountydone) {
-            this.#bountydone = null;
+    set bounty_done(timestamp) {
+        if (this.bounty_done) {
+            this.#bounty_done = null;
         } else {
-            this.#bountydone = new Date(timestamp).toISOString();
+            this.#bounty_done = new Date(timestamp).toISOString();
         }
-        this.#db.set_bountydone(this.#discord_id, this.#bountydone);
+        this.#db.set_bounty_done(this.#discord_id, this.#bounty_done);
     }
 
-    set follow_upcoming_events(bool_value) {
+    set follow_respawn_timers(bool_value) {
         if (bool_value !== true && bool_value !== false) {
             console.log('Failed to set follow_upcoming_events for user ' + this.#discord_id + ' because bool_value was invalid');
             return;
         }
 
         const input_value = bool_value ? 1 : 0;
-        if (input_value !== this.#follow_upcoming_events) {
-            this.#follow_upcoming_events = input_value;
-            this.#db.set_follow_upcoming_events(this.#discord_id, input_value);
+        if (input_value !== this.#follow_respawn_timers) {
+            this.#follow_respawn_timers = input_value;
+            this.#db.set_follow_respawn_timers(this.#discord_id, input_value);
         }
     }
 
@@ -185,12 +159,8 @@ class User {
         const current_time = new Date();
         let current_hours = current_time.getUTCHours() + current_time.getUTCMinutes() / 60;
         if (current_hours <= this.#active_hours_start) {
+            //Have to adjust time because end time may have been +24 hours.
             current_hours += 24;
-
-            //End time may have been shifted up 24 hours
-            //If it was, then shifting this up will make the check valid
-            //      For both cases if user is active and if user is inactive
-            //If it was not shifted, then the user is inactive, and the shift keeps it outside of active range
         }
 
         return (this.#active_hours_start < current_hours && current_hours < this.#active_hours_end);
@@ -204,7 +174,7 @@ class User {
     #parse_and_update_active_hours(starttime, endtime) {
         if (!starttime || !endtime) {
             this.#active_hours_start = 0;
-            this.#active_hours_end = 0;
+            this.#active_hours_end = 24;
             return;
         }
 
@@ -213,7 +183,8 @@ class User {
 
         this.#active_hours_start = parseInt(start_arr[0]) + parseInt(start_arr[1]) / 60;
         this.#active_hours_end = parseInt(end_arr[0]) + parseInt(end_arr[1]) / 60;
-        if (this.#active_hours_end < this.#active_hours_start) {
+
+        if (this.#active_hours_end <= this.#active_hours_start) {
             //These eases active time calculations to always have start before end.
             this.#active_hours_end += 24;
         }

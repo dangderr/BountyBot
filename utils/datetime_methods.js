@@ -25,34 +25,6 @@ function check_same_day(first, second) {
     return false;
 }
 
-function parse_starttime_endtime(starttime, endtime) {
-    if (starttime.length > 5 || endtime.length > 5) {
-        return null;
-    }
-
-    startarr = starttime.split(":");
-    endarr = endtime.split(":");
-
-    if (startarr.length != 2 || endarr.length != 2) {
-        return null;
-    }
-
-    starthour = parseInt(startarr[0]);
-    startminutes = parseInt(startarr[1]);
-    endhour = parseInt(endarr[0]);
-    endminutes = parseInt(endarr[1]);
-
-    if (starthour < 0 || starthour > 23 ||
-        endhour < 0 || endhour > 23 ||
-        startminutes < 0 || startminutes > 59 ||
-        endminutes < 0 || endminutes > 59
-    ) {
-        return null;
-    }
-
-    return [starthour, startminutes, endhour, endminutes];
-}
-
 //Returns milliseconds
 function parse_drip_time_string(msg_arr) {
     let hours = 0;
@@ -246,7 +218,6 @@ function parse_global_timestamp(message) {
 module.exports = {
     sqlite_date_string_to_Date_obj,
     check_same_day,
-    parse_starttime_endtime,
     parse_drip_time_string,
     check_for_double_ping,
     calculate_bounty_time_remaining,

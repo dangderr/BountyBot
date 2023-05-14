@@ -12,6 +12,9 @@ module.exports = {
 			}
 			try {
 				console.log(`Received ${interaction.commandName} command from user ${interaction.user.username}`);
+
+				interaction.User = await interaction.client.Users.add_user(interaction.user);
+
 				await command.execute(interaction);
 			} catch (error) {
 				console.error(`Error executing ${interaction.commandName}`);
