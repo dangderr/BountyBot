@@ -28,16 +28,17 @@ class Pings {
         return this.#pings.find(i => i.id == id);
     }
 
-    async add_ping(user_id, role_id, channel_id, message_id, type, timestamp, delay) {
-        const ping_id = await this.#db.add_ping(user_id, channel_id, message_id, type, timestamp, delay);
+    async add_ping(user_id, role_id, channel_id, message_id, content, type, timestamp, delay) {
+        const ping_id = await this.#db.add_ping(user_id, channel_id, message_id, content, type, new Date(timestamp).toISOString(), delay);
         const new_ping = new Ping({
             id: ping_id,
             user_id: user_id,
             role_id: role_id,
             channel_id: channel_id,
             message_id: message_id,
+            content: content,
             type: type,
-            timestamp: timestamp,
+            timestamp: new Date(timestamp).toISOString(),
             delay: delay
         });
         this.#pings.push(new_ping);
@@ -45,11 +46,13 @@ class Pings {
     }
 
     async remove_ping(id) {
-        this.#db.remove_ping(id);
         const index = this.#pings.findIndex(i => i.id == id);
-        if (index >= 0) {
-            this.#pings.splice(index, 1);
+        if (index < 0) {
+            console.log(`Error: Pings - Tried to delete a ping that does not exist`);
+            return;
         }
+        this.#pings.splice(index, 1);
+        this.#db.remove_ping(id);
     }
 }
 

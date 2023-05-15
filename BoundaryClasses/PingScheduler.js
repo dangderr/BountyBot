@@ -4,6 +4,7 @@ const { ActionRowBuilder, ButtonBuilder, ButtonStyle, ComponentType } = require(
 class PingScheduler {
     #ping_controller;
     #MAX_COMPONENT_TIMER = 1000 * 60 * 5;           //5 minutes
+    #logger;
 
     #components = {
         restart_button: new ActionRowBuilder()
@@ -14,17 +15,20 @@ class PingScheduler {
                     .setStyle(ButtonStyle.Success))
     }
 
-    constructor(ping_controller, logger = true) {
+    constructor(ping_controller, logger = false) {
         this.#ping_controller = ping_controller;
+        this.#logger = logger;
     }
 
-    logger(ping) {
-        const time_remaining = (new Date(ping.timestamp).getTime() - Date.now()) / 1000;
-        console.log(`PingScheduler: ${ping.id} ${time_remaining}`);
+    log(ping) {
+        if (this.#logger) {
+            const time_remaining = (new Date(ping.timestamp).getTime() - Date.now()) / 1000;
+            console.log(`PingScheduler: ${ping.id} ${time_remaining}`);
+        }
     }
 
     async send_to_channel(ping, timestamp, channel, content, components) {
-        this.logger(ping);
+        this.log(ping);
         if (!await this.process_delay(ping.id, timestamp)) {
             return;
         }
@@ -41,7 +45,7 @@ class PingScheduler {
     }
 
     async reply_to_message(ping, timestamp, message, content, components) {
-        this.logger(ping);
+        this.log(ping);
         if (!await this.process_delay(ping.id, timestamp)) {
             return;
         }

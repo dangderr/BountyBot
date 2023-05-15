@@ -32,6 +32,7 @@ const schema = [
         role_id TEXT,
         channel_id NVARCHAR(50),
         message_id NVARCHAR(50),
+        content NVARCHAR(500),
         type NVARCHAR(50),
         timestamp NVARCHAR(50),
         delay INTEGER
@@ -39,21 +40,23 @@ const schema = [
     ,
     `CREATE TABLE event_timers (
         event_name NVARCHAR(50) PRIMARY KEY NOT NULL,
-        timestamp NVARCHAR(50)
+        timestamp NVARCHAR(50),
+        min_time INTEGER,
+        max_time INTEGER
     );`
 ];
 
 const events = [
-    ['blace'],
-    ['hell'],
-    ['event'],
-    ['soulhounds'],
-    ['dt_frenzy'],
-    ['dt_aura']
+    ['blace', 14400000, 21600000],
+    ['soulhounds', 19800000, 21600000],
+    ['treant', 10800000, 14400000],
+    ['quartz_titan', 21600000, 28800000],
+    ['pumpkin', 10800000, 14400000],
+    ['snowman', 10800000, 14400000]
 ];
 
 const table_data = [
-    { table: 'event_timers', columns: ['event_name'], values_2d_array: events }
+    { table: 'event_timers', columns: ['event_name', 'min_time', 'max_time'], values_2d_array: events }
 ];
 
 module.exports = {

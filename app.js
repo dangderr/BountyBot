@@ -1,17 +1,21 @@
 const { Client, GatewayIntentBits } = require('discord.js');
 
 const BountyBot = require('./bot/BountyBot.js');
+
 const DripDatabase = require('./database/DripDatabase.js');
 const Users = require('./EntityClasses/Users.js');
 const Channels = require('./EntityClasses/Channels.js');
-const PingController = require('./ControlClasses/PingController.js');
 const mobs = require('./database/data/mobs.js');
+
+const PingController = require('./ControlClasses/PingController.js');
+const MessageHandler = require('./BoundaryClasses/MessageHandler.js');
+
 
 async function main() {
     const client = await new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent] });
 
-    await init_bot(client);
     await init_classes(client);
+    await init_bot(client);
 }
 
 async function init_bot(client) {
@@ -32,10 +36,13 @@ async function init_classes(client) {
     client.Channels = new Channels();
     await client.Channels.init(client);
 
+    client.mobs = mobs;
+
     client.PingController = new PingController(client.drip_db, client.Users, client.Channels);
     await client.PingController.init();
 
-    client.mobs = mobs;
+    client.MessageHandler = new MessageHandler(client.PingController);
+    await client.MessageHandler.init();
 }
 
 main();

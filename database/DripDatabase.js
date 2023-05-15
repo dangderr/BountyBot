@@ -219,13 +219,13 @@ class DripDatabase extends Database {
         );
     }
 
-    async add_ping(user_id, channel_id, message_id, type, timestamp, delay) {
+    async add_ping(user_id, channel_id, message_id, content, type, timestamp, delay) {
         return await this.query_run(
             new SqlQueryBuilder()
                 .insert_into_values(
                     'ping_logs',
-                    ['user_id', 'channel_id', 'message_id', 'type', 'timestamp', 'delay'],
-                    [user_id, channel_id, message_id, type, timestamp, delay]
+                    ['user_id', 'channel_id', 'message_id', 'content', 'type', 'timestamp', 'delay'],
+                    [user_id, channel_id, message_id, content, type, timestamp, delay]
                 )
                 .get_result()
         );
@@ -241,39 +241,22 @@ class DripDatabase extends Database {
     }
 
 
+    /***********************
+     *                     *
+     *  event_timers table *
+     *                     *
+     ***********************/
 
-
-
-
-
-
-
-
-
-
-    //Will remove this in refactor of PingScheduler
-    async get_event_timers_timestamp(category = null) {
-        if (category) {
-            return await this.query_get(
-                new SqlQueryBuilder()
-                    .select(['*'])
-                    .from('event_timers')
-                    .where_column_equals(['event_name'], [category])
-                    .get_result()
-            );
-
-        } else {
-            return await this.query_all(
-                new SqlQueryBuilder()
-                    .select(['*'])
-                    .from('event_timers')
-                    .get_result()
-            );
-        }
+    async get_event_timers_table() {
+        return await this.query_all(
+            new SqlQueryBuilder()
+                .select(['*'])
+                .from('event_timers')
+                .get_result()
+        );
     }
 
-    //Will remove this in refactor of PingScheduler
-    async set_event_timers_timestamp(category, timestamp) {
+    async set_event_timer(category, timestamp) {
         this.query_run(
             new SqlQueryBuilder()
                 .update('event_timers')
@@ -284,42 +267,13 @@ class DripDatabase extends Database {
     }
 
 
-
-
-
-
-
     /*******************************
      *                             *
      *  bounty_ping_history table  *
      *                             *
      *******************************/
 
-    //Gets array, deletes expired records, and returns filtered array
-    //This logic will probably be removed and add to PingScheduler class
-    async  get_bounty_ping_history() {
-        const bounty_ping_arr = await this.get_bounty_ping_arr();
-        const current_time = new Date().getTime();
-        const three_hours = 1000 * 60 * 60 * 3; //Milliseconds
-
-        let index = 0;
-        while (index < bounty_ping_arr.length) {
-            const timestamp = bounty_ping_arr[index].timestamp;
-            const timestamp_time = new Date(timestamp).getTime();
-
-            if ((current_time - timestamp_time) > three_hours) {
-                this.delete_bounty_ping_record(bounty_ping_arr[index].mob, timestamp);
-                bounty_ping_arr.splice(index, 1);
-            }
-            else {
-                index++;
-            }
-        }
-
-        return bounty_ping_arr;
-    }
-
-    async get_bounty_ping_arr() {
+    async get_bounty_ping_table() {
         return await this.query_all(
             new SqlQueryBuilder()
                 .select(['*'])

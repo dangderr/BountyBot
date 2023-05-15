@@ -1,23 +1,39 @@
-const amar_messages = require('../bot/message_processing/amar_messages.js');
-const ping_messages = require('../bot/message_processing/ping_messages.js');
-const event_pings = require('../bot/message_processing/event_ping_messages.js');
-const bounty_pings = require('../bot/message_processing/bounty_ping_messages.js');
+const MessageProcessorAmar = require('../ControlClasses/MessageProcessorAmar.js');
+const MessageProcessorDripBounties = require('../ControlClasses/MessageProcessorDripBounties.js');
+const MessageProcessorDripEvents = require('../ControlClasses/MessageProcessorDripEvents.js');
+const MessageProcessorDripReminderPings = require('../ControlClasses/MessageProcessorDripReminderPings.js');
 
 class MessageHandler {
-    static #message_routes = {
-        amar_storm: amar_messages.check_amar_storm_message,
-        bounty: bounty_pings.check_bounty_message,
-        hell: event_pings.check_hell_message,
-        event: event_pings.check_event_message,
-        dt_frenzy: event_pings.check_dt_frenzy_message,
-        blace_frenzy: event_pings.check_blace_frenzy,
-        aura: event_pings.check_aura_message,
-        drops: event_pings.check_drops_message,
-        pings: ping_messages.check_ping_message,
-        soulhounds: event_pings.check_soulhounds_message
+    #amar;
+    #drip_bounties;
+    #drip_events;
+    #drip_reminders;
+
+    #message_routes = {
+        amar_storm: this.#amar.check_storm_message,                 ////
+        bounty: this.#drip_bounties.check_bounty_message,           ////
+        hell: this.#drip_events.check_hell_message,
+        event: this.#drip_events.check_event_message,
+        dt_frenzy: this.#drip_events.check_dt_frenzy_message,
+        blace_frenzy: this.#drip_events.check_blace_frenzy,
+        aura: this.#drip_events.check_aura_message,
+        drops: this.#drip_events.check_drops_message,
+        soulhounds: this.#drip_events.check_soulhounds_message,
+        pings: this.#drip_reminders.check_ping_message
     }
 
-    static async message(message) {
+    constructor(ping_controller) {
+        this.#amar = new MessageProcessorAmar(ping_controller);
+        this.#drip_bounties = new MessageProcessorDripBounties(ping_controller);
+        this.#drip_events = new MessageProcessorDripEvents(ping_controller);
+        this.#drip_reminders = new MessageProcessorDripReminderPings(ping_controller);
+    }
+
+    async init() {
+        await this.#drip_bounties.init();
+    }
+
+    async message(message) {
         if (message.author.bot) return;
 
         message.User = await message.client.Users.add_user(message.author);
@@ -30,7 +46,7 @@ class MessageHandler {
         }
     }
 
-    static async #route_message(message, message_type) {
+    async #route_message(message, message_type) {
         if (this.#message_routes.hasOwnProperty(message_type)) {
             this.#message_routes[message_type](message);
         } else {
