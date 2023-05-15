@@ -103,17 +103,17 @@ class Database {
 
     async query_run(sql_builder_result) {
         return await new Promise((resolve, reject) => {
-            this.#db.run(sql_builder_result.sql, sql_builder_result.variables, (err) => {
+            this.#db.run(sql_builder_result.sql, sql_builder_result.variables, function(err) {
                 if (err) {
                     console.log(err);
                     reject(err);
                 } else {
-                    resolve();
+                    resolve(this.lastID);
                 }
             })
         });
 
-        //returns void
+        //returns primary key autoincrement value for INSERT queries, otherwise null
     }
 
     async query_all(sql_builder_result) {

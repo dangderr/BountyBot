@@ -12,7 +12,8 @@ async function execute(message) {
     try {
         message.User = await message.client.Users.add_user(message.author);
 
-        const db = message.client.drip_db;
+        message.Channel = message.client.Channels.get_channel_by_id(message.channelId);
+        if (!message.Channel) return;
 
         if (fs.existsSync('./bot/message_processing/secret_chronos_commands.js')) {
             let chronos = await message.client.Users.get_user_by_drip_username('Chronos');
@@ -22,20 +23,7 @@ async function execute(message) {
             }
         }
 
-        ///////////////////
-        //This section requires Channels class to remove db use
-
-        const channel_info = await db.get_channel_info(message.channelId);
-        if (!channel_info) return;
-
-        const channel_message_types = (channel_info.channel_server == 'testserver')
-            ? await db.get_all_message_types()
-            : await db.get_channel_message_types(channel_info.channel_name, channel_info.channel_server);
-
-        //////////////////
-
-        for (const obj of channel_message_types) {
-            const message_type = obj.message_type;
+        for (const message_type of message.Channel.message_types) {
             switch (message_type) {
                 case 'amar_storm':
                     amar_messages.check_amar_storm_message(message);

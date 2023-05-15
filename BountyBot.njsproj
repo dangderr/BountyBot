@@ -48,7 +48,15 @@
     <Content Include="bot\message_processing\secret_chronos_commands.js">
       <SubType>Code</SubType>
     </Content>
+    <Content Include="BoundaryClasses\MessageHandler.js" />
+    <Content Include="BoundaryClasses\PingScheduler.js" />
+    <Content Include="ControlClasses\BountyProcessor.js" />
+    <Content Include="ControlClasses\MessageProcessor.js" />
+    <Content Include="ControlClasses\PingController.js" />
     <Content Include="database\Database.js">
+      <SubType>Code</SubType>
+    </Content>
+    <Content Include="database\data\channel_info.js">
       <SubType>Code</SubType>
     </Content>
     <Content Include="database\data\drip.db" />
@@ -64,9 +72,14 @@
     <Content Include="database\SqlQueryBuilder.js">
       <SubType>Code</SubType>
     </Content>
-    <Content Include="entities\Users.js">
-      <SubType>Code</SubType>
-    </Content>
+    <Content Include="EntityClasses\Channel.js" />
+    <Content Include="EntityClasses\Channels.js" />
+    <Content Include="EntityClasses\ItemDrops.js" />
+    <Content Include="EntityClasses\Ping.js" />
+    <Content Include="EntityClasses\Pings.js" />
+    <Content Include="EntityClasses\Role.js" />
+    <Content Include="EntityClasses\User.js" />
+    <Content Include="EntityClasses\Users.js" />
     <Content Include="package.json" />
     <Content Include="README.md" />
     <Content Include="testing\tests_for_Users_class.js" />
@@ -82,8 +95,10 @@
     <Folder Include="bot\commands\" />
     <Folder Include="bot\events\" />
     <Folder Include="bot\message_processing\" />
+    <Folder Include="BoundaryClasses\" />
+    <Folder Include="ControlClasses\" />
     <Folder Include="database\data\" />
-    <Folder Include="entities\" />
+    <Folder Include="EntityClasses\" />
     <Folder Include="utils\" />
     <Folder Include="database\" />
     <Folder Include="bot\" />

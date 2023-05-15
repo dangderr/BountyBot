@@ -85,7 +85,6 @@ async function check_bounty_message(message) {
     const user_mob_ping_list = await get_user_mob_ping_list(bounties_followed, mobs_to_ping);               // [ [id, mob], [id, mob] ]
     if (user_mob_ping_list.length == 0) return;
 
-    const channel = message.client.channels.cache.get(message.channelId);
 
     const users_to_ping = new Set(user_mob_ping_list.map(i => i[0]));
 
@@ -93,14 +92,14 @@ async function check_bounty_message(message) {
         if (user == message.author.id) continue;                            // No self pings
         if (!message.client.Users.get_user(user).active) continue;          // Don't ping inactives
         if (message.client.Users.get_user(user).bounty_done) continue;     // Don't ping people done with bounties
-
+      
         const mob_list = user_mob_ping_list.filter(i => i[0] == user).map(i => i[1]);
 
         let str = '<@' + user + '> ';
         str += mob_list.join(', ');
 
         try {
-            channel.send(str);
+            message.Channel.channel.send(str);
         } catch (err) {
             console.log(`Failed to ping ${id} in channel ${message.channelId}`);
             console.log(err);

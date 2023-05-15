@@ -127,6 +127,7 @@ class DripDatabase extends Database {
         );
     }
 
+
     /*****************************
      *                           *
      *  bounties_followed table  *
@@ -170,82 +171,12 @@ class DripDatabase extends Database {
     }
 
 
-
-
-
-
-
-    //Channels Class, probably remove channel_list, channel_whitelist, and role_ids from db
-
-    async get_channel_info(channel_id) {
-        return await this.query_get(
-            new SqlQueryBuilder()
-                .select(['*'])
-                .from('channel_list')
-                .where_column_equals(['channel_id'], [channel_id])
-                .get_result()
-        );
-    }
-
-    async get_channel_id(channel_name, channel_server) {
-        return await this.query_get(
-            new SqlQueryBuilder()
-                .select(['channel_id'])
-                .from('channel_list')
-                .where_column_equals(['channel_name', 'channel_server'], [channel_name, channel_server])
-                .get_result()
-        );
-    }
-
-    async get_channel_message_types(channel_name, channel_server) {
-        return await this.query_all(
-            new SqlQueryBuilder()
-                .select(['message_type'])
-                .from('channel_whitelist')
-                .where_column_equals(['channel_name', 'channel_server'], [channel_name, channel_server])
-                .get_result()
-        );
-    }
-
-    async get_all_message_types() {
-        return await this.query_all(
-            new SqlQueryBuilder()
-                .select(['message_type'])
-                .distinct()
-                .from('channel_whitelist')
-                .get_result()
-        );
-    }
-
-    async get_role_id(role, server) {
-        if (this.cache.get_role_id[role + server]) {
-            return this.cache.get_role_id[role + server];
-        }
-
-        const result_obj = await this.query_get(
-            new SqlQueryBuilder()
-                .select(['role_id'])
-                .from('role_ids')
-                .where_column_equals(['role', 'server'], [role, server])
-                .get_result()
-        );
-
-        if (result_obj) {
-            this.cache.get_role_id[role + server] = result_obj;
-        }
-
-        return result_obj;
-    }
-
-
-
-
-
     /*********************
      *                   *
      *  item_drops table *
      *                   *
      *********************/
+
     async add_item_drop(message, timestamp) {
         if (timestamp) {
             this.query_run(
@@ -273,43 +204,51 @@ class DripDatabase extends Database {
     }
 
 
+    /********************
+     *                  *
+     *  ping_logs table *
+     *                  *
+     ********************/
 
-
-
-
-
-
-    //Will remove this in refactor of PingScheduler
-    async get_user_ping_timer(discord_id, category) {
-        return await this.query_get(
-            new SqlQueryBuilder()
-                .select([category])
-                .from('user_ping_timers')
-                .where_column_equals(['discord_id'], [discord_id])
-                .get_result()
-        );
-    }
-
-    //Will remove this in refactor of PingScheduler
-    async set_user_ping_timer(discord_id, category, timestamp) {
-        this.query_run(
-            new SqlQueryBuilder()
-                .update('user_ping_timers')
-                .set([category], [timestamp])
-                .where_column_equals(['discord_id'], [discord_id])
-                .get_result()
-        );
-    }
-
-    //Will remove this in refactor of PingScheduler
-    async get_all_ping_timers() {
+    async get_all_ping_logs() {
         return await this.query_all(
             new SqlQueryBuilder()
                 .select(['*'])
-                .from('user_ping_timers')
+                .from('ping_logs')
                 .get_result()
         );
     }
+
+    async add_ping(user_id, channel_id, message_id, type, timestamp, delay) {
+        return await this.query_run(
+            new SqlQueryBuilder()
+                .insert_into_values(
+                    'ping_logs',
+                    ['user_id', 'channel_id', 'message_id', 'type', 'timestamp', 'delay'],
+                    [user_id, channel_id, message_id, type, timestamp, delay]
+                )
+                .get_result()
+        );
+    }
+
+    async remove_ping(id) {
+        this.query_run(
+            new SqlQueryBuilder()
+                .delete_from('ping_logs')
+                .where_column_equals(['id'], [id])
+                .get_result()
+        );
+    }
+
+
+
+
+
+
+
+
+
+
 
 
     //Will remove this in refactor of PingScheduler

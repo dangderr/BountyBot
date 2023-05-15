@@ -17,6 +17,12 @@ const data = (new SlashCommandBuilder()
 
 async function execute(interaction) {
     const user = interaction.User;
+    const channel = interaction.Channel;
+
+    if ((channel.server != 'drip' || channel.name != 'bounties') && channel.server != 'testserver') {
+        interaction.reply('Please keep bounties spam in #bounties channel');
+        return;
+    }
 
     const starttime = interaction.options.getString('start_time');
     const endtime = interaction.options.getString('end_time');
