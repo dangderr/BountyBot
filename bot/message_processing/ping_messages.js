@@ -130,8 +130,8 @@ async function planting_timer(message, message_arr, delay) {
 
     const bot_message = await message.reply({ content: str, components: [replant_button] });
 
-    const filter = i => i.user.id === message.author.id;
-    const collector = message.channel.createMessageComponentCollector({ filter, time: 1000 * 60 * 5, max: 1 });
+    const filter = i => i.user.id === message.author.id && i.message.id === bot_message.id;
+    const collector = bot_message.createMessageComponentCollector({ filter, time: 1000 * 60 * 5, max: 1 });
 
     let replanted = false;
     collector.on('end', collector => { });
