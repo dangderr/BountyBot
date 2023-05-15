@@ -31,7 +31,7 @@ class Channels {
         for (const channel of this.#channels) {
             promises.push(channel.init(client));
         }
-        Promise.all(promises);
+        await Promise.all(promises);
     }
 
     get_channel_by_id(id) {

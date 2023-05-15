@@ -4,11 +4,7 @@ const path = require('node:path');
 const { Collection, REST, Routes } = require('discord.js');
 
 class BountyBot {
-    constructor() {
-
-    }
-
-    async init(client, redeploy = false) {
+    static async init(client, redeploy = false) {
         if (redeploy) {
             await this.#deploy_commands();
         }
@@ -16,10 +12,10 @@ class BountyBot {
         const promises = new Array();
         promises.push(this.#init_commands(client));
         promises.push(this.#init_events(client));
-        await Promises.all(promises);
+        await Promise.all(promises);
     }
 
-    async #init_commands(client) {
+    static async #init_commands(client) {
         client.commands = new Collection();
         const commandsPath = path.join(__dirname, 'commands');
         const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('.js'));
@@ -34,7 +30,7 @@ class BountyBot {
         }
     }
 
-    async #init_events() {
+    static async #init_events(client) {
         const eventsPath = path.join(__dirname, 'events');
         const eventFiles = fs.readdirSync(eventsPath).filter(file => file.endsWith('.js'));
         for (const file of eventFiles) {
@@ -48,7 +44,7 @@ class BountyBot {
         }
     }
 
-    async #deploy_commands() {
+    static async #deploy_commands() {
         dotenv.config();
         const token = process.env.CLIENT_TOKEN;
         const clientId = process.env.CLIENT_ID;

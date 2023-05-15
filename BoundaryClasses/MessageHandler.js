@@ -1,8 +1,7 @@
-const fs = require('fs');
-const amar_messages = require('../message_processing/amar_messages.js');
-const ping_messages = require('../message_processing/ping_messages.js');
-const event_pings = require('../message_processing/event_ping_messages.js');
-const bounty_pings = require('../message_processing/bounty_ping_messages.js');
+const amar_messages = require('../bot/message_processing/amar_messages.js');
+const ping_messages = require('../bot/message_processing/ping_messages.js');
+const event_pings = require('../bot/message_processing/event_ping_messages.js');
+const bounty_pings = require('../bot/message_processing/bounty_ping_messages.js');
 
 class MessageHandler {
     static #message_routes = {
@@ -39,3 +38,5 @@ class MessageHandler {
         }
     }
 }
+
+module.exports = MessageHandler;

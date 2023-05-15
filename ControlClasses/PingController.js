@@ -1,6 +1,5 @@
 const PingScheduler = require('../BoundaryClasses/PingScheduler.js');
 const Pings = require('../EntityClasses/Pings.js');
-const { ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
 
 class PingController {
     #pings;
@@ -42,10 +41,10 @@ class PingController {
     }
 
     async #schedule_ping(ping) {
-        const channel = this.#Channels.get_channel_by_id(ping.channel_id);
+        const channel = this.#Channels.get_channel_by_id(ping.channel_id).channel;
         if (ping.message_id) {
             const message = await channel.messages.fetch(ping.message_id);
-            this.#ping_scheduler.reply_to_message(
+            await this.#ping_scheduler.reply_to_message(
                 ping,
                 ping.timestamp,
                 message,
@@ -53,7 +52,7 @@ class PingController {
                 this.#message_components[ping.type]
             );
         } else {
-            this.#ping_scheduler.send_to_channel(
+            await this.#ping_scheduler.send_to_channel(
                 ping,
                 ping.timestamp,
                 channel,
@@ -61,6 +60,8 @@ class PingController {
                 this.#message_components[ping.type]
             );
         }
+
+        this.#pings.remove_ping(ping.id);
     }
 
     async add_ping(user_id, role_id, channel_id, message_id, type, timestamp, delay) {

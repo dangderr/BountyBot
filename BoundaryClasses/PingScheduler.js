@@ -1,4 +1,5 @@
 const wait = require('node:timers/promises').setTimeout;
+const { ActionRowBuilder, ButtonBuilder, ButtonStyle, ComponentType } = require('discord.js');
 
 class PingScheduler {
     #ping_controller;
@@ -13,11 +14,17 @@ class PingScheduler {
                     .setStyle(ButtonStyle.Success))
     }
 
-    constructor(ping_controller) {
+    constructor(ping_controller, logger = true) {
         this.#ping_controller = ping_controller;
     }
 
+    logger(ping) {
+        const time_remaining = (new Date(ping.timestamp).getTime() - Date.now()) / 1000;
+        console.log(`PingScheduler: ${ping.id} ${time_remaining}`);
+    }
+
     async send_to_channel(ping, timestamp, channel, content, components) {
+        this.logger(ping);
         if (!await this.process_delay(ping.id, timestamp)) {
             return;
         }
@@ -27,13 +34,14 @@ class PingScheduler {
             return;
         }
          
-        channel.send({ content: content, components: components });
+        //channel.send({ content: content, components: components });
 
         //Start some collector here??
         //What type of channel.send pings will need a collector?
     }
 
     async reply_to_message(ping, timestamp, message, content, components) {
+        this.logger(ping);
         if (!await this.process_delay(ping.id, timestamp)) {
             return;
         }
@@ -44,14 +52,14 @@ class PingScheduler {
         }
 
         if (components == 'restart_button') {
-            const bot_message = await message.reply({ content: content, components: this.#components[components] });
+            const bot_message = await message.reply({ content: content, components: [this.#components[components]] });
             this.create_restart_collector(ping, message, content, bot_message);
         }
     }
 
     async create_restart_collector(ping, message, content, bot_message) {
-        const filter = i => i.user.id === message.author.id;
-        const collector = message.channel.createMessageComponentCollector({ filter, time: this.#MAX_COMPONENT_TIMER, max: 1 });
+        const filter = (i => i.user.id === message.author.id);
+        const collector = bot_message.createMessageComponentCollector({ filter: filter, componentType: ComponentType.Button, time: this.#MAX_COMPONENT_TIMER, max: 1 });
 
         let restarted = false;
         collector.on('collect', async i => {
@@ -75,7 +83,7 @@ class PingScheduler {
         }
     }
 
-    process_delay(ping_id, timestamp) {
+    async process_delay(ping_id, timestamp) {
         if (!timestamp) return true;
 
         const delay = new Date(timestamp).getTime() - Date.now();

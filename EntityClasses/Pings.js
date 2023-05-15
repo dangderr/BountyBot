@@ -12,6 +12,10 @@ class Pings {
         const ping_logs = await this.#db.get_all_ping_logs();
 
         for (const ping_log of ping_logs) {
+            if (new Date(ping_log.timestamp).getTime() < Date.now()) {
+                this.remove_ping(ping_log.id);
+                continue;
+            }
             this.#pings.push(new Ping(ping_log));
         }
     }
@@ -43,7 +47,9 @@ class Pings {
     async remove_ping(id) {
         this.#db.remove_ping(id);
         const index = this.#pings.findIndex(i => i.id == id);
-        this.#pings.splice(index, 1);
+        if (index >= 0) {
+            this.#pings.splice(index, 1);
+        }
     }
 }
 

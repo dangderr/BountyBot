@@ -1,4 +1,4 @@
-schema = [
+const schema = [
     `CREATE TABLE users (
         discord_id NVARCHAR(50) PRIMARY KEY NOT NULL,
         discord_username NVARCHAR(50) NOT NULL,
@@ -41,6 +41,7 @@ schema = [
         event_name NVARCHAR(50) PRIMARY KEY NOT NULL,
         timestamp NVARCHAR(50)
     );`
+];
 
 const events = [
     ['blace'],

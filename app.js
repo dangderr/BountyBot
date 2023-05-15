@@ -5,7 +5,6 @@ const DripDatabase = require('./database/DripDatabase.js');
 const Users = require('./EntityClasses/Users.js');
 const Channels = require('./EntityClasses/Channels.js');
 const PingController = require('./ControlClasses/PingController.js');
-const MessageHandler = require('./BoundaryClasses/MessageHandler.js');
 const mobs = require('./database/data/mobs.js');
 
 async function main() {
@@ -16,9 +15,8 @@ async function main() {
 }
 
 async function init_bot(client) {
-    const bounty_bot = new BountyBot();
     const redeploy_commands = false;
-    await bounty_bot.init(client, redeploy_commands);
+    await BountyBot.init(client, redeploy_commands);
 
     require('dotenv').config();
     await client.login(process.env.CLIENT_TOKEN);
@@ -36,9 +34,6 @@ async function init_classes(client) {
 
     client.PingController = new PingController(client.drip_db, client.Users, client.Channels);
     await client.PingController.init();
-
-    client.MessageHandler = new MessageHandler(client.drip_db, client.Users, client.Channels);
-    await client.MessageHandler.init();
 
     client.mobs = mobs;
 }
