@@ -64,9 +64,19 @@ async function check_ping_message(message) {
             timestamp.setMilliseconds(timestamp.getMilliseconds() + delay);
             db.set_user_ping_timer(user.discord_id , 'hades_attack', timestamp.toISOString());
         } else if (message.content.includes('Undead Dragon will appear in:')) {
-            str = '<@' + user.discord_id  + '>' + ' AHHHH DRAAGGGONNNN';
+            str = '<@' + user.discord_id + '>' + ' AHHHH DRAAGGGONNNN';
             timestamp.setMilliseconds(timestamp.getMilliseconds() + delay);
-            db.set_user_ping_timer(user.discord_id , 'hades_dragon', timestamp.toISOString());
+            db.set_user_ping_timer(user.discord_id, 'hades_dragon', timestamp.toISOString());
+        } else if (message.content.includes('Land is Protected by')) {
+            str = '<@' + user.discord_id + '>' + ' ~~Lyr dungeon~~ Clan wars room is finished.';
+            try {
+                delay = parseInt(message.content.split('Land is Protected by')[0]);
+                delay *= 6000;  //6 seconds per mob
+            } catch (err) {
+                console.log('Error: Could not parse Clan Wars message');
+            }
+            timestamp.setMilliseconds(timestamp.getMilliseconds() + delay);
+            db.set_user_ping_timer(user.discord_id, 'clan_wars_mob', timestamp.toISOString());
         } else if (message.content.includes("Time left: ")) {
             str = '<@' + user.discord_id  + '>' + ' Why am I pinging you again? Prolly aint important.';
         } else {
@@ -190,6 +200,7 @@ async function restart_ping_timers(client) {
                 case 'soulhounds': timer_restart_handler(user, channel, current_time, ping_timer_row[property], '<@' + discord_id + '>' + ' You can attack Soulhounds again.', console_message); break;
                 case 'hades_attack': timer_restart_handler(user, channel, current_time, ping_timer_row[property], '<@' + discord_id + '>' + ' Your Hades attack timer is up.', console_message); break;
                 case 'hades_dragon': timer_restart_handler(user, channel, current_time, ping_timer_row[property], '<@' + discord_id + '>' + ' AHHHH DRAAGGGONNNN', console_message); break;
+                case 'clan_wars_mob': timer_restart_handler(user, channel, current_time, ping_timer_row[property], '<@' + discord_id + '>' + ' ~~Lyr dungeon~~ Clan wars room is finished.', console_message); break;
                 case 'replanted': replanting_timer_restart_handler(user, client, channel, current_time, ping_timer_row[property], '<@' + discord_id + '>' + ' You forgot to ask me to ping for herbalism. Did you forget to replant?', console_message); break;
                 default:
             }
