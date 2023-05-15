@@ -37,7 +37,6 @@
     <Content Include="bot\commands\bounty_hours.js" />
     <Content Include="bot\commands\pause_notifications.js" />
     <Content Include="bot\commands\check_bounty_done.js" />
-    <Content Include="bot\deploy_commands.js" />
     <Content Include="bot\events\interactionCreate.js" />
     <Content Include="bot\events\message.js" />
     <Content Include="bot\events\ready.js" />

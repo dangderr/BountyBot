@@ -1,23 +1,30 @@
 const { Client, GatewayIntentBits } = require('discord.js');
 
+const BountyBot = require('./bot/BountyBot.js');
 const DripDatabase = require('./database/DripDatabase.js');
 const Users = require('./EntityClasses/Users.js');
 const Channels = require('./EntityClasses/Channels.js');
 const PingController = require('./ControlClasses/PingController.js');
+const MessageHandler = require('./BoundaryClasses/MessageHandler.js');
 const mobs = require('./database/data/mobs.js');
 
-const ping_messages = require('./bot/message_processing/ping_messages.js');
-
 async function main() {
-
-    require('dotenv').config();
     const client = await new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent] });
 
-    //require('./bot/deploy_commands.js').deployCommands();
+    await init_bot(client);
+    await init_classes(client);
+}
 
-    await require('./bot/BountyBot.js').BountyBot(client);
+async function init_bot(client) {
+    const bounty_bot = new BountyBot();
+    const redeploy_commands = false;
+    await bounty_bot.init(client, redeploy_commands);
+
+    require('dotenv').config();
     await client.login(process.env.CLIENT_TOKEN);
+}
 
+async function init_classes(client) {
     client.drip_db = new DripDatabase('./database/data/drip.db');
     await client.drip_db.init();
 
@@ -30,10 +37,10 @@ async function main() {
     client.PingController = new PingController(client.drip_db, client.Users, client.Channels);
     await client.PingController.init();
 
+    client.MessageHandler = new MessageHandler(client.drip_db, client.Users, client.Channels);
+    await client.MessageHandler.init();
+
     client.mobs = mobs;
-
-
-
-    //ping_messages.restart_ping_timers(client);
 }
+
 main();
