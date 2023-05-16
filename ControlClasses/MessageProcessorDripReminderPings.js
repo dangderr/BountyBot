@@ -1,4 +1,4 @@
-const datetime_methods = require('../../utils/datetime_methods.js');
+const datetime_methods = require('../utils/datetime_methods.js');
 
 class MessageProcessDripReminderPings {
     #ping_controller;
@@ -16,7 +16,7 @@ class MessageProcessDripReminderPings {
 
     //  Structure = [[a,b],[c,d]]
     //  Searches for (a AND b) OR (c AND d)
-    #search_terms = {
+    search_terms = {
         botcheck: [['Wild Captcha Event in:']],
         cauldron: [['will be able to drink in:']],
         herbalism: [['is still growing!']],
@@ -28,7 +28,7 @@ class MessageProcessDripReminderPings {
         hades_dragon: [['Undead Dragon will appear in:']],
         clan_wars_mob: [['Land is Protected by']],
         unknown: [['Time left:']]
-    }
+    };
 
     constructor(ping_controller) {
         this.#ping_controller = ping_controller;
@@ -40,8 +40,8 @@ class MessageProcessDripReminderPings {
         let timestamp = new Date();
         timestamp.setMilliseconds(timestamp.getMilliseconds() + delay);
 
-        for (const key of Object.keys(this.#search_terms)) {
-            for (const row of this.#search_terms[key]) {
+        for (const key of Object.keys(this.search_terms)) {
+            for (const row of this.search_terms[key]) {
                 let match = true;
                 for (const search_term of row) {
                     if (!message.content.includes(search_term)) {
@@ -88,3 +88,5 @@ class MessageProcessDripReminderPings {
         return this.#replies[Math.floor(Math.random() * replies.length)];
     }
 }
+
+module.exports = MessageProcessDripReminderPings;

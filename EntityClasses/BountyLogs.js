@@ -38,6 +38,8 @@ class BountyLogs {
     async #remove_stale_bounties() {
         let index = 0;
         while (index < this.#bounty_logs.length) {
+            const log = this.#bounty_logs[index];
+
             if (Date.now() > new Date(log.timestamp).getTime()) {
                 this.#delete_bounty_log(log.mob, log.timestamp);
             } else {

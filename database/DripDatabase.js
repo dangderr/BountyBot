@@ -170,40 +170,6 @@ class DripDatabase extends Database {
         );
     }
 
-
-    /*********************
-     *                   *
-     *  item_drops table *
-     *                   *
-     *********************/
-
-    async add_item_drop(message, timestamp) {
-        if (timestamp) {
-            this.query_run(
-                new SqlQueryBuilder()
-                    .insert_into_values('item_drops', ['message', 'date'], [message, timestamp])
-                    .get_result()
-            );
-        } else {
-            this.query_run(
-                new SqlQueryBuilder()
-                    .insert_into_values('item_drops', ['message'], [message])
-                    .get_result()
-            );
-        }
-    }
-
-    async get_item_drops() {
-        return await this.query_all(
-            new SqlQueryBuilder()
-                .select(['*'])
-                .from('item_drops')
-                .order_by(['date'], ['DESC'])
-                .get_result()
-        );
-    }
-
-
     /********************
      *                  *
      *  ping_logs table *
@@ -298,6 +264,74 @@ class DripDatabase extends Database {
                 .get_result()
         );
     }
+
+
+    /**************************
+     *                        *
+     *  last_ping_times table *
+     *                        *
+     **************************/
+
+    async get_last_ping_times_table() {
+        return await this.query_all(
+            new SqlQueryBuilder()
+                .select(['*'])
+                .from('last_ping_times')
+                .get_result()
+        );
+    }
+
+    async update_last_ping_time(type, timestamp) {
+        this.query_run(
+            new SqlQueryBuilder()
+                .update('last_ping_times')
+                .set(['timestamp'], [timestamp])
+                .where_column_equals(['type'], [type])
+                .get_result()
+        );
+    }
+
+    async add_last_ping_time(type, timestamp) {
+        this.query_run(
+            new SqlQueryBuilder()
+                .insert_into_values('last_ping_times', ['type', 'timestamp'], [type, timestamp])
+                .get_result()
+        );
+    }
+
+    /*********************
+     *                   *
+     *  item_drops table *
+     *                   *
+     *********************/
+
+    async add_item_drop(message, timestamp) {
+        if (timestamp) {
+            this.query_run(
+                new SqlQueryBuilder()
+                    .insert_into_values('item_drops', ['message', 'date'], [message, timestamp])
+                    .get_result()
+            );
+        } else {
+            this.query_run(
+                new SqlQueryBuilder()
+                    .insert_into_values('item_drops', ['message'], [message])
+                    .get_result()
+            );
+        }
+    }
+
+    async get_item_drops() {
+        return await this.query_all(
+            new SqlQueryBuilder()
+                .select(['*'])
+                .from('item_drops')
+                .order_by(['date'], ['DESC'])
+                .get_result()
+        );
+    }
+
+
 }
 
 module.exports = DripDatabase;

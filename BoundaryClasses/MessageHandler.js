@@ -9,28 +9,31 @@ class MessageHandler {
     #drip_events;
     #drip_reminders;
 
-    #message_routes = {
-        amar_storm: this.#amar.check_storm_message,                 ////
-        bounty: this.#drip_bounties.check_bounty_message,           ////
-        hell: this.#drip_events.check_hell_message,
-        event: this.#drip_events.check_event_message,
-        dt_frenzy: this.#drip_events.check_dt_frenzy_message,
-        blace_frenzy: this.#drip_events.check_blace_frenzy,
-        aura: this.#drip_events.check_aura_message,
-        drops: this.#drip_events.check_drops_message,
-        soulhounds: this.#drip_events.check_soulhounds_message,
-        pings: this.#drip_reminders.check_ping_message
-    }
+    #message_routes;
 
-    constructor(ping_controller) {
+    constructor(ping_controller, db) {
         this.#amar = new MessageProcessorAmar(ping_controller);
-        this.#drip_bounties = new MessageProcessorDripBounties(ping_controller);
-        this.#drip_events = new MessageProcessorDripEvents(ping_controller);
+        this.#drip_bounties = new MessageProcessorDripBounties(ping_controller, db);
+        this.#drip_events = new MessageProcessorDripEvents(ping_controller, db);
         this.#drip_reminders = new MessageProcessorDripReminderPings(ping_controller);
     }
 
     async init() {
         await this.#drip_bounties.init();
+        await this.#drip_events.init();
+
+        this.#message_routes = {
+            amar_storm: this.#amar.check_storm_message,
+            bounty: this.#drip_bounties.check_bounty_message,
+            hell: this.#drip_events.check_hell_message,
+            event: this.#drip_events.check_event_message,
+            dt_frenzy: this.#drip_events.check_dt_frenzy_message,
+            blace_frenzy: this.#drip_events.check_blace_frenzy,
+            aura: this.#drip_events.check_aura_message,
+            drops: this.#drip_events.check_drops_message,
+            soulhounds: this.#drip_events.check_soulhounds_message,
+            pings: this.#drip_reminders.check_ping_message
+        }
     }
 
     async message(message) {

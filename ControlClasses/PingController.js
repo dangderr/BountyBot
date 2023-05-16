@@ -1,6 +1,7 @@
 const PingScheduler = require('../BoundaryClasses/PingScheduler.js');
 const Pings = require('../EntityClasses/Pings.js');
 const EventTimers = require('../EntityClasses/EventTimers.js');
+const DoublePingTracker = require('../EntityClasses/DoublePingTracker.js');
 
 class PingController {
     #Users;
@@ -9,6 +10,7 @@ class PingController {
     #pings;
     #ping_scheduler;
     #event_timers;
+    #double_ping_tracker;
 
     #message_content = {
         botcheck: 'Botcheck within half an hour.',
@@ -21,6 +23,7 @@ class PingController {
         soulhounds_attack: 'Your Soulhounds attack timer is up.',
         hades_attack: 'Your Hades attack timer is up.',
         hades_dragon: 'AHHHH DRAAGGGONNNN',
+        clan_wars_mob: '~~Lyr dungeon~~ Clan wars room is finished.',
 
         blace_reminder: 'Blaze/Ace last spawned 4 hours ago.',
         soulhounds_reminder: 'Soulhounds last spawned 5.5 hours ago.',
@@ -34,7 +37,8 @@ class PingController {
     #REMINDER_FALLBACK_MESSAGE = 'This is a reminder message. Something spawned some hours ago but idr what and idk when.';
 
     #message_components = {
-        herbalism: 'restart_button'
+        herbalism: 'restart_button',
+        blace: 'blace_buttons'
     };
 
     #events_to_track;
@@ -45,7 +49,8 @@ class PingController {
 
         this.#pings = new Pings(db);
         this.#ping_scheduler = new PingScheduler(this);
-        this.#event_timers = new EventTimers();
+        this.#event_timers = new EventTimers(db);
+        this.#double_ping_tracker = new DoublePingTracker(db);
     }
 
     async init() {
@@ -56,6 +61,8 @@ class PingController {
         for (const ping of this.#pings.get_all_pings()) {
             this.#schedule_ping(ping);
         }
+
+        await this.#double_ping_tracker.init();
     }
 
     async #schedule_ping(ping) {
@@ -89,73 +96,74 @@ class PingController {
     }
 
     async add_ping(user_id, role_id, channel_id, message_id, content, type, timestamp, delay) {
-        const ping = await this.#pings
-            .add_ping(
-                user_id,
-                role_id,
-                channel_id,
-                message_id,
-                content,
-                type,
-                timestamp,
-                delay
-            );
-        this.#schedule_ping(ping);
-
-        if (type == 'herbalism') {
-            //If herbalism, remove all replanting timers and then start a new one
-            const options = {
-                user_id: user_id,
-                type: 'replanting'
-            };
-            const matching_pings = this.#pings.find_pings(options);
-
-            for (const p of matching_pings) {
-                await this.#pings.remove_ping(p.id);
+        if ((!user_id && !timestamp) || (type == 'soulhounds')) {
+            if (this.#double_ping_tracker.check_double_ping(type, Date.now())) {
+                return;
+            } else {
+                this.#double_ping_tracker.set_last_ping_time(type, Date.now());
             }
+        }
 
-            const new_timestamp = new Date(timestamp);
-            new_timestamp.setUTCMinutes(new_timestamp.getUTCMinutes() + 20);
-            this.add_ping(user_id, role_id, channel_id, message_id, content, type, new_timestamp, delay);
+        if (type == 'hell') {
+            this.#schedule_hell_open(user_id, role_id, channel_id, message_id,content, type, timestamp, delay);
+            timestamp = null;
+        } else if (type == 'herbalism') {
+            this.#schedule_herbalism_replanting(user_id, role_id, channel_id, message_id, content, type, timestamp, delay);
         }
 
         if (this.#events_to_track.includes(type)) {
-            await this.#event_timers.set_event_timer(type, timestamp);
+            if (timestamp) {
+                this.#schedule_event_respawn_reminders(channel_id, type, timestamp);
+            }
+            timestamp = null;
+        }
 
-            const user_list = this.#Users.get_user_ids_following_respawn_timers().join(',');
+        const ping = await this.#pings
+            .add_ping(user_id, role_id, channel_id, message_id, content, type, timestamp, delay);
+        this.#schedule_ping(ping);
+    }
 
-            const event_info = await this.#event_timers.get_event_timer(type);
-            const ping_time = new Date();
-            ping_time.setUTCMilliseconds(ping_time.getUTCMilliseconds() + event_info.min_time);
+    async #schedule_hell_open(user_id, role_id, channel_id, message_id, content, type, timestamp, delay) {
+        await this.#remove_stale_pings({ type: 'hell_open' });
+        this.add_ping(user_id, role_id, channel_id, message_id, content, 'hell_open', timestamp, delay);
+    }
 
-            const event_reminder_ping = await this.#pings
-                .add_ping(
-                    user_list,
-                    null,
-                    channel_id,
-                    null,
-                    null,
-                    type + '_reminder',
-                    ping_time,
-                    null
-                );
-            this.#schedule_ping(event_reminder_ping);
+    async #schedule_herbalism_replanting(user_id, role_id, channel_id, message_id, content, type, timestamp, delay) {
+        await this.#remove_stale_pings({ user_id: user_id, type: 'replanting' });
+
+        const new_timestamp = new Date(timestamp);
+        new_timestamp.setUTCMinutes(new_timestamp.getUTCMinutes() + 20);
+        this.add_ping(user_id, role_id, channel_id, message_id, content, type, new_timestamp, delay);
+    }
+
+    async #schedule_event_respawn_reminders(channel_id, type, timestamp) {
+        await this.#event_timers.set_event_timer(type, timestamp);
+        await this.#remove_stale_pings({ type: type + '_reminder' });
+
+        const user_list = this.#Users.get_user_ids_following_respawn_timers().join(',');
+
+        const event_info = await this.#event_timers.get_event_timer(type);
+        const ping_time = new Date(timestamp);
+        ping_time.setUTCMilliseconds(ping_time.getUTCMilliseconds() + event_info.min_time);
+
+        const event_reminder_ping = await this.#pings
+            .add_ping(user_list, null, channel_id, null,
+                null, type + '_reminder', ping_time, null);
+        this.#schedule_ping(event_reminder_ping);
+    }
+
+    async #remove_stale_pings(options) {
+        const matching_pings = this.#pings.find_pings(options);
+        for (const p of matching_pings) {
+            await this.#pings.remove_ping(p.id);
         }
     }
 
     //From the restart button
     async restart_ping(ping) {
         const new_timestamp = new Date(Date.now() + ping.delay).toISOString();
-        const new_ping = await this.#pings.add_ping(
-            ping.user_id,
-            ping.role_id,
-            ping.channel_id,
-            ping.message_id,
-            ping.content,
-            ping.type,
-            new_timestamp,
-            ping.delay
-        );
+        const new_ping = await this.#pings.add_ping(ping.user_id, ping.role_id, ping.channel_id, ping.message_id,
+            ping.content, ping.type, new_timestamp, ping.delay);
         this.#schedule_ping(new_ping);
     }
 

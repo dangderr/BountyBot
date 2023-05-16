@@ -7,12 +7,14 @@ class PingScheduler {
     #logger;
 
     #components = {
-        restart_button: new ActionRowBuilder()
-            .addComponents(
-                new ButtonBuilder()
-                    .setCustomId('Restart')
-                    .setLabel('Restart')
-                    .setStyle(ButtonStyle.Success))
+        restart_button: [new ActionRowBuilder()
+            .addComponents(new ButtonBuilder().setCustomId('Restart').setLabel('Restart').setStyle(ButtonStyle.Success))],
+        blace_buttons: [new ActionRowBuilder()
+            .addComponents(new ButtonBuilder().setCustomId('10').setLabel('400/White').setStyle(ButtonStyle.Secondary))
+            .addComponents(new ButtonBuilder().setCustomId('20').setLabel('500/Green').setStyle(ButtonStyle.Success))
+            .addComponents(new ButtonBuilder().setCustomId('30').setLabel('600/Blue').setStyle(ButtonStyle.Primary))
+            .addComponents(new ButtonBuilder().setCustomId('45').setLabel('700/Purple').setStyle(ButtonStyle.Primary))
+            .addComponents(new ButtonBuilder().setCustomId('60').setLabel('800/Red').setStyle(ButtonStyle.Danger))]
     }
 
     constructor(ping_controller, logger = false) {
@@ -55,15 +57,22 @@ class PingScheduler {
             return;
         }
 
+        const bot_message = await message.reply({ content: content, components: this.#components[components] });
         if (components == 'restart_button') {
-            const bot_message = await message.reply({ content: content, components: [this.#components[components]] });
-            this.create_restart_collector(ping, message, content, bot_message);
+            this.create_restart_button_collector(ping, message, content, bot_message);
+        } else if (components == 'blace_buttons') {
+            this.create_blace_button_collector();
         }
     }
 
-    async create_restart_collector(ping, message, content, bot_message) {
+    async create_restart_button_collector(ping, message, content, bot_message) {
         const filter = (i => i.user.id === message.author.id);
-        const collector = bot_message.createMessageComponentCollector({ filter: filter, componentType: ComponentType.Button, time: this.#MAX_COMPONENT_TIMER, max: 1 });
+        const collector = bot_message.createMessageComponentCollector({
+            filter: filter,
+            componentType: ComponentType.Button,
+            time: this.#MAX_COMPONENT_TIMER,
+            max: 1
+        });
 
         let restarted = false;
         collector.on('collect', async i => {
@@ -85,6 +94,36 @@ class PingScheduler {
         if (!restarted) {
             bot_message.edit({ content: content, components: [] });
         }
+    }
+
+    async create_blace_button_collector(ping, message, bot_message) {
+        const collector = bot_message.createMessageComponentCollector({
+            componentType: ComponentType.Button,
+            time: this.#MAX_COMPONENT_TIMER,
+            max: 1
+        });
+
+        collector.on('end', collector => { });
+        collector.on('collect', async i => {
+            const replies = ['bro', 'dude', 'clock', 'babe', 'man', 'dawg', 'homie', 'honey', 'Allah'];
+            const reply_index = Math.floor(Math.random() * replies.length);
+            message_reply = 'Thanks, ' + replies[reply_index];
+            await i.update({ content: message_reply, components: [] });
+
+            const role_id = message.client.Channels.get_role_id('frenzy', 'drip');
+            const content = i.component.customId + ' mins from Blaze/Ace';
+
+            this.#ping_controller.add_ping(
+                null,
+                role_id,
+                ping.channel_id,
+                ping.message_id,
+                content,
+                'blace_ping',
+                null,
+                null
+            );
+        });
     }
 
     async process_delay(ping_id, timestamp) {

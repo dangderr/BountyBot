@@ -14,8 +14,8 @@ const MessageHandler = require('./BoundaryClasses/MessageHandler.js');
 async function main() {
     const client = await new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent] });
 
-    await init_classes(client);
     await init_bot(client);
+    await init_classes(client);
 }
 
 async function init_bot(client) {
@@ -41,7 +41,7 @@ async function init_classes(client) {
     client.PingController = new PingController(client.drip_db, client.Users, client.Channels);
     await client.PingController.init();
 
-    client.MessageHandler = new MessageHandler(client.PingController);
+    client.MessageHandler = new MessageHandler(client.PingController, client.drip_db);
     await client.MessageHandler.init();
 }
 

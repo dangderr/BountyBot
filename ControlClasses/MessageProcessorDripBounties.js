@@ -1,13 +1,12 @@
-const { TimestampStyles } = require('discord.js');
 const BountyLogs = require('../EntityClasses/BountyLogs.js');
 
 class MessageProcessorDripBounty {
     #ping_controller;
     #bounty_logs;
 
-    constructor(ping_controller) {
+    constructor(ping_controller, db) {
         this.#ping_controller = ping_controller;
-        this.#bounty_logs = new BountyLogs();
+        this.#bounty_logs = new BountyLogs(db);
     }
 
     async init() {
@@ -66,7 +65,7 @@ class MessageProcessorDripBounty {
             return;
         }
 
-        const mobs_to_ping = await this.#get_mobs(message_arr);                                                 // [ mob, mob, mob ]
+        let mobs_to_ping = await this.#get_mobs(message_arr);                                                 // [ mob, mob, mob ]
         if (mobs_to_ping.length == 0) return;
 
         const bounties_followed = message.client.Users.get_bounties_followed();                                 // [ [id, mob], [id, mob] ]

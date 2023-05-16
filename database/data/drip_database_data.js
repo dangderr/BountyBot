@@ -44,6 +44,11 @@ const schema = [
         min_time INTEGER,
         max_time INTEGER
     );`
+    ,
+    `CREATE TABLE last_ping_times(
+        type NVARCHAR(100) PRIMARY KEY NOT NULL,
+        timestamp NVARCHAR(50)
+    );`
 ];
 
 const events = [

@@ -1,4 +1,3 @@
-
 class MessageProcessorAmar {
     #ping_controller;
 

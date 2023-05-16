@@ -40,11 +40,6 @@
     <Content Include="bot\events\interactionCreate.js" />
     <Content Include="bot\events\message.js" />
     <Content Include="bot\events\ready.js" />
-    <Content Include="bot\message_processing\event_ping_messages.js" />
-    <Content Include="bot\message_processing\ping_messages.js" />
-    <Content Include="bot\message_processing\secret_chronos_commands.js">
-      <SubType>Code</SubType>
-    </Content>
     <Content Include="BoundaryClasses\MessageHandler.js" />
     <Content Include="BoundaryClasses\PingScheduler.js" />
     <Content Include="ControlClasses\MessageProcessorDripBounties.js" />
@@ -76,6 +71,9 @@
     </Content>
     <Content Include="EntityClasses\Channel.js" />
     <Content Include="EntityClasses\Channels.js" />
+    <Content Include="EntityClasses\DoublePingTracker.js">
+      <SubType>Code</SubType>
+    </Content>
     <Content Include="EntityClasses\EventTimers.js">
       <SubType>Code</SubType>
     </Content>
@@ -99,7 +97,6 @@
   <ItemGroup>
     <Folder Include="bot\commands\" />
     <Folder Include="bot\events\" />
-    <Folder Include="bot\message_processing\" />
     <Folder Include="BoundaryClasses\" />
     <Folder Include="ControlClasses\" />
     <Folder Include="database\data\" />

@@ -1,6 +1,8 @@
 
 class EventTimers {
     #db;
+
+    //Timestamp is of the initial spawn time, important for things like soulhounds
     #event_timers;      // [ { event_name: event_name, timestamp: ISOtimestamp } ]
 
     constructor(db) {
