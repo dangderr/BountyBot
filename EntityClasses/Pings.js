@@ -48,9 +48,12 @@ class Pings {
     async remove_ping(id) {
         const index = this.#pings.findIndex(i => i.id == id);
         if (index < 0) {
-            console.log(`Error: Pings - Tried to delete a ping that does not exist`);
+            console.log(`Error: Pings - Tried to delete a ping that does not exist, id: ${id}`);
             return;
         }
+
+        console.log(`[${new Date().toISOString()}] Deleting Ping: ${id} ${this.#pings[index].user_id} ${this.#pings[index].type}`);
+
         this.#pings.splice(index, 1);
         await this.#db.remove_ping(id);
     }

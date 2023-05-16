@@ -25,7 +25,7 @@ class PingScheduler {
     log(ping) {
         if (this.#logger) {
             const time_remaining = (new Date(ping.timestamp).getTime() - Date.now()) / 1000;
-            console.log(`PingScheduler: ${ping.id} ${ping.type} ${time_remaining}`);
+            console.log(`[${new Date().toISOString()}] PingScheduler: ${ping.id} ${ping.user_id} ${ping.type} ${time_remaining} [${new Date(ping.timestamp).toISOString()}]`);
         }
     }
 

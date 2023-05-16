@@ -145,6 +145,13 @@ class PingController {
         const new_timestamp = new Date(Date.now() + ping.delay).toISOString();
         this.add_ping(ping.user_id, ping.role_id, ping.channel_id, ping.message_id,
             ping.content, ping.type, new_timestamp, ping.delay);
+
+        if (type == 'herbalism') {
+            const new_new_timestamp = new Date(new_timestamp);
+            new_new_timestamp.setUTCMinutes(new_new_timestamp.getUTCMinutes() + 20);
+            this.add_ping(ping.user_id, null, ping.channel_id, ping.message_id,
+                null, 'replanting', new_new_timestamp, null);
+        }
     }
 
     async #schedule_event_respawn_reminders(channel_id, type, timestamp) {
