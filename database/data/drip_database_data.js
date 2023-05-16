@@ -1,4 +1,4 @@
-schema = [
+const schema = [
     `CREATE TABLE users (
         discord_id NVARCHAR(50) PRIMARY KEY NOT NULL,
         discord_username NVARCHAR(50) NOT NULL,
@@ -16,18 +16,9 @@ schema = [
         mob NVARCHAR(50) NOT NULL
     );`
     ,
-    `CREATE TABLE user_ping_timers (
-        discord_id NVARCHAR(50) PRIMARY KEY NOT NULL,
-        botcheck NVARCHAR(50),
-        cauldron NVARCHAR(50),
-        planting NVARCHAR(50),
-        pet_training NVARCHAR(50),
-        pet_exploration NVARCHAR(50),
-        hades_training NVARCHAR(50),
-        replanted NVARCHAR(50),
-        soulhounds NVARCHAR(50),
-        hades_attack NVARCHAR(50),
-        hades_dragon NVARCHAR(50)
+    `CREATE TABLE bounty_ping_history (
+        mob NVARCHAR(50) NOT NULL,
+        timestamp NVARCHAR(50) NOT NULL
     );`
     ,
     `CREATE TABLE item_drops (
@@ -35,28 +26,42 @@ schema = [
         date NVARCHAR(50) NOT NULL DEFAULT CURRENT_DATE
     );`
     ,
-    `CREATE TABLE bounty_ping_history (
-        mob NVARCHAR(50) NOT NULL,
-        timestamp NVARCHAR(50) NOT NULL
+    `CREATE TABLE ping_logs(
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id TEXT,
+        role_id TEXT,
+        channel_id NVARCHAR(50),
+        message_id NVARCHAR(50),
+        content NVARCHAR(500),
+        type NVARCHAR(50),
+        timestamp NVARCHAR(50),
+        delay INTEGER
     );`
     ,
     `CREATE TABLE event_timers (
         event_name NVARCHAR(50) PRIMARY KEY NOT NULL,
+        timestamp NVARCHAR(50),
+        min_time INTEGER,
+        max_time INTEGER
+    );`
+    ,
+    `CREATE TABLE last_ping_times(
+        type NVARCHAR(100) PRIMARY KEY NOT NULL,
         timestamp NVARCHAR(50)
     );`
 ];
 
 const events = [
-    ['blace'],
-    ['hell'],
-    ['event'],
-    ['soulhounds'],
-    ['dt_frenzy'],
-    ['dt_aura']
+    ['blace', 14400000, 21600000],
+    ['soulhounds', 19800000, 21600000],
+    ['treant', 10800000, 14400000],
+    ['quartz_titan', 21600000, 28800000],
+    ['pumpkin', 10800000, 14400000],
+    ['snowman', 10800000, 14400000]
 ];
 
 const table_data = [
-    { table: 'event_timers', columns: ['event_name'], values_2d_array: events }
+    { table: 'event_timers', columns: ['event_name', 'min_time', 'max_time'], values_2d_array: events }
 ];
 
 module.exports = {

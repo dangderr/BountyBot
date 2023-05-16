@@ -88,49 +88,6 @@ function parse_drip_time_string(msg_arr) {
     return ((hours * 60 + minutes) * 60 + seconds) * 1000;
 }
 
-function check_for_double_ping(iso_timestamp, minutes = 5) {
-    const last_ping = new Date(iso_timestamp);
-    const current_time = new Date();
-
-    const time_frame_to_block_double_pings = 1000 * 60 * minutes; //5 minutes
-
-    //True is double ping, false is not
-    return (current_time.getTime() - last_ping.getTime()) < time_frame_to_block_double_pings;
-}
-
-function calculate_bounty_time_remaining(line) {
-    let milliseconds = 0;
-    const time_arr = line.trim().split(' ').filter(i => i);
-    let index = time_arr.indexOf('s.');
-    if (index > 0) {
-        try {
-            milliseconds += parseInt(time_arr[index - 1]) * 1000;
-        } catch (err) {
-            console.log('Error in calculate_time_remaining');
-            console.log(time_arr.join('-'));
-        }
-    }
-    index = time_arr.indexOf('min.');
-    if (index > 0) {
-        try {
-            milliseconds += parseInt(time_arr[index - 1]) * 60 * 1000;
-        } catch (err) {
-            console.log('Error in calculate_time_remaining');
-            console.log(time_arr.join('-'));
-        }
-    }
-    index = time_arr.indexOf('h.');
-    if (index > 0) {
-        try {
-            milliseconds += parseInt(time_arr[index - 1]) * 60 * 60 * 1000;
-        } catch (err) {
-            console.log('Error in calculate_time_remaining');
-            console.log(time_arr.join('-'));
-        }
-    }
-    return milliseconds;
-}
-
 function check_active_time(activehourstart, activehourend) {  //hh:mm format
     //true == active
 
@@ -219,8 +176,6 @@ module.exports = {
     sqlite_date_string_to_Date_obj,
     check_same_day,
     parse_drip_time_string,
-    check_for_double_ping,
-    calculate_bounty_time_remaining,
     check_active_time,
     parse_global_timestamp
 }

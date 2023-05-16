@@ -1,22 +1,34 @@
-async function check_amar_storm_message(message) {
-    const channel = message.Channel;
+class MessageProcessorAmar {
+    #ping_controller;
 
-    try {
+    constructor(ping_controller) {
+        this.#ping_controller = ping_controller;
+    }
+
+    async check_storm_message(message) {
         let role_id;
         let location;
         let time_str;
+        let type;
 
         if (message.content.includes("Time to grab a kite, a thunderstorm is rolling into")) {
             role_id = message.client.Channels.get_role_id('thunderstorm', 'amar');
             location = message.content.split(" into ")[1];
             time_str = message.content.split(' Time to grab')[0];
+            type = 'amar_storm';
         }
         else if (message.content.includes("A rainbow emerges as a light rain begins to fall in")) {
             role_id = message.client.Channels.get_role_id('event', 'amar');
             location = message.content.split(" fall in ")[1];
             time_str = message.content.split(' A rainbow emerges')[0];
+            type = 'amar_event';
         }
         else {
+            return;
+        }
+
+        if (!role_id) {
+            console.log('Error in getting role ID');
             return;
         }
 
@@ -24,11 +36,6 @@ async function check_amar_storm_message(message) {
             location = location.replace('! Travel', '');
         } else if (location.includes('!')) {
             location = location.replace('!', '');
-        }
-
-        if (!role_id) {
-            console.log('Error in getting role ID');
-            return;
         }
 
         const time_arr = time_str.split(':');
@@ -41,25 +48,13 @@ async function check_amar_storm_message(message) {
             minutes_ago += 24 * 60;
         }
 
-        let str = '<@&' + role_id + '> at ' + location;
+        let content = 'at ' + location;
         if (minutes_ago > 3) {
-            str += ' started ' + minutes_ago + ' minutes ago';
+            content += ' started ' + minutes_ago + ' minutes ago';
         }
 
-        if (minutes_ago > 60) {
-            str += '\nWait ' + minutes_ago + ' minutes ago?!? That\'s a long time... Maybe someone tell Chronos to double check his math.';
-        } else if (minutes_ago < 0) {
-            str += '\nWait ' + minutes_ago + ' minutes ago?!? Is that negative time?!? Only Chronos could do that...';
-        }
-
-        channel.channel.send(str);
-    }
-    catch (err) {
-        console.log('Error in processing Amar Storm Notification');
-        console.log(err);
+        this.#ping_controller.add_ping(null, role_id, message.channel.id, message.id, content, type, null, null);
     }
 }
 
-module.exports = {
-    check_amar_storm_message
-}
+module.exports = MessageProcessorAmar;

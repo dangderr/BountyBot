@@ -127,6 +127,7 @@ class DripDatabase extends Database {
         );
     }
 
+
     /*****************************
      *                           *
      *  bounties_followed table  *
@@ -169,17 +170,141 @@ class DripDatabase extends Database {
         );
     }
 
+    /********************
+     *                  *
+     *  ping_logs table *
+     *                  *
+     ********************/
+
+    async get_all_ping_logs() {
+        return await this.query_all(
+            new SqlQueryBuilder()
+                .select(['*'])
+                .from('ping_logs')
+                .get_result()
+        );
+    }
+
+    async add_ping(user_id, channel_id, message_id, content, type, timestamp, delay) {
+        return await this.query_run(
+            new SqlQueryBuilder()
+                .insert_into_values(
+                    'ping_logs',
+                    ['user_id', 'channel_id', 'message_id', 'content', 'type', 'timestamp', 'delay'],
+                    [user_id, channel_id, message_id, content, type, timestamp, delay]
+                )
+                .get_result()
+        );
+    }
+
+    async remove_ping(id) {
+        this.query_run(
+            new SqlQueryBuilder()
+                .delete_from('ping_logs')
+                .where_column_equals(['id'], [id])
+                .get_result()
+        );
+    }
 
 
+    /***********************
+     *                     *
+     *  event_timers table *
+     *                     *
+     ***********************/
+
+    async get_event_timers_table() {
+        return await this.query_all(
+            new SqlQueryBuilder()
+                .select(['*'])
+                .from('event_timers')
+                .get_result()
+        );
+    }
+
+    async set_event_timer(category, timestamp) {
+        this.query_run(
+            new SqlQueryBuilder()
+                .update('event_timers')
+                .set(['timestamp'], [timestamp])
+                .where_column_equals(['event_name'], [category])
+                .get_result()
+        );
+    }
 
 
+    /*******************************
+     *                             *
+     *  bounty_ping_history table  *
+     *                             *
+     *******************************/
 
+    async get_bounty_ping_table() {
+        return await this.query_all(
+            new SqlQueryBuilder()
+                .select(['*'])
+                .from('bounty_ping_history')
+                .get_result()
+        );
+    }
+
+    async delete_bounty_ping_record(mob, timestamp) {
+        this.query_run(
+            new SqlQueryBuilder()
+                .delete_from('bounty_ping_history')
+                .where_column_equals(['mob', 'timestamp'], [mob, timestamp])
+                .get_result()
+        );
+    }
+
+    async add_bounty_ping_history(mob, timestamp) {
+        this.query_run(
+            new SqlQueryBuilder()
+                .insert_into_values('bounty_ping_history', ['mob', 'timestamp'], [mob, timestamp])
+                .get_result()
+        );
+    }
+
+
+    /**************************
+     *                        *
+     *  last_ping_times table *
+     *                        *
+     **************************/
+
+    async get_last_ping_times_table() {
+        return await this.query_all(
+            new SqlQueryBuilder()
+                .select(['*'])
+                .from('last_ping_times')
+                .get_result()
+        );
+    }
+
+    async update_last_ping_time(type, timestamp) {
+        this.query_run(
+            new SqlQueryBuilder()
+                .update('last_ping_times')
+                .set(['timestamp'], [timestamp])
+                .where_column_equals(['type'], [type])
+                .get_result()
+        );
+    }
+
+    async add_last_ping_time(type, timestamp) {
+        this.query_run(
+            new SqlQueryBuilder()
+                .insert_into_values('last_ping_times', ['type', 'timestamp'], [type, timestamp])
+                .get_result()
+        );
+    }
 
     /*********************
      *                   *
      *  item_drops table *
      *                   *
      *********************/
+
     async add_item_drop(message, timestamp) {
         if (timestamp) {
             this.query_run(
@@ -207,137 +332,6 @@ class DripDatabase extends Database {
     }
 
 
-
-
-
-
-
-
-    //Will remove this in refactor of PingScheduler
-    async get_user_ping_timer(discord_id, category) {
-        return await this.query_get(
-            new SqlQueryBuilder()
-                .select([category])
-                .from('user_ping_timers')
-                .where_column_equals(['discord_id'], [discord_id])
-                .get_result()
-        );
-    }
-
-    //Will remove this in refactor of PingScheduler
-    async set_user_ping_timer(discord_id, category, timestamp) {
-        this.query_run(
-            new SqlQueryBuilder()
-                .update('user_ping_timers')
-                .set([category], [timestamp])
-                .where_column_equals(['discord_id'], [discord_id])
-                .get_result()
-        );
-    }
-
-    //Will remove this in refactor of PingScheduler
-    async get_all_ping_timers() {
-        return await this.query_all(
-            new SqlQueryBuilder()
-                .select(['*'])
-                .from('user_ping_timers')
-                .get_result()
-        );
-    }
-
-    //Will remove this in refactor of PingScheduler
-    async get_event_timers_timestamp(category = null) {
-        if (category) {
-            return await this.query_get(
-                new SqlQueryBuilder()
-                    .select(['*'])
-                    .from('event_timers')
-                    .where_column_equals(['event_name'], [category])
-                    .get_result()
-            );
-
-        } else {
-            return await this.query_all(
-                new SqlQueryBuilder()
-                    .select(['*'])
-                    .from('event_timers')
-                    .get_result()
-            );
-        }
-    }
-
-    //Will remove this in refactor of PingScheduler
-    async set_event_timers_timestamp(category, timestamp) {
-        this.query_run(
-            new SqlQueryBuilder()
-                .update('event_timers')
-                .set(['timestamp'], [timestamp])
-                .where_column_equals(['event_name'], [category])
-                .get_result()
-        );
-    }
-
-
-
-
-
-
-
-    /*******************************
-     *                             *
-     *  bounty_ping_history table  *
-     *                             *
-     *******************************/
-
-    //Gets array, deletes expired records, and returns filtered array
-    //This logic will probably be removed and add to PingScheduler class
-    async  get_bounty_ping_history() {
-        const bounty_ping_arr = await this.get_bounty_ping_arr();
-        const current_time = new Date().getTime();
-        const three_hours = 1000 * 60 * 60 * 3; //Milliseconds
-
-        let index = 0;
-        while (index < bounty_ping_arr.length) {
-            const timestamp = bounty_ping_arr[index].timestamp;
-            const timestamp_time = new Date(timestamp).getTime();
-
-            if ((current_time - timestamp_time) > three_hours) {
-                this.delete_bounty_ping_record(bounty_ping_arr[index].mob, timestamp);
-                bounty_ping_arr.splice(index, 1);
-            }
-            else {
-                index++;
-            }
-        }
-
-        return bounty_ping_arr;
-    }
-
-    async get_bounty_ping_arr() {
-        return await this.query_all(
-            new SqlQueryBuilder()
-                .select(['*'])
-                .from('bounty_ping_history')
-                .get_result()
-        );
-    }
-
-    async delete_bounty_ping_record(mob, timestamp) {
-        this.query_run(
-            new SqlQueryBuilder()
-                .delete_from('bounty_ping_history')
-                .where_column_equals(['mob', 'timestamp'], [mob, timestamp])
-                .get_result()
-        );
-    }
-
-    async add_bounty_ping_history(mob, timestamp) {
-        this.query_run(
-            new SqlQueryBuilder()
-                .insert_into_values('bounty_ping_history', ['mob', 'timestamp'], [mob, timestamp])
-                .get_result()
-        );
-    }
 }
 
 module.exports = DripDatabase;

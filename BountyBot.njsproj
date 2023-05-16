@@ -37,42 +37,35 @@
     <Content Include="bot\commands\bounty_hours.js" />
     <Content Include="bot\commands\pause_notifications.js" />
     <Content Include="bot\commands\check_bounty_done.js" />
-    <Content Include="bot\deploy_commands.js" />
     <Content Include="bot\events\interactionCreate.js" />
     <Content Include="bot\events\message.js" />
     <Content Include="bot\events\ready.js" />
-    <Content Include="bot\message_processing\amar_messages.js" />
-    <Content Include="bot\message_processing\bounty_ping_messages.js" />
-    <Content Include="bot\message_processing\event_ping_messages.js" />
-    <Content Include="bot\message_processing\ping_messages.js" />
-    <Content Include="bot\message_processing\secret_chronos_commands.js">
-      <SubType>Code</SubType>
-    </Content>
-    <Content Include="database\Database.js">
-      <SubType>Code</SubType>
-    </Content>
-    <Content Include="database\data\channel_info.js">
-      <SubType>Code</SubType>
-    </Content>
+    <Content Include="BoundaryClasses\MessageHandler.js" />
+    <Content Include="BoundaryClasses\PingScheduler.js" />
+    <Content Include="ControlClasses\MessageProcessorAmar.js" />
+    <Content Include="ControlClasses\MessageProcessorDripBounties.js" />
+    <Content Include="ControlClasses\MessageProcessorDripEvents.js" />
+    <Content Include="ControlClasses\MessageProcessorDripReminderPings.js" />
+    <Content Include="ControlClasses\PingController.js" />
+    <Content Include="database\Database.js" />
+    <Content Include="database\data\channel_info.js" />
+    <Content Include="database\data\drip - Copy.db" />
     <Content Include="database\data\drip.db" />
-    <Content Include="database\data\mobs.js">
-      <SubType>Code</SubType>
-    </Content>
-    <Content Include="database\DripDatabase.js">
-      <SubType>Code</SubType>
-    </Content>
-    <Content Include="database\data\drip_database_data.js">
-      <SubType>Code</SubType>
-    </Content>
-    <Content Include="database\SqlQueryBuilder.js">
-      <SubType>Code</SubType>
-    </Content>
-    <Content Include="entities\Channels.js">
-      <SubType>Code</SubType>
-    </Content>
-    <Content Include="entities\Users.js">
-      <SubType>Code</SubType>
-    </Content>
+    <Content Include="database\data\drip_database_data.js" />
+    <Content Include="database\data\mobs.js" />
+    <Content Include="database\DripDatabase.js" />
+    <Content Include="database\SqlQueryBuilder.js" />
+    <Content Include="EntityClasses\BountyLogs.js" />
+    <Content Include="EntityClasses\Channel.js" />
+    <Content Include="EntityClasses\Channels.js" />
+    <Content Include="EntityClasses\DoublePingTracker.js" />
+    <Content Include="EntityClasses\EventTimers.js" />
+    <Content Include="EntityClasses\ItemDrops.js" />
+    <Content Include="EntityClasses\Ping.js" />
+    <Content Include="EntityClasses\Pings.js" />
+    <Content Include="EntityClasses\Role.js" />
+    <Content Include="EntityClasses\User.js" />
+    <Content Include="EntityClasses\Users.js" />
     <Content Include="package.json" />
     <Content Include="README.md" />
     <Content Include="testing\tests_for_Users_class.js" />
@@ -87,11 +80,12 @@
   <ItemGroup>
     <Folder Include="bot\commands\" />
     <Folder Include="bot\events\" />
-    <Folder Include="bot\message_processing\" />
-    <Folder Include="database\data\" />
-    <Folder Include="entities\" />
-    <Folder Include="utils\" />
+    <Folder Include="BoundaryClasses\" />
+    <Folder Include="ControlClasses\" />
     <Folder Include="database\" />
+    <Folder Include="database\data\" />
+    <Folder Include="EntityClasses\" />
+    <Folder Include="utils\" />
     <Folder Include="bot\" />
     <Folder Include="testing\" />
   </ItemGroup>
