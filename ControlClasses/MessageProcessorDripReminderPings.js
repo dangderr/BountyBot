@@ -14,8 +14,6 @@ class MessageProcessDripReminderPings {
         'you even gonna be awake?'
     ];
 
-    //  Structure = [[a,b],[c,d]]
-    //  Searches for (a AND b) OR (c AND d)
     search_terms = {
         botcheck: [['Wild Captcha Event in:']],
         cauldron: [['will be able to drink in:']],
@@ -30,7 +28,7 @@ class MessageProcessDripReminderPings {
         unknown: [['Time left:']]
     };
 
-    constructor(ping_controller) {
+    constructor (ping_controller) {
         this.#ping_controller = ping_controller;
     }
 
@@ -38,7 +36,6 @@ class MessageProcessDripReminderPings {
         let message_arr = message.content.split('\n');
         let delay = datetime_methods.parse_drip_time_string(message_arr);
         let timestamp = new Date();
-        timestamp.setMilliseconds(timestamp.getMilliseconds() + delay);
 
         for (const key of Object.keys(this.search_terms)) {
             for (const row of this.search_terms[key]) {
@@ -58,17 +55,11 @@ class MessageProcessDripReminderPings {
     }
 
     async #send_pings(message, type, timestamp, delay) {
-        if (delay <= 0) {
-            this.#ping_controller.add_ping(null, null, message.channel.id, message.id,
-                'Something went wrong, idk what time to ping you', 'error', null, null);
-            return;
-        }
-
         if (type == 'botcheck') {
             delay -= (29 * 60 * 1000);
         } else if (type == 'clan_wars_mob') {
             try {
-                delay = parseInt(message.content());
+                delay = parseInt(message.content);
                 delay *= 6000;      //6 seconds per mob
                 delay *= 1.05;      //~5% latency delay 
             } catch (err) {
@@ -76,6 +67,14 @@ class MessageProcessDripReminderPings {
                 return;
             }
         }
+
+        if (delay <= 0) {
+            this.#ping_controller.add_ping(null, null, message.channel.id, message.id,
+                'Something went wrong, idk what time to ping you', 'error', null, null);
+            return;
+        }
+
+        timestamp.setMilliseconds(timestamp.getMilliseconds() + delay);
 
         this.#ping_controller.add_ping(null, null, message.channel.id, message.id,
             this.#get_random_reply(), 'response', null, null);
@@ -85,7 +84,7 @@ class MessageProcessDripReminderPings {
     }
 
     #get_random_reply() {
-        return this.#replies[Math.floor(Math.random() * replies.length)];
+        return this.#replies[Math.floor(Math.random() * this.#replies.length)];
     }
 }
 

@@ -17,7 +17,7 @@ class PingScheduler {
             .addComponents(new ButtonBuilder().setCustomId('60').setLabel('800/Red').setStyle(ButtonStyle.Danger))]
     }
 
-    constructor(ping_controller, logger = false) {
+    constructor(ping_controller, logger = true) {
         this.#ping_controller = ping_controller;
         this.#logger = logger;
     }
@@ -25,7 +25,7 @@ class PingScheduler {
     log(ping) {
         if (this.#logger) {
             const time_remaining = (new Date(ping.timestamp).getTime() - Date.now()) / 1000;
-            console.log(`PingScheduler: ${ping.id} ${time_remaining}`);
+            console.log(`PingScheduler: ${ping.id} ${ping.type} ${time_remaining}`);
         }
     }
 
@@ -61,7 +61,7 @@ class PingScheduler {
         if (components == 'restart_button') {
             this.create_restart_button_collector(ping, message, content, bot_message);
         } else if (components == 'blace_buttons') {
-            this.create_blace_button_collector();
+            this.create_blace_button_collector(ping, message, bot_message);
         }
     }
 
@@ -105,13 +105,14 @@ class PingScheduler {
 
         collector.on('end', collector => { });
         collector.on('collect', async i => {
+            const time = i.component.customId;
             const replies = ['bro', 'dude', 'clock', 'babe', 'man', 'dawg', 'homie', 'honey', 'Allah'];
             const reply_index = Math.floor(Math.random() * replies.length);
-            message_reply = 'Thanks, ' + replies[reply_index];
+            const message_reply = 'Thanks, ' + replies[reply_index];
             await i.update({ content: message_reply, components: [] });
 
             const role_id = message.client.Channels.get_role_id('frenzy', 'drip');
-            const content = i.component.customId + ' mins from Blaze/Ace';
+            const content = time + ' mins from Blaze/Ace';
 
             this.#ping_controller.add_ping(
                 null,
@@ -128,6 +129,7 @@ class PingScheduler {
 
     async process_delay(ping_id, timestamp) {
         if (!timestamp) return true;
+        if (new Date(timestamp).getTime() < 100) return true;
 
         const delay = new Date(timestamp).getTime() - Date.now();
         if (delay < 0) return false;

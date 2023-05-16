@@ -27,7 +27,7 @@ class MessageProcessorDripEvents {
         const role_id = message.client.Channels.get_role_id('frenzy', 'drip');
 
         this.#ping_controller.add_ping(null, role_id, message.channel.id, message.id,
-            content, 'blace', null, null);
+            content, 'blace', Date.now(), null);
     }
 
     async check_aura_message(message) {
@@ -77,7 +77,7 @@ class MessageProcessorDripEvents {
         const role_id = message.client.Channels.get_role_id('event', 'drip');
 
         this.#ping_controller.add_ping(null, role_id, message.channel.id, message.id,
-            content, type, null, null);
+            content, type, Date.now(), null);
     }
 
     async check_hell_message(message) {
@@ -102,7 +102,7 @@ class MessageProcessorDripEvents {
         const role_id = message.client.Channels.get_role_id('soulhounds', 'drip');
 
         if (message.content.includes('] Global: Soulhounds appeared in the Hades!')) {
-            const global_str = get_global_line_from_multi_line_ping(message);
+            const global_str = this.#get_global_line_from_multi_line_ping(message);
             const soulhound_spawn_time = new Date(datetime_methods.parse_global_timestamp(global_str));
             const minutes_ago = Math.round((Date.now() - soulhound_spawn_time.getTime()) / 1000 / 60);
 
@@ -140,7 +140,7 @@ class MessageProcessorDripEvents {
         if (!message.content.includes("Global: "))
             return;
 
-        let global_str = get_global_line_from_multi_line_ping(message);
+        let global_str = this.#get_global_line_from_multi_line_ping(message);
 
         if (!(message.content.includes("killed") && message.content.includes("and obtained")) &&
             !(message.content.includes("Treasure and obtained")) &&
@@ -149,13 +149,9 @@ class MessageProcessorDripEvents {
             return;
         }
 
-        //////////////////////////////////////
+        this.#item_drops.add_item_drop(global_str);
 
-
-        //db.add_item_drop(global_str);
-        //////////////////////////////////////
-
-        const username = get_username_from_global_string(global_str);
+        const username = this.#get_username_from_global_string(global_str);
 
         const luck_sack = await message.client.Users.get_user_by_drip_username(username);
         const hiro = await message.client.Users.get_user_by_drip_username('Hiro');

@@ -13,7 +13,7 @@ class Pings {
 
         for (const ping_log of ping_logs) {
             if (new Date(ping_log.timestamp).getTime() < Date.now()) {
-                this.remove_ping(ping_log.id);
+                this.#db.remove_ping(ping_log.id);
                 continue;
             }
             this.#pings.push(new Ping(ping_log));

@@ -9,8 +9,6 @@ class MessageHandler {
     #drip_events;
     #drip_reminders;
 
-    #message_routes;
-
     constructor(ping_controller, db) {
         this.#amar = new MessageProcessorAmar(ping_controller);
         this.#drip_bounties = new MessageProcessorDripBounties(ping_controller, db);
@@ -21,19 +19,6 @@ class MessageHandler {
     async init() {
         await this.#drip_bounties.init();
         await this.#drip_events.init();
-
-        this.#message_routes = {
-            amar_storm: this.#amar.check_storm_message,
-            bounty: this.#drip_bounties.check_bounty_message,
-            hell: this.#drip_events.check_hell_message,
-            event: this.#drip_events.check_event_message,
-            dt_frenzy: this.#drip_events.check_dt_frenzy_message,
-            blace_frenzy: this.#drip_events.check_blace_frenzy,
-            aura: this.#drip_events.check_aura_message,
-            drops: this.#drip_events.check_drops_message,
-            soulhounds: this.#drip_events.check_soulhounds_message,
-            pings: this.#drip_reminders.check_ping_message
-        }
     }
 
     async message(message) {
@@ -44,17 +29,33 @@ class MessageHandler {
 
         if (!message.Channel) return;
 
+
         for (const message_type of message.Channel.message_types) {
             this.#route_message(message, message_type);
         }
     }
 
     async #route_message(message, message_type) {
+        switch (message_type) {
+            case 'amar_storm': this.#amar.check_storm_message(message); break;
+            case 'bounty': this.#drip_bounties.check_bounty_message(message); break;
+            case 'hell': this.#drip_events.check_hell_message(message); break;
+            case 'event': this.#drip_events.check_event_message(message); break;
+            case 'dt_frenzy': this.#drip_events.check_dt_frenzy_message(message); break;
+            case 'blace_frenzy': this.#drip_events.check_blace_frenzy(message); break;
+            case 'aura': this.#drip_events.check_aura_message(message); break;
+            case 'drops': this.#drip_events.check_drops_message(message); break;
+            case 'soulhounds': this.#drip_events.check_soulhounds_message(message); break;
+            case 'pings': this.#drip_reminders.check_ping_message(message); break;
+            default: console.log(`Error: MessageHandler cannot route message. No route for ${message_type}.`)
+        }
+
+        /*
         if (this.#message_routes.hasOwnProperty(message_type)) {
             this.#message_routes[message_type](message);
         } else {
             console.log(`Error: MessageHandler cannot route message. No route for ${message_type}.`)
-        }
+        }*/
     }
 }
 

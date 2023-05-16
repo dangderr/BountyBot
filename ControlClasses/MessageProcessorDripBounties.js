@@ -50,7 +50,7 @@ class MessageProcessorDripBounty {
                 continue;
             }
 
-            this.#bounty_logs.add_bounty_log(mob, end_time);
+            this.#bounty_logs.add_bounty_log(mob, timestamp);
             mobs.push(mob);
         }
         return mobs;
@@ -85,7 +85,7 @@ class MessageProcessorDripBounty {
                 .map(i => i[1])
                 .join(', ');
 
-            this.#ping_controller.add_ping(user, null, message.channel.id, message.id, content, 'bounty_ping', null, null);
+            this.#ping_controller.add_ping(user, null, message.channel.id, null, content, 'bounty_ping', null, null);
         }
     }
     
