@@ -96,7 +96,9 @@ class MessageProcessorDripEvents {
         const role_id = message.client.Channels.get_role_id('hell', 'drip');
 
         this.#ping_controller.add_ping(null, role_id, message.channel.id, null,
-            content, 'hell', hell_open_time.toISOString(), null);
+            content, 'hell', null, null);
+        this.#ping_controller.add_ping(null, role_id, message.channel.id, null,
+            'Hell is open!', 'hell_open', hell_open_time.toISOString(), null);
     }
 
     async check_soulhounds_message(message) {

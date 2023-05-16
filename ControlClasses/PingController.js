@@ -24,6 +24,7 @@ class PingController {
         hades_attack: 'Your Hades attack timer is up.',
         hades_dragon: 'AHHHH DRAAGGGONNNN',
         clan_wars_mob: '~~Lyr dungeon~~ Clan wars room is finished.',
+        clan_titan_ready: 'Release the Titan!',
 
         blace_reminder: 'Blaze/Ace last spawned 4 hours ago.',
         soulhounds_reminder: 'Soulhounds last spawned 5.5 hours ago.',
@@ -33,11 +34,24 @@ class PingController {
         snowman_reminder: 'Snowman last spawned 3 hours ago.'
     };
 
+    #unique_pings = [
+        'hell_open', 'blace_reminder', 'soulhounds_reminder', 
+        'treant_reminder', 'quartz_titan_reminder', 'pumpkin_reminder', 'snowman_reminder'
+    ]
+
+    #unique_per_user = [
+        'botcheck', 'cauldron', 'herbalism', 'replanting',
+        'pet_training', 'pet_exploration', 'hades_training', 'soulhounds_attack',
+        'hades_attack', 'hades_dragon', 'clan_wars_mob'
+    ];
+
     #FALLBACK_MESSAGE = 'idk why im pinging you... figure it out';
     #REMINDER_FALLBACK_MESSAGE = 'This is a reminder message. Something spawned some hours ago but idr what and idk when.';
 
     #message_components = {
         herbalism: 'restart_button',
+        pet_training: 'restart_button',
+        cauldron: 'restart_button',
         blace: 'blace_buttons'
     };
 
@@ -96,6 +110,8 @@ class PingController {
     }
 
     async add_ping(user_id, role_id, channel_id, message_id, content, type, timestamp, delay) {
+        //  Check pings that are NOT a response or error
+        //      AND are either an instant ping or are soulhounds
         if ((type != 'response' && type != 'error')
             && ( (!user_id && !timestamp) || (type == 'soulhounds')) )
         {
@@ -106,11 +122,10 @@ class PingController {
             }
         }
 
-        if (type == 'hell') {
-            this.#schedule_hell_open(role_id, channel_id, timestamp);
-            timestamp = null;
-        } else if (type == 'herbalism') {
-            this.#schedule_herbalism_replanting(user_id, role_id, channel_id, message_id, content, type, timestamp, delay);
+        if (this.#unique_pings.includes(type)) {
+            this.#remove_stale_pings({ type: type });
+        } else if (this.#unique_per_user.includes(type)) {
+            this.#remove_stale_pings({ user_id: user_id, type: type });
         }
 
         if (this.#events_to_track.includes(type)) {
@@ -132,33 +147,15 @@ class PingController {
             ping.content, ping.type, new_timestamp, ping.delay);
     }
 
-    async #schedule_hell_open(role_id, channel_id, timestamp) {
-        await this.#remove_stale_pings({ type: 'hell_open' });
-        this.add_ping(null, role_id, channel_id, null, 'Hell is open', 'hell_open', timestamp, null);
-    }
-
-    async #schedule_herbalism_replanting(user_id, role_id, channel_id, message_id, content, type, timestamp, delay) {
-        await this.#remove_stale_pings({ user_id: user_id, type: 'replanting' });
-
-        const new_timestamp = new Date(timestamp);
-        new_timestamp.setUTCMinutes(new_timestamp.getUTCMinutes() + 20);
-        this.add_ping(user_id, role_id, channel_id, message_id, content, 'replanting', new_timestamp, delay);
-    }
-
     async #schedule_event_respawn_reminders(channel_id, type, timestamp) {
         await this.#event_timers.set_event_timer(type, timestamp);
-        await this.#remove_stale_pings({ type: type + '_reminder' });
 
         const user_list = this.#Users.get_user_ids_following_respawn_timers().join(',');
-
         const event_info = await this.#event_timers.get_event_timer(type);
         const ping_time = new Date(timestamp);
         ping_time.setUTCMilliseconds(ping_time.getUTCMilliseconds() + event_info.min_time);
 
-        const event_reminder_ping = await this.#pings
-            .add_ping(user_list, null, channel_id, null,
-                null, type + '_reminder', ping_time, null);
-        this.#schedule_ping(event_reminder_ping);
+        this.add_ping(user_list, null, channel_id, null, null, type + '_reminder', ping_time, null);
     }
 
     async #remove_stale_pings(options) {

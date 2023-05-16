@@ -14,6 +14,8 @@ class MessageProcessDripReminderPings {
         'you even gonna be awake?'
     ];
 
+    // Format [[a,b],[c,d]]
+    // Searches for (a AND b) OR (c AND d)
     search_terms = {
         botcheck: [['Wild Captcha Event in:']],
         cauldron: [['will be able to drink in:']],
@@ -25,6 +27,7 @@ class MessageProcessDripReminderPings {
         hades_attack: [['Attack the others and take their Dark Crystals!', "You can't attack for:"]],
         hades_dragon: [['Undead Dragon will appear in:']],
         clan_wars_mob: [['Land is Protected by']],
+        clan_titan_ready: [['The Titan of Rock and Metal begins to rise'], ['The Titan of Beasts and Prey begins to rise']],
         unknown: [['Time left:']]
     };
 
@@ -66,6 +69,8 @@ class MessageProcessDripReminderPings {
                 console.log('Error: MessageProcessorDripReminderPings - Could not parse Clan Wars message');
                 return;
             }
+        } else if (type == 'clan_titan_ready') {
+            delay = 1000 * 60 * 60 * 2;     //2 hours
         }
 
         if (delay <= 0) {
@@ -81,6 +86,13 @@ class MessageProcessDripReminderPings {
 
         this.#ping_controller.add_ping(message.author.id, null, message.channel.id, message.id,
             null, type, timestamp, delay);
+
+        if (type == 'herbalism') {
+            const new_timestamp = new Date(timestamp);
+            new_timestamp.setUTCMinutes(new_timestamp.getUTCMinutes() + 20);
+            this.#ping_controller.add_ping(message.author.id, null, message.channel.id, message.id,
+                null, 'replanting', new_timestamp, null);
+        }
     }
 
     #get_random_reply() {
