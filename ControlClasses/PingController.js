@@ -10,9 +10,6 @@ class PingController {
     #ping_scheduler;
     #event_timers;
 
-    #FALLBACK_MESSAGE = 'idk why im pinging you... figure it out';
-    #REMINDER_FALLBACK_MESSAGE = 'This is a reminder message. Something spawned some hours ago but idr what and idk when.';
-
     #message_content = {
         botcheck: 'Botcheck within half an hour.',
         cauldron: 'Your cauldron is ready now.',
@@ -32,6 +29,9 @@ class PingController {
         pumpkin_reminder: 'Pumpkin last spawned 3 hours ago.',
         snowman_reminder: 'Snowman last spawned 3 hours ago.'
     };
+
+    #FALLBACK_MESSAGE = 'idk why im pinging you... figure it out';
+    #REMINDER_FALLBACK_MESSAGE = 'This is a reminder message. Something spawned some hours ago but idr what and idk when.';
 
     #message_components = {
         herbalism: 'restart_button'
@@ -101,6 +101,23 @@ class PingController {
                 delay
             );
         this.#schedule_ping(ping);
+
+        if (type == 'herbalism') {
+            //If herbalism, remove all replanting timers and then start a new one
+            const options = {
+                user_id: user_id,
+                type: 'replanting'
+            };
+            const matching_pings = this.#pings.find_pings(options);
+
+            for (const p of matching_pings) {
+                await this.#pings.remove_ping(p.id);
+            }
+
+            const new_timestamp = new Date(timestamp);
+            new_timestamp.setUTCMinutes(new_timestamp.getUTCMinutes() + 20);
+            this.add_ping(user_id, role_id, channel_id, message_id, content, type, new_timestamp, delay);
+        }
 
         if (this.#events_to_track.includes(type)) {
             await this.#event_timers.set_event_timer(type, timestamp);

@@ -40,7 +40,6 @@
     <Content Include="bot\events\interactionCreate.js" />
     <Content Include="bot\events\message.js" />
     <Content Include="bot\events\ready.js" />
-    <Content Include="bot\message_processing\bounty_ping_messages.js" />
     <Content Include="bot\message_processing\event_ping_messages.js" />
     <Content Include="bot\message_processing\ping_messages.js" />
     <Content Include="bot\message_processing\secret_chronos_commands.js">

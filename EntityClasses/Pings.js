@@ -52,7 +52,24 @@ class Pings {
             return;
         }
         this.#pings.splice(index, 1);
-        this.#db.remove_ping(id);
+        await this.#db.remove_ping(id);
+    }
+
+    find_pings(options) {
+        let matches = new Array();
+        for (const ping of this.#pings) {
+            let match = true;
+            for (const option of Object.keys(options)) {
+                if (options[option] != ping[option]) {
+                    match = false;
+                    break;
+                }
+            }
+            if (match) {
+                matches.push(ping);
+            }
+        }
+        return matches;
     }
 }
 
