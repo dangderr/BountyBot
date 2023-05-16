@@ -39,7 +39,7 @@ class MessageProcessorDripEvents {
         const content = 'woo diabolic aura';
         const role_id = message.client.Channels.get_role_id('aura', 'drip');
 
-        this.#ping_controller.add_ping(null, role_id, message.channel.id, message.id,
+        this.#ping_controller.add_ping(null, role_id, message.channel.id, null,
             content, 'dt_aura', null, null);
     }
 
@@ -51,7 +51,7 @@ class MessageProcessorDripEvents {
         const content = ' Thanks Bizsterious Stranger!';
         const role_id = message.client.Channels.get_role_id('frenzy', 'drip');
 
-        this.#ping_controller.add_ping(null, role_id, message.channel.id, message.id,
+        this.#ping_controller.add_ping(null, role_id, message.channel.id, null,
             content, 'dt_frenzy', null, null);
     }
 
@@ -76,7 +76,7 @@ class MessageProcessorDripEvents {
         const content = name;
         const role_id = message.client.Channels.get_role_id('event', 'drip');
 
-        this.#ping_controller.add_ping(null, role_id, message.channel.id, message.id,
+        this.#ping_controller.add_ping(null, role_id, message.channel.id, null,
             content, type, Date.now(), null);
     }
 
@@ -85,7 +85,8 @@ class MessageProcessorDripEvents {
             || message.content.indexOf('[') != 0)
             return;
 
-        const global_str = this.#get_global_line_from_multi_line_ping(message);
+        const global_str = this.#find_line_containing_search_term(message, 'Event: Gates of Hell will open in 10 minutes');
+        
         const event_notification_time = new Date(datetime_methods.parse_global_timestamp(global_str));
         const wait_time = event_notification_time.getTime() + 10 * 60 * 1000 - Date.now();
         let hell_open_time = new Date();
@@ -94,7 +95,7 @@ class MessageProcessorDripEvents {
         const content = ' opening in ' + Math.round(wait_time / 1000 / 60 * 10) / 10 + ' minutes';
         const role_id = message.client.Channels.get_role_id('hell', 'drip');
 
-        this.#ping_controller.add_ping(null, role_id, message.channel.id, message.id,
+        this.#ping_controller.add_ping(null, role_id, message.channel.id, null,
             content, 'hell', hell_open_time.toISOString(), null);
     }
 
@@ -102,13 +103,13 @@ class MessageProcessorDripEvents {
         const role_id = message.client.Channels.get_role_id('soulhounds', 'drip');
 
         if (message.content.includes('] Global: Soulhounds appeared in the Hades!')) {
-            const global_str = this.#get_global_line_from_multi_line_ping(message);
+            const global_str = this.#find_line_containing_search_term(message, '] Global: Soulhounds appeared in the Hades!');
             const soulhound_spawn_time = new Date(datetime_methods.parse_global_timestamp(global_str));
             const minutes_ago = Math.round((Date.now() - soulhound_spawn_time.getTime()) / 1000 / 60);
 
             const content = 'spawned ' + minutes_ago + ' minutes ago';
 
-            this.#ping_controller.add_ping(null, role_id, message.channel.id, message.id,
+            this.#ping_controller.add_ping(null, role_id, message.channel.id, null,
                 content, 'soulhounds', soulhound_spawn_time.toISOString(), null);
 
         } else if (message.content.includes('Soulhounds ravaging the Hades...')) {
@@ -121,7 +122,7 @@ class MessageProcessorDripEvents {
                 }
             }
 
-            this.#ping_controller.add_ping(null, role_id, message.channel.id, message.id,
+            this.#ping_controller.add_ping(null, role_id, message.channel.id, null,
                 content, 'soulhounds', null, null);
 
         } else if (message.content.includes('No Soulhounds to be seen...') && message.content.includes('Last time appeared: ')) {
@@ -131,7 +132,7 @@ class MessageProcessorDripEvents {
 
             const content = 'Soulhound respawn time updated';
 
-            this.#ping_controller.add_ping(null, null, message.channel.id, message.id,
+            this.#ping_controller.add_ping(null, null, message.channel.id, null,
                 content, 'soulhounds', soulhound_spawn_time.toISOString(), null);
         }
     }
@@ -140,7 +141,7 @@ class MessageProcessorDripEvents {
         if (!message.content.includes("Global: "))
             return;
 
-        let global_str = this.#get_global_line_from_multi_line_ping(message);
+        let global_str = this.#find_line_containing_search_term(message, 'Global: ');
 
         if (!(message.content.includes("killed") && message.content.includes("and obtained")) &&
             !(message.content.includes("Treasure and obtained")) &&
@@ -170,20 +171,16 @@ class MessageProcessorDripEvents {
             content = "Looks like someone found an item, but Chronos's programming failed and idk how to ping Hiro for it.";
         }
 
-        this.#ping_controller.add_ping(null, null, message.channel.id, message.id,
+        this.#ping_controller.add_ping(null, null, message.channel.id, null,
             content, 'item_drop', null, null);
     }
 
-    #get_global_line_from_multi_line_ping(message) {
-        const message_arr = message.content.split('\n');
-        let global_str = message_arr[0];
-        for (const line of message_arr) {
-            if (line.includes(' Global: ') || line.includes(' Event: ')) {
-                global_str = line;
-                break;
+    #find_line_containing_search_term(message, search_term) {
+        for (const line of message.content.split('\n')) {
+            if (line.includes(search_term)) {
+                return line;
             }
         }
-        return global_str;
     }
 
     #get_username_from_global_string(str) {

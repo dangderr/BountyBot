@@ -96,7 +96,7 @@ class PingController {
     }
 
     async add_ping(user_id, role_id, channel_id, message_id, content, type, timestamp, delay) {
-        /*if ((type != 'response' && type != 'error')
+        if ((type != 'response' && type != 'error')
             && ( (!user_id && !timestamp) || (type == 'soulhounds')) )
         {
             if (this.#double_ping_tracker.check_double_ping(type, Date.now())) {
@@ -104,10 +104,10 @@ class PingController {
             } else {
                 this.#double_ping_tracker.set_last_ping_time(type, Date.now());
             }
-        }*/
+        }
 
         if (type == 'hell') {
-            this.#schedule_hell_open(user_id, role_id, channel_id, message_id,content, type, timestamp, delay);
+            this.#schedule_hell_open(role_id, channel_id, timestamp);
             timestamp = null;
         } else if (type == 'herbalism') {
             this.#schedule_herbalism_replanting(user_id, role_id, channel_id, message_id, content, type, timestamp, delay);
@@ -132,9 +132,9 @@ class PingController {
             ping.content, ping.type, new_timestamp, ping.delay);
     }
 
-    async #schedule_hell_open(user_id, role_id, channel_id, message_id, content, type, timestamp, delay) {
+    async #schedule_hell_open(role_id, channel_id, timestamp) {
         await this.#remove_stale_pings({ type: 'hell_open' });
-        this.add_ping(user_id, role_id, channel_id, message_id, content, 'hell_open', timestamp, delay);
+        this.add_ping(null, role_id, channel_id, null, 'Hell is open', 'hell_open', timestamp, null);
     }
 
     async #schedule_herbalism_replanting(user_id, role_id, channel_id, message_id, content, type, timestamp, delay) {

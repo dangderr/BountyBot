@@ -118,7 +118,7 @@ class PingScheduler {
                 null,
                 role_id,
                 ping.channel_id,
-                ping.message_id,
+                null,
                 content,
                 'blace_ping',
                 null,
