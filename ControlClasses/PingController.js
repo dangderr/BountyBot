@@ -26,6 +26,12 @@ class PingController {
         clan_wars_mob: '~~Lyr dungeon~~ Clan wars room is finished.',
         clan_titan_ready: 'Release the Titan!',
 
+        pot_atk: 'Your attack pot is about to expire',
+        pot_def: 'Your defense pot is about to expire',
+        pot_mystery: 'Your mystery pot is about to expire',
+        pot_xp: 'Your XP pot is about to expire',
+        pot_lvl: 'Your LVL pot is about to expire',
+
         blace_reminder: 'Blaze/Ace last spawned 4 hours ago.',
         soulhounds_reminder: 'Soulhounds last spawned 5.5 hours ago.',
         treant_reminder: 'Treant last spawned 3 hours ago.',
@@ -42,7 +48,8 @@ class PingController {
     #unique_per_user = [
         'botcheck', 'cauldron', 'herbalism', 'replanting',
         'pet_training', 'pet_exploration', 'hades_training', 'soulhounds_attack',
-        'hades_attack', 'hades_dragon', 'clan_wars_mob'
+        'hades_attack', 'hades_dragon', 'clan_wars_mob',
+        'pot_atk', 'pot_def', 'pot_mystery', 'pot_xp', 'pot_lvl'
     ];
 
     #FALLBACK_MESSAGE = 'idk why im pinging you... figure it out';
@@ -146,7 +153,7 @@ class PingController {
         this.add_ping(ping.user_id, ping.role_id, ping.channel_id, ping.message_id,
             ping.content, ping.type, new_timestamp, ping.delay);
 
-        if (type == 'herbalism') {
+        if (ping.type == 'herbalism') {
             const new_new_timestamp = new Date(new_timestamp);
             new_new_timestamp.setUTCMinutes(new_new_timestamp.getUTCMinutes() + 20);
             this.add_ping(ping.user_id, null, ping.channel_id, ping.message_id,

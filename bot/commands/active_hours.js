@@ -1,8 +1,8 @@
 const { SlashCommandBuilder } = require('discord.js');
 
 const data = (new SlashCommandBuilder()
-    .setName('bounty_hours')
-    .setDescription('Set active hours to receive bounty pings')
+    .setName('active_hours')
+    .setDescription('Set active hours to receive pings.')
     .addStringOption(option => option
         .setName('start_time')
         .setDescription('Time (UTC or game time) in hh:mm format to start receiving pings')
@@ -16,14 +16,6 @@ const data = (new SlashCommandBuilder()
 )
 
 async function execute(interaction) {
-    const user = interaction.User;
-    const channel = interaction.Channel;
-
-    if ((channel.server != 'drip' || channel.name != 'bounties') && channel.server != 'testserver') {
-        interaction.reply('Please keep bounties spam in #bounties channel');
-        return;
-    }
-
     const starttime = interaction.options.getString('start_time');
     const endtime = interaction.options.getString('end_time');
 
@@ -32,7 +24,7 @@ async function execute(interaction) {
             throw new Error('');
         }
 
-        user.set_active_hours(starttime, endtime);
+        interaction.User.set_active_hours(starttime, endtime);
 
         let str = 'Bounty active hours set to ' + starttime + " until " + endtime;
         interaction.reply(str);

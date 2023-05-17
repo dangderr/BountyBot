@@ -16,7 +16,7 @@ class MessageProcessDripReminderPings {
 
     // Format [[a,b],[c,d]]
     // Searches for (a AND b) OR (c AND d)
-    search_terms = {
+    #search_terms = {
         botcheck: [['Wild Captcha Event in:']],
         cauldron: [['will be able to drink in:']],
         herbalism: [['is still growing!']],
@@ -27,9 +27,19 @@ class MessageProcessDripReminderPings {
         hades_attack: [['Attack the others and take their Dark Crystals!', "You can't attack for:"]],
         hades_dragon: [['Undead Dragon will appear in:']],
         clan_wars_mob: [['Land is Protected by']],
-        clan_titan_ready: [['The Titan of Rock and Metal begins to rise'], ['The Titan of Beasts and Prey begins to rise']],
+        clan_titan_ready: [['The Titan of Rock and Metal begins to rise'],
+                           ['The Titan of Beasts and Prey begins to rise'],
+                           ['The Titan of Magic and Nature begins to rise']],
         unknown: [['Time left:']]
     };
+
+    #pots = {
+        pot_atk: 'Attack',
+        pot_def: 'Defense',
+        pot_mystery: 'Mystery',
+        pot_xp: 'XP',
+        pot_lvl: 'LVL'
+    }
 
     constructor (ping_controller) {
         this.#ping_controller = ping_controller;
@@ -40,8 +50,8 @@ class MessageProcessDripReminderPings {
         let delay = datetime_methods.parse_drip_time_string(message_arr);
         let timestamp = new Date();
 
-        for (const key of Object.keys(this.search_terms)) {
-            for (const row of this.search_terms[key]) {
+        for (const key of Object.keys(this.#search_terms)) {
+            for (const row of this.#search_terms[key]) {
                 let match = true;
                 for (const search_term of row) {
                     if (!message.content.includes(search_term)) {
@@ -50,6 +60,17 @@ class MessageProcessDripReminderPings {
                     }
                 }
                 if (match) {
+                    this.#send_pings(message, key, timestamp, delay);
+                    return;
+                }
+            }
+        }
+
+        for (const key of Object.keys(this.#pots)) {
+            for (let line of message_arr) {
+                line = line.trim();
+                if (line === this.#pots[key]) {
+                    delay -= 1000 * 60 * 2;         // Two minute advanced notice
                     this.#send_pings(message, key, timestamp, delay);
                     return;
                 }
