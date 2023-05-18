@@ -127,6 +127,16 @@ class DripDatabase extends Database {
         );
     }
 
+    async set_sickle_percent(discord_id, sickle) {
+        this.query_run(
+            new SqlQueryBuilder()
+                .update('users')
+                .set(['sickle_percent'], [sickle])
+                .where_column_equals(['discord_id'], [discord_id])
+                .get_result()
+        );
+    }
+
 
     /*****************************
      *                           *
@@ -181,6 +191,7 @@ class DripDatabase extends Database {
             new SqlQueryBuilder()
                 .select(['*'])
                 .from('ping_logs')
+                .where_column_equals(['active'],[1])
                 .get_result()
         );
     }
@@ -190,9 +201,19 @@ class DripDatabase extends Database {
             new SqlQueryBuilder()
                 .insert_into_values(
                     'ping_logs',
-                    ['user_id', 'channel_id', 'message_id', 'content', 'type', 'timestamp', 'delay'],
-                    [user_id, channel_id, message_id, content, type, timestamp, delay]
+                    ['user_id', 'channel_id', 'message_id', 'content', 'type', 'timestamp', 'delay', 'active'],
+                    [user_id, channel_id, message_id, content, type, timestamp, delay, 1]
                 )
+                .get_result()
+        );
+    }
+
+    async deactivate_ping(id) {
+        this.query_run(
+            new SqlQueryBuilder()
+                .update('ping_logs')
+                .set(['active'], [0])
+                .where_column_equals(['id'], [id])
                 .get_result()
         );
     }
@@ -331,7 +352,73 @@ class DripDatabase extends Database {
         );
     }
 
+    /***************************
+     *                         *
+     *  drip_user_equips table *
+     *                         *
+     ***************************/
 
+    async get_drip_user_equips() {
+        return await this.query_all(
+            new SqlQueryBuilder()
+                .select(['*'])
+                .from('drip_user_equips')
+                .get_result()
+        );
+    }
+
+    async add_drip_user_equips(user_id, item, type, gem, gem_tier) {
+        return await this.query_run(
+            new SqlQueryBuilder()
+                .insert_into_values('drip_user_equips',
+                    ['user_id', 'item', 'type', 'gem', 'gem_tier'],
+                    [user_id, item, type, gem, gem_tier])
+                .get_result()
+        );
+    }
+
+    async delete_drip_user_equips(id) {
+        this.query_run(
+            new SqlQueryBuilder()
+                .delete_from('drip_user_equips')
+                .where_column_equals(['id'], [id])
+                .get_result()
+        );
+    }
+
+    /**************************
+     *                        *
+     *  drip_user_herbs table *
+     *                        *
+     **************************/
+
+    async get_drip_user_herbs() {
+        return await this.query_all(
+            new SqlQueryBuilder()
+                .select(['*'])
+                .from('drip_user_herbs')
+                .get_result()
+        );
+    }
+
+    async add_drip_user_herbs(user_id, herb) {
+        return await this.query_run(
+            new SqlQueryBuilder()
+                .insert_into_values('drip_user_herbs',
+                    ['user_id', 'herb'],
+                    [user_id, herb])
+                .get_result()
+        );
+    }
+
+    async delete_drip_user_herbs(id) {
+        this.query_run(
+            new SqlQueryBuilder()
+                .delete_from('drip_user_herbs')
+                .where_column_equals(['id'], [id])
+                .get_result()
+        );
+    }
 }
 
 module.exports = DripDatabase;

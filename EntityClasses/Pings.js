@@ -13,7 +13,7 @@ class Pings {
 
         for (const ping_log of ping_logs) {
             if (new Date(ping_log.timestamp).getTime() < Date.now()) {
-                this.#db.remove_ping(ping_log.id);
+                this.#db.deactivate_ping(ping_log.id);
                 continue;
             }
             this.#pings.push(new Ping(ping_log));
@@ -55,7 +55,7 @@ class Pings {
         console.log(`[${new Date().toISOString()}] Deleting Ping: ${id} ${this.#pings[index].user_id} ${this.#pings[index].type}`);
 
         this.#pings.splice(index, 1);
-        await this.#db.remove_ping(id);
+        await this.#db.deactivate_ping(id);
     }
 
     find_pings(options) {

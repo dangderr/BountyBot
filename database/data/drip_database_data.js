@@ -8,7 +8,8 @@ const schema = [
         active_hours_start NVARCHAR(50),
         active_hours_end NVARCHAR(50),
         follow_respawn_timers NVARCHAR(50),
-        pause_notifications NVARCHAR(50)
+        pause_notifications NVARCHAR(50),
+        sickle_percent INTEGER
     );`
     ,
     `CREATE TABLE bounties_followed (
@@ -35,7 +36,8 @@ const schema = [
         content NVARCHAR(500),
         type NVARCHAR(50),
         timestamp NVARCHAR(50),
-        delay INTEGER
+        delay INTEGER,
+        active INTEGER
     );`
     ,
     `CREATE TABLE event_timers (
@@ -48,7 +50,20 @@ const schema = [
     `CREATE TABLE last_ping_times(
         type NVARCHAR(100) PRIMARY KEY NOT NULL,
         timestamp NVARCHAR(50)
-    );`
+    );`,
+    `CREATE TABLE drip_user_equips(
+	    id INTEGER PRIMARY KEY AUTOINCREMENT,
+	    user_id NVARCHAR(50) NOT NULL,
+	    item NVARCHAR(50) NOT NULL,
+	    type NVARCHAR(50),
+	    gem NVARCHAR(50),
+	    gem_tier INTEGER
+    )`,
+    `CREATE TABLE drip_user_herbs(
+	    id INTEGER PRIMARY KEY AUTOINCREMENT,
+	    user_id NVARCHAR(50) NOT NULL,
+	    herb NVARCHAR(50) NOT NULL
+    )`
 ];
 
 const events = [

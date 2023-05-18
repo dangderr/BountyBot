@@ -33,7 +33,8 @@ class MessageProcessDripReminderPings {
         unknown: [['Time left:']]
     };
 
-    #pots = {
+    //Look for exact match
+    #exact_search_terms = {
         pot_atk: 'Attack',
         pot_def: 'Defense',
         pot_mystery: 'Mystery',
@@ -66,11 +67,10 @@ class MessageProcessDripReminderPings {
             }
         }
 
-        for (const key of Object.keys(this.#pots)) {
+        for (const key of Object.keys(this.#exact_search_terms)) {
             for (let line of message_arr) {
                 line = line.trim();
-                if (line === this.#pots[key]) {
-                    delay -= 1000 * 60 * 2;         // Two minute advanced notice
+                if (line === this.#exact_search_terms[key]) {
                     this.#send_pings(message, key, timestamp, delay);
                     return;
                 }
@@ -92,6 +92,8 @@ class MessageProcessDripReminderPings {
             }
         } else if (type == 'clan_titan_ready') {
             delay = 1000 * 60 * 60 * 2;     //2 hours
+        } else if (type.includes('pot_')) {
+            delay -= 1000 * 60 * 2;         // Two minute advanced notice
         }
 
         if (delay <= 0) {

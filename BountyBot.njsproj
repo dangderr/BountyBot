@@ -32,9 +32,13 @@
     <Content Include=".gitignore" />
     <Content Include="app.js" />
     <Content Include="bot\BountyBot.js" />
+    <Content Include="bot\commands\add_herb.js">
+      <SubType>Code</SubType>
+    </Content>
     <Content Include="bot\commands\bounty.js" />
     <Content Include="bot\commands\bounty_done.js" />
     <Content Include="bot\commands\active_hours.js" />
+    <Content Include="bot\commands\set_sickle_percent.js" />
     <Content Include="bot\commands\follow_respawn_timers.js" />
     <Content Include="bot\commands\pause_notifications.js" />
     <Content Include="bot\commands\check_bounty_done.js" />
@@ -53,6 +57,9 @@
     <Content Include="database\data\drip - Copy.db" />
     <Content Include="database\data\drip.db" />
     <Content Include="database\data\drip_database_data.js" />
+    <Content Include="database\data\herbs.js">
+      <SubType>Code</SubType>
+    </Content>
     <Content Include="database\data\mobs.js" />
     <Content Include="database\DripDatabase.js" />
     <Content Include="database\SqlQueryBuilder.js" />

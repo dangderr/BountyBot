@@ -6,6 +6,7 @@ const DripDatabase = require('./database/DripDatabase.js');
 const Users = require('./EntityClasses/Users.js');
 const Channels = require('./EntityClasses/Channels.js');
 const mobs = require('./database/data/mobs.js');
+const herbs = require('./database/data/herbs.js');
 
 const PingController = require('./ControlClasses/PingController.js');
 const MessageHandler = require('./BoundaryClasses/MessageHandler.js');
@@ -37,6 +38,7 @@ async function init_classes(client) {
     await client.Channels.init(client);
 
     client.mobs = mobs;
+    client.herbs = herbs;
 
     client.PingController = new PingController(client.drip_db, client.Users, client.Channels);
     await client.PingController.init();

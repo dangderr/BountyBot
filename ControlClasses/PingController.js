@@ -56,7 +56,7 @@ class PingController {
     #REMINDER_FALLBACK_MESSAGE = 'This is a reminder message. Something spawned some hours ago but idr what and idk when.';
 
     #message_components = {
-        herbalism: 'restart_button',
+        herbalism: 'herb',
         pet_training: 'restart_button',
         cauldron: 'restart_button',
         blace: 'blace_buttons'
@@ -64,12 +64,12 @@ class PingController {
 
     #events_to_track;
 
-    constructor(db, Users, Channels) {
+    constructor(db, Users, Channels, Herbs) {
         this.#Users = Users;
         this.#Channels = Channels;
 
         this.#pings = new Pings(db);
-        this.#ping_scheduler = new PingScheduler(this);
+        this.#ping_scheduler = new PingScheduler(this, Users, Channels, Herbs);
         this.#event_timers = new EventTimers(db);
         this.#double_ping_tracker = new DoublePingTracker(db);
     }

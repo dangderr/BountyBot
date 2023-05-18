@@ -2,6 +2,8 @@ const datetime_methods = require('../utils/datetime_methods');
 
 class User {
     #db;
+    #Users;
+
     #discord_id;
     #discord_username;
     #drip_username;
@@ -15,8 +17,11 @@ class User {
 
     #bounties_followed;         // [ mob, mob ]
 
-    constructor(db, discord_id) {
+    #sickle_percent
+
+    constructor(db, Users, discord_id) {
         this.#db = db;
+        this.#Users = Users;
         this.#discord_id = discord_id;
     }
 
@@ -32,11 +37,13 @@ class User {
         this.#parse_and_update_active_hours(users_record.active_hours_start, users_record.active_hours_end);
 
         this.#bounties_followed = (await this.#db.get_bounties_followed(this.#discord_id)).map(i => i.mob);
+
+        this.#sickle_percent = users_record.sickle_percent;
     }
 
     get discord_id() { return this.#discord_id; }
     get discord_username() { return this.#discord_username; }
-    get drip_username() { return this.#drip_username; }
+    get drip_username() { return this.#drip_username ?? this.#discord_username; }
 
     get bounty_done() {
         return datetime_methods.check_same_day(new Date(this.#bounty_done), Date.now());
@@ -45,6 +52,16 @@ class User {
     get follow_respawn_timers() { return this.#follow_respawn_timers == 1; }
     get pause_notifications() { return this.#pause_notifications == 1; }
 
+    get sickle() {
+        if (!this.#sickle_percent) {
+            return 0;
+        }
+        return this.#sickle_percent / 100;
+    }
+
+    get herbs() {
+        return this.#Users.get_herbs_by_user(this.discord_id).map(i => i.herb);
+    }
 
     set discord_id(invalid_action) { console.log('Something tried to set discord_id of a User object'); }
     set discord_username(invalid_action) { console.log('Something tried to set discord_username of a User object'); }
@@ -83,6 +100,16 @@ class User {
             this.#pause_notifications = input_value;
             this.#db.set_pause_notifications(this.#discord_id, input_value);
         }
+    }
+
+    //precent as an integer 6 means 6%
+    set sickle(percent) {
+        this.#sickle_percent = percent;
+        this.#db.set_sickle_percent(this.discord_id, percent);
+    }
+
+    set herbs(herb) {
+        this.#Users.add_herb(this.discord_id, herb);
     }
 
     get active() {
@@ -140,6 +167,24 @@ class User {
         }
         this.#bounties_followed.splice(index, 1);
         this.#db.remove_bounty(this.discord_id, mob);
+    }
+
+    get_equipment() {
+        return this.#Users.get_items_by_user(this.discord_id);
+    }
+
+    get_equipment_by_type(type) {
+        return this.#Users.get_items_by_user(this.discord_id).filter(i => i.type == type);
+    }
+
+    delete_herb(herb) {
+        const found = this.#Users.get_herbs_by_user(this.discord_id).find(i => i.herb == herb);
+        if (found) {
+            this.#Users.delete_herb(found.id)
+            return true;
+        } else {
+            return false;
+        }
     }
 }
 

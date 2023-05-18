@@ -24,9 +24,9 @@ class MessageProcessorDripEvents {
             return;
 
         const content = 'Select ' + name + ' HP/Color';
-        const role_id = message.client.Channels.get_role_id('frenzy', 'drip');
+        //const role_id = message.client.Channels.get_role_id('frenzy', 'drip');
 
-        this.#ping_controller.add_ping(null, role_id, message.channel.id, message.id,
+        this.#ping_controller.add_ping(null, null, message.channel.id, message.id,
             content, 'blace', Date.now(), null);
     }
 
@@ -97,8 +97,14 @@ class MessageProcessorDripEvents {
 
         this.#ping_controller.add_ping(null, role_id, message.channel.id, null,
             content, 'hell', null, null);
-        this.#ping_controller.add_ping(null, role_id, message.channel.id, null,
-            'Hell is open!', 'hell_open', hell_open_time.toISOString(), null);
+
+        if (Math.random() > 0.5) {
+            this.#ping_controller.add_ping(null, role_id, message.channel.id, null,
+                'Hell hell is hell open Hell!', 'hell_open', hell_open_time.toISOString(), null);
+        } else {
+            this.#ping_controller.add_ping(null, role_id, message.channel.id, null,
+                'is open!', 'hell_open', hell_open_time.toISOString(), null);
+        }
     }
 
     async check_soulhounds_message(message) {
