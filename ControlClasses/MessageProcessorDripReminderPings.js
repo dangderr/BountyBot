@@ -47,6 +47,15 @@ class MessageProcessDripReminderPings {
     }
 
     async check_ping_message(message) {
+        if (message.content == '!') {
+            this.#ping_controller.add_ping(message.author.id, null, message.channel.id, message.id,
+                'Pick a plant', 'herbalism', null, null);
+
+            this.#ping_controller.add_ping(message.author.id, null, message.channel.id, message.id,
+                null, 'replanting', Date.now() + 1000 * 60 * 40, null);
+            return;
+        }
+
         let message_arr = message.content.split('\n');
         let delay = datetime_methods.parse_drip_time_string(message_arr);
         let timestamp = new Date();

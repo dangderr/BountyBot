@@ -56,10 +56,10 @@ class PingController {
     #REMINDER_FALLBACK_MESSAGE = 'This is a reminder message. Something spawned some hours ago but idr what and idk when.';
 
     #message_components = {
-        herbalism: 'herb',
-        pet_training: 'restart_button',
-        cauldron: 'restart_button',
-        blace: 'blace_buttons'
+        herbalism: ['restart_button', 'herb'],
+        pet_training: ['restart_button'],
+        cauldron: ['restart_button'],
+        blace: ['blace_buttons']
     };
 
     #events_to_track;

@@ -9,19 +9,6 @@ class PingScheduler {
     #herbs;
     #logger;
 
-    #components = {
-        herb: [new ActionRowBuilder()
-            .addComponents(new ButtonBuilder().setCustomId('Restart').setLabel('Restart').setStyle(ButtonStyle.Success))],
-        restart_button: [new ActionRowBuilder()
-            .addComponents(new ButtonBuilder().setCustomId('Restart').setLabel('Restart').setStyle(ButtonStyle.Success))],
-        blace_buttons: [new ActionRowBuilder()
-            .addComponents(new ButtonBuilder().setCustomId('10').setLabel('400/White').setStyle(ButtonStyle.Secondary))
-            .addComponents(new ButtonBuilder().setCustomId('20').setLabel('500/Green').setStyle(ButtonStyle.Success))
-            .addComponents(new ButtonBuilder().setCustomId('30').setLabel('600/Blue').setStyle(ButtonStyle.Primary))
-            .addComponents(new ButtonBuilder().setCustomId('45').setLabel('700/Purple').setStyle(ButtonStyle.Primary))
-            .addComponents(new ButtonBuilder().setCustomId('60').setLabel('800/Red').setStyle(ButtonStyle.Danger))]
-    }
-
     constructor(ping_controller, users, channels, herbs, logger = true) {
         this.#ping_controller = ping_controller;
         this.#users = users;
@@ -66,31 +53,47 @@ class PingScheduler {
             return;
         }
 
-        let component_array = this.#components[components];
-        if (components == 'herb' && ping.user_id) {
-            component_array = this.#create_herb_restart_buttons(ping.user_id, component_array);
-        }
+        let component_array = new Array();
+        this.#create_components(ping, components, component_array);
 
         const bot_message = await message.reply({ content: content, components: component_array });
-        if (components == 'restart_button') {
-            this.#create_restart_button_collector(ping, message, content, bot_message);
-        } else if (components == 'blace_buttons') {
-            this.#create_blace_button_collector(ping, message, bot_message);
-        } else if (components == 'herb') {
-            this.#create_herb_button_collector(ping, message, content, bot_message);
+
+        this.#create_component_collectors(ping, message, content, bot_message, components);
+    }
+
+    #create_components(ping, types, arr) {
+        for (const type of types) {
+            switch (type) {
+                case 'blace_buttons':
+                    arr.push(new ActionRowBuilder()
+                        .addComponents(new ButtonBuilder().setCustomId('10').setLabel('400/White').setStyle(ButtonStyle.Secondary))
+                        .addComponents(new ButtonBuilder().setCustomId('20').setLabel('500/Green').setStyle(ButtonStyle.Success))
+                        .addComponents(new ButtonBuilder().setCustomId('30').setLabel('600/Blue').setStyle(ButtonStyle.Primary))
+                        .addComponents(new ButtonBuilder().setCustomId('45').setLabel('700/Purple').setStyle(ButtonStyle.Primary))
+                        .addComponents(new ButtonBuilder().setCustomId('60').setLabel('800/Red').setStyle(ButtonStyle.Danger)));
+                    break;
+                case 'herb':
+                    this.#create_herb_restart_buttons(ping, arr);
+                    break;
+                case 'restart_button':
+                    arr.push(new ActionRowBuilder().addComponents(new ButtonBuilder().setCustomId('Restart').setLabel('Restart').setStyle(ButtonStyle.Success)));
+                    break;
+                default: return;
+            }
         }
     }
 
-    #create_herb_restart_buttons(user_id, component_array) {
-        const user = this.#users.get_user(user_id);
+    #create_herb_restart_buttons(ping, component_array) {
+        const user = this.#users.get_user(ping.user_id);
         if (!user.herbs || user.herbs.length == 0) {
-            return component_array;
+            return;
         }
 
         let index = 0;
-        let row_index = 0;
+        let preexisting_rows = component_array.length;
+        let row_index = preexisting_rows - 1;
         for (const herb of user.herbs) {
-            if (index >= 20) {
+            if (index >= 25 - 5 * preexisting_rows) {
                 return;
             }
             if (index % 5 == 0) {
@@ -100,8 +103,23 @@ class PingScheduler {
             component_array[row_index].addComponents(new ButtonBuilder().setCustomId(herb).setLabel(herb).setStyle(ButtonStyle.Secondary));
             index++;
         }
+    }
 
-        return component_array;
+    async #create_component_collectors(ping, message, content, bot_message, types) {
+        for (const type of types) {
+            switch (type) {
+                case 'blace_buttons':
+                    this.#create_blace_button_collector(ping, message, bot_message);
+                    break;
+                case 'herb':
+                    this.#create_herb_button_collector(ping, message, content, bot_message);
+                    break;
+                case 'restart_button':
+                    this.#create_restart_button_collector(ping, message, content, bot_message);
+                    break;
+                default:
+            }
+        }
     }
 
     async #create_herb_button_collector(ping, message, content, bot_message) {
@@ -117,10 +135,7 @@ class PingScheduler {
         let restarted = false;
         collector.on('collect', async i => {
             if (i.component.customId == 'Restart') {
-                const minutes = Math.round(ping.delay / 1000 / 60 * 10) / 10;
-                await i.update({ content: 'Your timer was restarted for ' + minutes + ' minutes', components: [] });
-                restarted = true;
-                this.#ping_controller.restart_ping(ping);
+                return
             } else {
                 const herb = i.component.customId;
                 let minutes = message.client.herbs.find(i => i[0] == herb)[1];
@@ -129,10 +144,9 @@ class PingScheduler {
                 const delay = minutes * 60 * 1000;
                 const timestamp = new Date();
                 timestamp.setUTCMilliseconds(timestamp.getUTCMilliseconds() + delay);
-
                 await i.update({ content: `${user.drip_username}, your timer was restarted for ${minutes} minutes for ${herb}`, components: [] });
                 restarted = true;
-                this.#ping_controller.add_ping(ping.user_id, null, message.channel.id, bot_message.id, null, 'herbalism', timestamp.toISOString(), delay);
+                this.#ping_controller.add_ping(ping.user_id, null, message.channel.id, message.id, null, 'herbalism', timestamp.toISOString(), delay);
             }
         });
         collector.on('end', collector => { });
@@ -155,6 +169,9 @@ class PingScheduler {
 
         let restarted = false;
         collector.on('collect', async i => {
+            if (i.component.customId != 'Restart') {
+                return
+            }
             const minutes = Math.round(ping.delay / 1000 / 60 * 10) / 10;
             try {
                 await i.update({ content: 'Your timer was restarted for ' + minutes + ' minutes', components: [] });
