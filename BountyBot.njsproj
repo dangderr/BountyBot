@@ -38,7 +38,7 @@
     <Content Include="bot\commands\bounty.js" />
     <Content Include="bot\commands\bounty_done.js" />
     <Content Include="bot\commands\active_hours.js" />
-    <Content Include="bot\commands\set_sickle_percent.js" />
+    <Content Include="bot\commands\settings.js" />
     <Content Include="bot\commands\follow_respawn_timers.js" />
     <Content Include="bot\commands\pause_notifications.js" />
     <Content Include="bot\commands\check_bounty_done.js" />

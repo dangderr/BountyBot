@@ -3,7 +3,7 @@ const { ActionRowBuilder, ButtonBuilder, ButtonStyle, ComponentType, Component }
 
 class PingScheduler {
     #ping_controller;
-    #MAX_COMPONENT_TIMER = 1000 * 2;           //15 minutes
+    #MAX_COMPONENT_TIMER = 1000 * 60 * 15;           //15 minutes
     #users;
     #channels;
     #logger;
@@ -141,7 +141,9 @@ class PingScheduler {
             const herb = i.component.customId;
 
             let minutes = message.client.herbs.find(i => i[0] == herb)[1];
-            minutes *= (1 - user.sickle);
+            const timer_reduction = user.get_herb_time_reduction();
+            minutes *= (1 - timer_reduction.percent);
+            minutes -= timer_reduction.flat;
             minutes = Math.round(minutes * 10) / 10;
 
             const delay = minutes * 60 * 1000;
