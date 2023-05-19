@@ -27,31 +27,21 @@ async function execute(interaction) {
         return;
     }
 
-
     const tier = interaction.options.getString('tier');
-    let herb_menu_list = interaction.client.herbs.filter(i => i[2] == tier).map(i => i[0]);
+    const herb_menu_list = interaction.client.herbs.filter(i => i[2] == tier).map(i => i[0]);
 
     const herb_option_arr = get_herb_options(herb_menu_list, user);
-
-
-
-    const components = new Array(
-        new ActionRowBuilder()
-            .addComponents(
-                new StringSelectMenuBuilder()
-                    .setCustomId('herbs')
-                    .setMinValues(0)
-                    .setMaxValues(herb_option_arr.length)
-                    .addOptions(...herb_option_arr)
-            )
-    );
+    const component = create_component(herb_option_arr);
 
     const content = 'Select your herbs';
 
-    const bot_message = await interaction.reply({ content: content, components: components })
+    const bot_message = await interaction.reply({ content: content, components: component })
 
+    create_collector(user, bot_message, herb_menu_list);
+}
 
-    const filter = i => i.user.id === interaction.user.id;
+async function create_collector(user, bot_message, herb_menu_list) {
+    const filter = i => i.user.id === user.discord_id;
     try {
         const i = await bot_message.awaitMessageComponent({
             filter: filter,
@@ -59,7 +49,7 @@ async function execute(interaction) {
             time: 60000
         });
 
-        const result = user.update_herbs(i.values, tier, herb_menu_list);
+        const result = user.update_herbs(i.values, herb_menu_list);
 
         let content = '';
         if (result[0].length > 0) {
@@ -78,6 +68,19 @@ async function execute(interaction) {
     } catch (err) {
         await bot_message.edit({ content: 'Nothing changed.', components: [] });
     }
+}
+
+function create_component(herb_option_arr) {
+    return new Array(
+        new ActionRowBuilder()
+            .addComponents(
+                new StringSelectMenuBuilder()
+                    .setCustomId('herbs')
+                    .setMinValues(0)
+                    .setMaxValues(herb_option_arr.length)
+                    .addOptions(...herb_option_arr)
+            )
+    );
 }
 
 function get_herb_options(herb_menu_list, user) {

@@ -2,7 +2,6 @@ const datetime_methods = require('../utils/datetime_methods');
 
 class User {
     #db;
-    #Users;
 
     #discord_id;
     #discord_username;
@@ -16,13 +15,16 @@ class User {
     #active_hours_end;          // hh:dd
 
     #bounties_followed;         // [ mob, mob ]
+    #equips;                    // ???
+    #herbs;                     // [ herb, herb, herb ]
+    #settings;                  // [ { key: key, value: value }, { key: key, value: value }]
 
-    #sickle_percent
-
-    constructor(db, Users, discord_id) {
+    constructor(db, discord_id, equips, herbs, settings) {
         this.#db = db;
-        this.#Users = Users;
         this.#discord_id = discord_id;
+        this.#equips = equips;
+        this.#herbs = herbs;
+        this.#settings = settings;
     }
 
     async init() {
@@ -37,32 +39,28 @@ class User {
         this.#parse_and_update_active_hours(users_record.active_hours_start, users_record.active_hours_end);
 
         this.#bounties_followed = (await this.#db.get_bounties_followed(this.#discord_id)).map(i => i.mob);
-
-        this.#sickle_percent = users_record.sickle_percent;
     }
 
+
+
+    /*********************************
+     *                               *
+     *      Getters and Setters      *
+     *                               *
+     *********************************/
+
     get discord_id() { return this.#discord_id; }
+    set discord_id(invalid_action) { console.log('Something tried to set discord_id of a User object'); }
+
     get discord_username() { return this.#discord_username; }
+    set discord_username(invalid_action) { console.log('Something tried to set discord_username of a User object'); }
+
     get drip_username() { return this.#drip_username ?? this.#discord_username; }
+    set drip_username(invalid_action) { console.log('Something tried to set drip_username of a User object'); }
 
     get bounty_done() {
         return datetime_methods.check_same_day(new Date(this.#bounty_done), Date.now());
     }
-
-    get follow_respawn_timers() { return this.#follow_respawn_timers == 1; }
-    get pause_notifications() { return this.#pause_notifications == 1; }
-
-    get sickle() {
-        if (!this.#sickle_percent) {
-            return 0;
-        }
-        return this.#sickle_percent / 100;
-    }
-
-    set discord_id(invalid_action) { console.log('Something tried to set discord_id of a User object'); }
-    set discord_username(invalid_action) { console.log('Something tried to set discord_username of a User object'); }
-    set drip_username(invalid_action) { console.log('Something tried to set drip_username of a User object'); }
-
     set bounty_done(timestamp) {
         if (this.bounty_done) {
             this.#bounty_done = null;
@@ -72,6 +70,7 @@ class User {
         this.#db.set_bounty_done(this.#discord_id, this.#bounty_done);
     }
 
+    get follow_respawn_timers() { return this.#follow_respawn_timers == 1; }
     set follow_respawn_timers(bool_value) {
         if (bool_value !== true && bool_value !== false) {
             console.log('Failed to set follow_upcoming_events for user ' + this.#discord_id + ' because bool_value was invalid');
@@ -85,6 +84,7 @@ class User {
         }
     }
 
+    get pause_notifications() { return this.#pause_notifications == 1; }
     set pause_notifications(bool_value) {
         if (bool_value !== true && bool_value !== false) {
             console.log('Failed to set pause_notifications for user ' + this.#discord_id + ' because bool_value was invalid');
@@ -96,12 +96,6 @@ class User {
             this.#pause_notifications = input_value;
             this.#db.set_pause_notifications(this.#discord_id, input_value);
         }
-    }
-
-    //precent as an integer 6 means 6%
-    set sickle(percent) {
-        this.#sickle_percent = percent;
-        this.#db.set_sickle_percent(this.discord_id, percent);
     }
 
     get active() {
@@ -117,11 +111,50 @@ class User {
 
         return (this.#active_hours_start < current_hours && current_hours < this.#active_hours_end);
     }
+    set active(invalid_action) { console.log('Something tried to set active property of a User object'); }
 
     async set_active_hours(starttime, endtime) {
         this.#parse_and_update_active_hours(starttime, endtime);
         await this.#db.set_active_hours(this.#discord_id, starttime, endtime);
     }
+
+    get_bounties_followed() {
+        return this.#bounties_followed;
+    }
+    
+    get_equipment() {
+        return this.#equips;
+    }
+
+    get_equipment_by_type(type) {
+        return this.#equips.filter(i => i.type == type);
+    }
+
+    get_herbs() {
+        return this.#herbs.map(i => i.herb);
+    }
+
+    get_herb_time_reduction() {
+        let percentage = 0;
+        const sickle = parseInt(this.#settings.find(i => i.key == 'Sickle')?.value ?? 0);
+        percentage += sickle / 100;
+
+        let flat = 0;
+        const muscipula = (this.#settings.find(i => i.key == 'Muscipula')?.value ? 1 : 0);
+        flat += muscipula;
+
+        return { percent: percentage, flat: flat };
+    }
+
+    get_user_setting(key) {
+        return this.#settings.find(i => i.key == key)?.value;
+    }
+
+    /******************************
+     *                            *
+     *      Helper Functions      *
+     *                            *
+     ******************************/
 
     #parse_and_update_active_hours(starttime, endtime) {
         if (!starttime || !endtime) {
@@ -142,9 +175,13 @@ class User {
         }
     }
 
-    get_bounties_followed() {
-        return this.#bounties_followed;
-    }
+
+
+    /***********************
+     *                     *
+     *      DB Access      *
+     *                     *
+     ***********************/
 
     async add_bounty(mob) {
         this.#bounties_followed.push(mob);
@@ -161,19 +198,7 @@ class User {
         this.#db.remove_bounty(this.discord_id, mob);
     }
 
-    get_equipment() {
-        return this.#Users.get_items_by_user(this.discord_id);
-    }
-
-    get_equipment_by_type(type) {
-        return this.#Users.get_items_by_user(this.discord_id).filter(i => i.type == type);
-    }
-
-    get_herbs() {
-        return this.#Users.get_herbs_by_user(this.discord_id).map(i => i.herb);
-    }
-
-    update_herbs(herb_arr, tier, herb_menu_list) {
+    async update_herbs(herb_arr, herb_menu_list) {
         let initial_list = this.get_herbs();
         let added = new Array();
         let removed = new Array();
@@ -196,21 +221,39 @@ class User {
     }
 
     async #add_herb(herb) {
-        const found = this.#Users.get_herbs_by_user(this.discord_id).find(i => i.herb == herb);
-        if (found) {
+        if (this.#herbs.find(i => i.herb == herb)) {
             console.log('Tried to add an herb already in user list');
         } else {
-            this.#Users.add_herb(this.discord_id, herb);
+            const id = await this.#db.add_drip_user_herbs(this.discord_id, herb);
+            this.#herbs.push({
+                id: id,
+                user_id: user_id,
+                herb: herb
+            });
         }
     }
 
     async #delete_herb(herb) {
-        const found = this.#Users.get_herbs_by_user(this.discord_id).find(i => i.herb == herb);
-        if (found) {
-            this.#Users.delete_herb(found.id)
+        const index = this.#herbs.findIndex(i => i.herb == herb);
+        if (index >= 0) {
+            this.#db.delete_drip_user_herbs(this.#herbs[index].id);
+            this.#herbs.splice(index, 1);
             return true;
         } else {
+            console.log(`Error: Herbs - Tried to delete a non-existent herb ${this.#herbs[index].id}`);
             return false;
+        }
+    }
+
+    async update_user_setting(key, value) {
+        let str_value = value.toString();
+        const setting = this.#settings.find(i => i.key == key);
+        if (!setting) {
+            this.#db.add_user_setting(this.#discord_id, key, str_value );
+            this.#settings.push({ key: key, value: str_value })
+        } else {
+            this.#db.update_user_setting(this.#discord_id, key, str_value );
+            setting.value = str_value ;
         }
     }
 }

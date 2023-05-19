@@ -419,6 +419,41 @@ class DripDatabase extends Database {
                 .get_result()
         );
     }
+
+    /**************************
+     *                        *
+     *  drip_user_herbs table *
+     *                        *
+     **************************/
+
+    async get_user_settings() {
+        return await this.query_all(
+            new SqlQueryBuilder()
+                .select(['*'])
+                .from('settings')
+                .get_result()
+        );
+    }
+
+    async add_user_setting(user_id, key, value) {
+        return await this.query_run(
+            new SqlQueryBuilder()
+                .insert_into_values('settings',
+                    ['user_id', 'key', 'value'],
+                    [user_id, key, value])
+                .get_result()
+        );
+    }
+
+    async update_user_setting(user_id, key, value) {
+        this.query_run(
+            new SqlQueryBuilder()
+                .update('settings')
+                .set(['value'], [value])
+                .where_column_equals(['user_id', 'key'], [user_id, key])
+                .get_result()
+        );
+    }
 }
 
 module.exports = DripDatabase;

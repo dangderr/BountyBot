@@ -64,6 +64,13 @@ const schema = [
 	    user_id NVARCHAR(50) NOT NULL,
 	    herb NVARCHAR(50) NOT NULL
     )`
+    ,
+    `
+    CREATE TABLE settings (
+        user_id NVARCHAR(50) NOT NULL,
+        key NVARCHAR(100) NOT NULL,
+        value NVARCHAR(50)
+    );`
 ];
 
 const events = [

@@ -143,7 +143,9 @@ class PingScheduler {
             const herb = i.component.customId;
 
             let minutes = message.client.herbs.find(i => i[0] == herb)[1];
-            minutes *= (1 - user.sickle);
+            const timer_reduction = user.get_herb_time_reduction();
+            minutes *= (1 - timer_reduction.percent);
+            minutes -= timer_reduction.flat;
             minutes = Math.round(minutes * 10) / 10;
 
             const delay = minutes * 60 * 1000;
