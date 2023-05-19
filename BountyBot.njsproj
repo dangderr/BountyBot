@@ -39,6 +39,7 @@
     <Content Include="bot\commands\bounty.js" />
     <Content Include="bot\commands\bounty_done.js" />
     <Content Include="bot\commands\active_hours.js" />
+    <Content Include="bot\commands\global_settings.js" />
     <Content Include="bot\commands\settings.js" />
     <Content Include="bot\commands\follow_respawn_timers.js" />
     <Content Include="bot\commands\pause_notifications.js" />
@@ -75,6 +76,7 @@
     <Content Include="EntityClasses\Pings.js" />
     <Content Include="EntityClasses\Role.js" />
     <Content Include="EntityClasses\User.js" />
+    <Content Include="EntityClasses\GlobalSettings.js" />
     <Content Include="EntityClasses\Users.js" />
     <Content Include="package.json" />
     <Content Include="README.md" />

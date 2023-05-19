@@ -6,6 +6,7 @@ const DoublePingTracker = require('../EntityClasses/DoublePingTracker.js');
 class PingController {
     #Users;
     #Channels;
+    #GlobalSettings;
 
     #pings;
     #ping_scheduler;
@@ -64,14 +65,15 @@ class PingController {
 
     #events_to_track;
 
-    constructor(db, Users, Channels, Data) {
-        this.#Users = Users;
-        this.#Channels = Channels;
+    constructor(client) {
+        this.#Users = client.Users;
+        this.#Channels = client.Channels;
+        this.#GlobalSettings = client.GlobalSettings;
 
-        this.#pings = new Pings(db);
-        this.#ping_scheduler = new PingScheduler(this, Users, Channels, Data);
-        this.#event_timers = new EventTimers(db);
-        this.#double_ping_tracker = new DoublePingTracker(db);
+        this.#pings = new Pings(client.drip_db);
+        this.#ping_scheduler = new PingScheduler(this, client);
+        this.#event_timers = new EventTimers(client.drip_db);
+        this.#double_ping_tracker = new DoublePingTracker(client.drip_db);
     }
 
     async init() {

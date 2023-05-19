@@ -18,13 +18,15 @@ class User {
     #equips;                    // ???
     #herbs;                     // [ herb, herb, herb ]
     #settings;                  // [ { key: key, value: value }, { key: key, value: value }]
+    #globals;                   // [ { key: key, value: value }, { key: key, value: value }]
 
-    constructor(db, discord_id, equips, herbs, settings) {
+    constructor(db, discord_id, equips, herbs, settings, global_settings) {
         this.#db = db;
         this.#discord_id = discord_id;
         this.#equips = equips;
         this.#herbs = herbs;
         this.#settings = settings;
+        this.#globals = global_settings;
     }
 
     async init() {
@@ -136,11 +138,13 @@ class User {
 
     get_herb_time_reduction() {
         let percentage = 0;
-        const sickle = parseInt(this.#settings.find(i => i.key == 'Sickle')?.value ?? 0);
+        const sickle = parseInt(this.get_user_setting('Sickle') ?? 0);
+        const herb_tile = (this.#globals.get_global_setting('Herb_Tile') === 'true' ? 0.1 : 0);
         percentage += sickle / 100;
+        percentage += herb_tile;
 
         let flat = 0;
-        const muscipula = (this.#settings.find(i => i.key == 'Muscipula')?.value ? 1 : 0);
+        const muscipula = (this.get_user_setting('Muscipula') === 'true'? 1 : 0);
         flat += muscipula;
 
         return { percent: percentage, flat: flat };
