@@ -3,7 +3,7 @@ const { ActionRowBuilder, ButtonBuilder, ButtonStyle, ComponentType, Component }
 
 class PingScheduler {
     #ping_controller;
-    #MAX_COMPONENT_TIMER = 1000 * 2;           //15 minutes
+    #MAX_COMPONENT_TIMER = 1000 * 60 * 15;           //15 minutes
     #users;
     #channels;
     #logger;
@@ -76,7 +76,9 @@ class PingScheduler {
                     this.#create_herb_restart_buttons(ping, arr);
                     break;
                 case 'restart_button':
-                    arr.push(new ActionRowBuilder().addComponents(new ButtonBuilder().setCustomId('Restart').setLabel('Restart').setStyle(ButtonStyle.Success)));
+                    if (new Date(ping.timestamp).getTime() > 1000) {
+                        arr.push(new ActionRowBuilder().addComponents(new ButtonBuilder().setCustomId('Restart').setLabel('Restart').setStyle(ButtonStyle.Success)));
+                    }
                     break;
                 default: return;
             }
@@ -154,7 +156,6 @@ class PingScheduler {
             });
             this.#ping_controller.add_ping(ping.user_id, null, message.channel.id, message.id,
                 null, 'herbalism', timestamp.toISOString(), delay);
-
         } catch (err) {
             await bot_message.edit({ components: [] });
         }

@@ -129,6 +129,10 @@ class PingController {
             }
         }
 
+        if (type == 'herbalism') {
+            this.#schedule_replanting_ping(user_id, channel_id, message_id, timestamp);
+        }
+
         if (this.#unique_pings.includes(type)) {
             this.#remove_stale_pings({ type: type });
         } else if (this.#unique_per_user.includes(type)) {
@@ -147,18 +151,18 @@ class PingController {
         this.#schedule_ping(ping);
     }
 
+    #schedule_replanting_ping(user_id, channel_id, message_id, timestamp) {
+        const new_timestamp = new Date(timestamp);
+        new_timestamp.setUTCMinutes(new_timestamp.getUTCMinutes() + 20);
+        this.add_ping(user_id, null, channel_id, message_id,
+            null, 'replanting', new_timestamp, null);
+    }
+
     //From the restart button
     async restart_ping(ping) {
         const new_timestamp = new Date(Date.now() + ping.delay).toISOString();
         this.add_ping(ping.user_id, ping.role_id, ping.channel_id, ping.message_id,
             ping.content, ping.type, new_timestamp, ping.delay);
-
-        if (ping.type == 'herbalism') {
-            const new_new_timestamp = new Date(new_timestamp);
-            new_new_timestamp.setUTCMinutes(new_new_timestamp.getUTCMinutes() + 20);
-            this.add_ping(ping.user_id, null, ping.channel_id, ping.message_id,
-                null, 'replanting', new_new_timestamp, null);
-        }
     }
 
     async #schedule_event_respawn_reminders(channel_id, type, timestamp) {

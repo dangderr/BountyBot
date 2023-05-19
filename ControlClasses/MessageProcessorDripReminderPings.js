@@ -50,9 +50,6 @@ class MessageProcessDripReminderPings {
         if (message.content == '!') {
             this.#ping_controller.add_ping(message.author.id, null, message.channel.id, message.id,
                 'Pick a plant', 'herbalism', null, null);
-
-            this.#ping_controller.add_ping(message.author.id, null, message.channel.id, message.id,
-                null, 'replanting', Date.now() + 1000 * 60 * 40, null);
             return;
         }
 
@@ -118,13 +115,6 @@ class MessageProcessDripReminderPings {
 
         this.#ping_controller.add_ping(message.author.id, null, message.channel.id, message.id,
             null, type, timestamp, delay);
-
-        if (type == 'herbalism') {
-            const new_timestamp = new Date(timestamp);
-            new_timestamp.setUTCMinutes(new_timestamp.getUTCMinutes() + 20);
-            this.#ping_controller.add_ping(message.author.id, null, message.channel.id, message.id,
-                null, 'replanting', new_timestamp, null);
-        }
     }
 
     #get_random_reply() {
