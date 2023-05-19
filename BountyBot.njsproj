@@ -35,6 +35,7 @@
     <Content Include="bot\commands\add_herb.js">
       <SubType>Code</SubType>
     </Content>
+    <Content Include="bot\commands\hades_training_calc.js" />
     <Content Include="bot\commands\bounty.js" />
     <Content Include="bot\commands\bounty_done.js" />
     <Content Include="bot\commands\active_hours.js" />
