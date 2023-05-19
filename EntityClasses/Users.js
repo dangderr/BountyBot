@@ -1,12 +1,14 @@
 const User = require('./User.js');
 
 class Users {
-    #users;
     #db;
+    #users;
+    #globals;
 
-    constructor(db) {
-        this.#users = new Array();
+    constructor(db, global_settings) {
         this.#db = db;
+        this.#users = new Array();
+        this.#globals = global_settings;
     }
 
     async init() {
@@ -23,7 +25,7 @@ class Users {
                     discord_id,
                     equips.filter(i => i.user_id == discord_id),
                     herbs.filter(i => i.user_id == discord_id),
-                    settings.filter(i => i.user_id == discord_id)
+                    settings.filter(i => i.user_id == discord_id),
                 )
             );
         }
@@ -38,7 +40,8 @@ class Users {
             discord_id,
             equips ?? new Array(),
             herbs ?? new Array(),
-            settings ?? new Array()
+            settings ?? new Array(),
+            this.#globals
         );
         await user.init();
         this.#users.push(user);

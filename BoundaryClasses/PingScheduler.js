@@ -7,14 +7,17 @@ class PingScheduler {
     #MAX_COMPONENT_TIMER = 1000 * 60 * 15;           //15 minutes
     #users;
     #channels;
-    #logger;
     #data;
+    #globals;
 
-    constructor(ping_controller, users, channels, Data) {
+    #logger;
+
+    constructor(ping_controller, client) {
         this.#ping_controller = ping_controller;
-        this.#users = users;
-        this.#channels = channels;
-        this.#data = Data;
+        this.#users = client.Users;
+        this.#channels = client.Channels;
+        this.#data = client.Data;
+        this.#globals = client.GlobalSettings;
 
         this.#logger = true;
     }
@@ -92,8 +95,10 @@ class PingScheduler {
 
     #create_pet_restart_buttons(ping, component_array) {
         const user = this.#users.get_user(ping.user_id);
+
         const BM_Level = user.get_user_setting('BM_Level') ?? 0;
-        const timer_reduction = parseInt(BM_Level) / 300;
+        const pet_tile = this.#globals.get_global_setting('Pet_Tile') === 'true' ? 0.1 : 0;
+        const timer_reduction = parseInt(BM_Level) / 300 + pet_tile;
 
         const BUTTONS_PER_ROW = 5;
         const MAX_ROWS = 5;
@@ -144,7 +149,7 @@ class PingScheduler {
             return;
         }
 
-        const BUTTONS_PER_ROW = 3;
+        const BUTTONS_PER_ROW = 5;
         const MAX_ROWS = 5;
         let index = 0;
         let preexisting_rows = component_array.length;

@@ -5,6 +5,7 @@ const BountyBot = require('./bot/BountyBot.js');
 const DripDatabase = require('./database/DripDatabase.js');
 const Users = require('./EntityClasses/Users.js');
 const Channels = require('./EntityClasses/Channels.js');
+const GlobalSettings = require('./EntityClasses/GlobalSettings.js');
 
 const PingController = require('./ControlClasses/PingController.js');
 const MessageHandler = require('./BoundaryClasses/MessageHandler.js');
@@ -29,7 +30,10 @@ async function init_classes(client) {
     client.drip_db = new DripDatabase('./database/data/drip.db');
     await client.drip_db.init();
 
-    client.Users = new Users(client.drip_db);
+    client.GlobalSettings = new GlobalSettings(client.drip_db);
+    await client.GlobalSettings.init();
+
+    client.Users = new Users(client.drip_db, client.GlobalSettings);
     await client.Users.init();
 
     client.Channels = new Channels();
@@ -40,7 +44,7 @@ async function init_classes(client) {
     client.Data.herbs = require('./database/data/herbs.js');
     client.Data.pet_trainings = require('./database/data/pet_trainings.js');
 
-    client.PingController = new PingController(client.drip_db, client.Users, client.Channels, client.Data);
+    client.PingController = new PingController(client);
     await client.PingController.init();
 
     client.MessageHandler = new MessageHandler(client.PingController, client.drip_db);
