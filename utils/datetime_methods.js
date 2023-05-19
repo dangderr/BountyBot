@@ -172,10 +172,38 @@ function parse_global_timestamp(message) {
     }
 }
 
+function get_time_str_from_hours(hours) {
+    let str = '';
+    if (hours > 1) {
+        str += Math.floor(hours).toString() + ' h.';
+        hours -= Math.floor(hours);
+        if (hours > 0) {
+            let minutes = hours * 60;
+            str += ' ' + Math.ceil(minutes).toString() + ' min.';
+        }
+    } else if (hours * 60 > 1) {
+        let minutes = hours * 60;
+        str += Math.floor(minutes).toString() + ' min.';
+        minutes -= Math.floor(minutes);
+        if (minutes > 0) {
+            let seconds = minutes * 60;
+            str += ' ' + Math.ceil(seconds).toString() + ' s.';
+        }
+    } else if (hours * 60 * 60 > 1) {
+        let seconds = hours * 60 * 60;
+        str += Math.ceil(seconds).toString() + ' s.';
+    } else {
+        str = '0 s.';
+    }
+
+    return str;
+}
+
 module.exports = {
     sqlite_date_string_to_Date_obj,
     check_same_day,
     parse_drip_time_string,
     check_active_time,
-    parse_global_timestamp
+    parse_global_timestamp,
+    get_time_str_from_hours
 }

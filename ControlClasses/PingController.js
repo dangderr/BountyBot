@@ -57,19 +57,19 @@ class PingController {
 
     #message_components = {
         herbalism: ['restart_button', 'herb'],
-        pet_training: ['restart_button'],
+        pet_training: ['restart_button', 'pet'],
         cauldron: ['restart_button'],
         blace: ['blace_buttons']
     };
 
     #events_to_track;
 
-    constructor(db, Users, Channels, Herbs) {
+    constructor(db, Users, Channels, Data) {
         this.#Users = Users;
         this.#Channels = Channels;
 
         this.#pings = new Pings(db);
-        this.#ping_scheduler = new PingScheduler(this, Users, Channels, Herbs);
+        this.#ping_scheduler = new PingScheduler(this, Users, Channels, Data);
         this.#event_timers = new EventTimers(db);
         this.#double_ping_tracker = new DoublePingTracker(db);
     }
@@ -156,13 +156,6 @@ class PingController {
         new_timestamp.setUTCMinutes(new_timestamp.getUTCMinutes() + 20);
         this.add_ping(user_id, null, channel_id, message_id,
             null, 'replanting', new_timestamp, null);
-    }
-
-    //From the restart button
-    async restart_ping(ping) {
-        const new_timestamp = new Date(Date.now() + ping.delay).toISOString();
-        this.add_ping(ping.user_id, ping.role_id, ping.channel_id, ping.message_id,
-            ping.content, ping.type, new_timestamp, ping.delay);
     }
 
     async #schedule_event_respawn_reminders(channel_id, type, timestamp) {

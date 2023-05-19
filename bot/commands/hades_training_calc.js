@@ -1,4 +1,5 @@
-const { SlashCommandBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
+const { SlashCommandBuilder } = require('discord.js');
+const datetime_methods = require('../../utils/datetime_methods.js');
 
 const data = (new SlashCommandBuilder()
     .setName('hades_training_calc')
@@ -56,7 +57,7 @@ async function execute(interaction) {
     let content = '';
     if (amount > 0) {
         const time = base_time * amount * gs_reduction / 60;
-        content += `At GS ${gs}, training ${amount} ${unit}s will take ${get_time_str_from_hours(time)}\n`;
+        content += `At GS ${gs}, training ${amount} ${unit}s will take ${datetime_methods.get_time_str_from_hours(time)}\n`;
     }
     if (training_minutes > 0) {
         const num_units = Math.floor(training_minutes / base_time / gs_reduction);
@@ -64,29 +65,6 @@ async function execute(interaction) {
     }
 
     interaction.reply(content);
-}
-
-function get_time_str_from_hours(hours) {
-    let str = '';
-    if (hours > 1) {
-        str += Math.floor(hours).toString() + ' h. ';
-        hours -= Math.floor(hours);
-        let minutes = hours * 60;
-        str += Math.ceil(minutes).toString() + ' min.';
-    } else if (hours * 60 > 1) {
-        let minutes = hours * 60;
-        str += Math.floor(minutes).toString() + ' min. ';
-        minutes -= Math.floor(minutes);
-        let seconds = minutes * 60;
-        str += Math.ceil(seconds).toString() + ' s.';
-    } else if (hours * 60 * 60 > 1) {
-        let seconds = hours * 60 * 60;
-        str += Math.ceil(seconds).toString() + ' s.';
-    } else {
-        str = '0';
-    }
-
-    return str;
 }
 
 module.exports = {

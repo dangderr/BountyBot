@@ -54,7 +54,7 @@ async function execute(interaction) {
         return;
     }
 
-    const mob_arr = get_mob_array(interaction.client.mobs, interaction.options);
+    const mob_arr = get_mob_array(interaction.client.Data.mobs, interaction.options);
     const bounties_followed = user.get_bounties_followed();
     const component_arr = generate_component_array(mob_arr, bounties_followed);
 

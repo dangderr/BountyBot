@@ -2,8 +2,18 @@ const { SlashCommandBuilder } = require('discord.js');
 
 const settings = [
     'Sickle',
-    'Muscipula'
+    'BM_Level',
+    'Hollowhead_Level',
+    'Muscipula',
+    'Dreagle',
+    'Bat',
+    'Mage_Class'
 ]
+
+// TODO
+// In the future, break up into subcommands
+// Spirits, pet levels, skill levels, tools, etc
+// To get around 25 limit. Most of the logic should be the same. Maybe redirect set_settings to the appropriate method
 
 function create_slash_command() {
     return new SlashCommandBuilder()
@@ -45,6 +55,9 @@ async function execute(interaction) {
 
 function set_setting(user, key, int_value, str_value) {
     switch (key) {
+        //===========================
+        //      Percents MAX 99
+        //===========================
         case 'Sickle':
             if (!int_value) {
                 return `You have to set a number... idjit`;
@@ -53,13 +66,32 @@ function set_setting(user, key, int_value, str_value) {
             }
             user.update_user_setting(key, int_value);
             return `${key} set to ${int_value}%`;
+
+        //==========================
+        //      Levels MAX 200
+        //==========================
+        case 'BM_Level':
+        case 'Hollowhead_Level':
+            if (!int_value) {
+                return `You have to set a number... idjit`;
+            } else if (int_value < 0 || int_value > 200) {
+                return `You have to set a REASONABLE number... idjit`;
+            }
+            user.update_user_setting(key, int_value);
+            return `${key} set to ${int_value}`;
+            
+        //========================
+        //      True / False
+        //========================
         case 'Muscipula':
-            const new_value = user.get_user_setting('Muscipula') !== 'true';
+        case 'Dreagle':
+        case 'Bat':
+        case 'Mage_Class':
+            const new_value = user.get_user_setting(key) !== 'true';
             user.update_user_setting(key, new_value);
             return `${key} set to ${new_value}`;
     }
 }
-
 
 const data = create_slash_command();
 

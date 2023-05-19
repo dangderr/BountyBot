@@ -58,6 +58,7 @@
     <Content Include="database\data\drip - Copy.db" />
     <Content Include="database\data\drip.db" />
     <Content Include="database\data\drip_database_data.js" />
+    <Content Include="database\data\pet_trainings.js" />
     <Content Include="database\data\herbs.js">
       <SubType>Code</SubType>
     </Content>

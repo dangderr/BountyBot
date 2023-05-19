@@ -28,7 +28,7 @@ async function execute(interaction) {
     }
 
     const tier = interaction.options.getString('tier');
-    const herb_menu_list = interaction.client.herbs.filter(i => i[2] == tier).map(i => i[0]);
+    const herb_menu_list = interaction.client.Data.herbs.filter(i => i[2] == tier).map(i => i[0]);
 
     const herb_option_arr = get_herb_options(herb_menu_list, user);
     const component = create_component(herb_option_arr);
