@@ -59,10 +59,6 @@ class User {
         return this.#sickle_percent / 100;
     }
 
-    get herbs() {
-        return this.#Users.get_herbs_by_user(this.discord_id).map(i => i.herb);
-    }
-
     set discord_id(invalid_action) { console.log('Something tried to set discord_id of a User object'); }
     set discord_username(invalid_action) { console.log('Something tried to set discord_username of a User object'); }
     set drip_username(invalid_action) { console.log('Something tried to set drip_username of a User object'); }
@@ -106,10 +102,6 @@ class User {
     set sickle(percent) {
         this.#sickle_percent = percent;
         this.#db.set_sickle_percent(this.discord_id, percent);
-    }
-
-    set herbs(herb) {
-        this.#Users.add_herb(this.discord_id, herb);
     }
 
     get active() {
@@ -177,7 +169,42 @@ class User {
         return this.#Users.get_items_by_user(this.discord_id).filter(i => i.type == type);
     }
 
-    delete_herb(herb) {
+    get_herbs() {
+        return this.#Users.get_herbs_by_user(this.discord_id).map(i => i.herb);
+    }
+
+    update_herbs(herb_arr, tier, herb_menu_list) {
+        let initial_list = this.get_herbs();
+        let added = new Array();
+        let removed = new Array();
+
+        for (const herb of herb_menu_list) {
+            if (initial_list.includes(herb) == herb_arr.includes(herb)) {
+                continue;
+            }
+
+            if (initial_list.includes(herb)) {
+                removed.push(herb);
+                this.#delete_herb(herb);
+            } else {
+                added.push(herb);
+                this.#add_herb(herb);
+            }
+        }
+
+        return [added, removed];
+    }
+
+    async #add_herb(herb) {
+        const found = this.#Users.get_herbs_by_user(this.discord_id).find(i => i.herb == herb);
+        if (found) {
+            console.log('Tried to add an herb already in user list');
+        } else {
+            this.#Users.add_herb(this.discord_id, herb);
+        }
+    }
+
+    async #delete_herb(herb) {
         const found = this.#Users.get_herbs_by_user(this.discord_id).find(i => i.herb == herb);
         if (found) {
             this.#Users.delete_herb(found.id)

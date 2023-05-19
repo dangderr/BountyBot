@@ -3,11 +3,11 @@ const { ActionRowBuilder, ButtonBuilder, ButtonStyle, ComponentType, Component }
 
 class PingScheduler {
     #ping_controller;
-    #MAX_COMPONENT_TIMER = 1000 * 60 * 15;           //5 minutes
+    #MAX_COMPONENT_TIMER = 1000 * 2;           //15 minutes
     #users;
     #channels;
-    #herbs;
     #logger;
+    #herbs;
 
     constructor(ping_controller, users, channels, herbs, logger = true) {
         this.#ping_controller = ping_controller;
@@ -58,7 +58,7 @@ class PingScheduler {
 
         const bot_message = await message.reply({ content: content, components: component_array });
 
-        this.#create_component_collectors(ping, message, content, bot_message, components);
+        this.#create_component_collectors(ping, message, bot_message, components);
     }
 
     #create_components(ping, types, arr) {
@@ -85,14 +85,14 @@ class PingScheduler {
 
     #create_herb_restart_buttons(ping, component_array) {
         const user = this.#users.get_user(ping.user_id);
-        if (!user.herbs || user.herbs.length == 0) {
+        if (!user.get_herbs() || user.get_herbs().length == 0) {
             return;
         }
 
         let index = 0;
         let preexisting_rows = component_array.length;
         let row_index = preexisting_rows - 1;
-        for (const herb of user.herbs) {
+        for (const herb of user.get_herbs()) {
             if (index >= 25 - 5 * preexisting_rows) {
                 return;
             }
@@ -105,102 +105,92 @@ class PingScheduler {
         }
     }
 
-    async #create_component_collectors(ping, message, content, bot_message, types) {
+    async #create_component_collectors(ping, message, bot_message, types) {
         for (const type of types) {
             switch (type) {
                 case 'blace_buttons':
-                    this.#create_blace_button_collector(ping, message, bot_message);
+                    this.#create_blace_button_collector(ping, bot_message);
                     break;
                 case 'herb':
-                    this.#create_herb_button_collector(ping, message, content, bot_message);
+                    this.#create_herb_button_collector(ping, message, bot_message);
                     break;
                 case 'restart_button':
-                    this.#create_restart_button_collector(ping, message, content, bot_message);
+                    this.#create_restart_button_collector(ping, message, bot_message);
                     break;
                 default:
             }
         }
     }
 
-    async #create_herb_button_collector(ping, message, content, bot_message) {
+    async #create_herb_button_collector(ping, message, bot_message) {
         const user = this.#users.get_user(ping.user_id);
         const filter = (i => i.user.id === message.author.id);
-        const collector = bot_message.createMessageComponentCollector({
-            filter: filter,
-            componentType: ComponentType.Button,
-            time: this.#MAX_COMPONENT_TIMER,
-            max: 1
-        });
 
-        let restarted = false;
-        collector.on('collect', async i => {
+        try {
+            const i = await bot_message.awaitMessageComponent({
+                filter: filter,
+                componentType: ComponentType.Button,
+                time: this.#MAX_COMPONENT_TIMER,
+                max: 1
+            })
+
             if (i.component.customId == 'Restart') {
-                return
-            } else {
-                const herb = i.component.customId;
-                let minutes = message.client.herbs.find(i => i[0] == herb)[1];
-                minutes *= (1 - user.sickle);
-                minutes = Math.round(minutes * 10) / 10;
-                const delay = minutes * 60 * 1000;
-                const timestamp = new Date();
-                timestamp.setUTCMilliseconds(timestamp.getUTCMilliseconds() + delay);
-                await i.update({ content: `${user.drip_username}, your timer was restarted for ${minutes} minutes for ${herb}`, components: [] });
-                restarted = true;
-                this.#ping_controller.add_ping(ping.user_id, null, message.channel.id, message.id, null, 'herbalism', timestamp.toISOString(), delay);
+                return;
             }
-        });
-        collector.on('end', collector => { });
 
-        await wait(this.#MAX_COMPONENT_TIMER);
+            const herb = i.component.customId;
 
-        if (!restarted) {
-            bot_message.edit({ content: content, components: [] });
+            let minutes = message.client.herbs.find(i => i[0] == herb)[1];
+            minutes *= (1 - user.sickle);
+            minutes = Math.round(minutes * 10) / 10;
+
+            const delay = minutes * 60 * 1000;
+            const timestamp = new Date();
+            timestamp.setUTCMilliseconds(timestamp.getUTCMilliseconds() + delay);
+
+            await i.update({
+                content: `${user.drip_username}, your timer was restarted for ${minutes} minutes for ${herb}`,
+                components: []
+            });
+            this.#ping_controller.add_ping(ping.user_id, null, message.channel.id, message.id,
+                null, 'herbalism', timestamp.toISOString(), delay);
+
+        } catch (err) {
+            await bot_message.edit({ components: [] });
         }
     }
 
-    async #create_restart_button_collector(ping, message, content, bot_message) {
+    async #create_restart_button_collector(ping, message, bot_message) {
         const filter = (i => i.user.id === message.author.id);
-        const collector = bot_message.createMessageComponentCollector({
-            filter: filter,
-            componentType: ComponentType.Button,
-            time: this.#MAX_COMPONENT_TIMER,
-            max: 1
-        });
+        try {
+            const i = await bot_message.awaitMessageComponent({
+                filter: filter,
+                componentType: ComponentType.Button,
+                time: this.#MAX_COMPONENT_TIMER,
+                max: 1
+            })
 
-        let restarted = false;
-        collector.on('collect', async i => {
             if (i.component.customId != 'Restart') {
-                return
+                return;
             }
+
             const minutes = Math.round(ping.delay / 1000 / 60 * 10) / 10;
-            try {
-                await i.update({ content: 'Your timer was restarted for ' + minutes + ' minutes', components: [] });
-                restarted = true;
-                this.#ping_controller.restart_ping(ping);
-            }
-            catch (err) {
-                console.log('Error in restart button update');
-                console.log(err);
-            }
-        });
-        collector.on('end', collector => { });
-
-        await wait(this.#MAX_COMPONENT_TIMER);
-
-        if (!restarted) {
-            bot_message.edit({ content: content, components: [] });
+            await i.update({ content: 'Your timer was restarted for ' + minutes + ' minutes', components: [] });
+            this.#ping_controller.restart_ping(ping);
+ 
+        } catch (err) {
+            await bot_message.edit({ components: [] });
         }
     }
 
-    async #create_blace_button_collector(ping, message, bot_message) {
-        const collector = bot_message.createMessageComponentCollector({
-            componentType: ComponentType.Button,
-            time: this.#MAX_COMPONENT_TIMER,
-            max: 1
-        });
+    async #create_blace_button_collector(ping, bot_message) {
+        try {
+            const i = await bot_message.awaitMessageComponent({
+                componentType: ComponentType.Button,
+                time: this.#MAX_COMPONENT_TIMER,
+                max: 1
+            })
 
-        collector.on('end', collector => { });
-        collector.on('collect', async i => {
             const time = i.component.customId;
             const replies = ['bro', 'dude', 'clock', 'babe', 'man', 'dawg', 'homie', 'honey', 'Allah'];
             const reply_index = Math.floor(Math.random() * replies.length);
@@ -210,17 +200,10 @@ class PingScheduler {
             const role_id = this.#channels.get_role_id('frenzy', 'drip');
             const content = time + ' mins from Blaze/Ace';
 
-            this.#ping_controller.add_ping(
-                null,
-                role_id,
-                ping.channel_id,
-                null,
-                content,
-                'blace_ping',
-                null,
-                null
-            );
-        });
+            this.#ping_controller.add_ping(null, role_id, ping.channel_id, null, content, 'blace_ping', null, null);
+        } catch (err) {
+            await bot_message.editReply({ content: 'Buttons disabled. You took too long to click them.', components: [] });
+        }
     }
 
     async process_delay(ping_id, timestamp) {
