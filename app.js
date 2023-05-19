@@ -20,7 +20,7 @@ async function main() {
 }
 
 async function init_bot(client) {
-    const redeploy_commands = true;
+    const redeploy_commands = false;
     await BountyBot.init(client, redeploy_commands);
 
     require('dotenv').config();

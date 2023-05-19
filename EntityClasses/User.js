@@ -216,7 +216,6 @@ class User {
                 this.#add_herb(herb);
             }
         }
-
         return [added, removed];
     }
 
@@ -227,7 +226,7 @@ class User {
             const id = await this.#db.add_drip_user_herbs(this.discord_id, herb);
             this.#herbs.push({
                 id: id,
-                user_id: user_id,
+                user_id: this.discord_id,
                 herb: herb
             });
         }

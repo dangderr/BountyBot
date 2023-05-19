@@ -48,6 +48,8 @@ function set_setting(user, key, int_value, str_value) {
         case 'Sickle':
             if (!int_value) {
                 return `You have to set a number... idjit`;
+            } else if (int_value < 0 || int_value > 99) {
+                return `You have to set a REASONABLE number... idjit`;
             }
             user.update_user_setting(key, int_value);
             return `${key} set to ${int_value}%`;

@@ -49,7 +49,7 @@ async function create_collector(user, bot_message, herb_menu_list) {
             time: 60000
         });
 
-        const result = user.update_herbs(i.values, herb_menu_list);
+        const result = await user.update_herbs(i.values, herb_menu_list);
 
         let content = '';
         if (result[0].length > 0) {
