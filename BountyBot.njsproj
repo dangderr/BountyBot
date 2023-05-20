@@ -41,8 +41,6 @@
     <Content Include="bot\commands\active_hours.js" />
     <Content Include="bot\commands\global_settings.js" />
     <Content Include="bot\commands\settings.js" />
-    <Content Include="bot\commands\follow_respawn_timers.js" />
-    <Content Include="bot\commands\pause_notifications.js" />
     <Content Include="bot\commands\check_bounty_done.js" />
     <Content Include="bot\events\interactionCreate.js" />
     <Content Include="bot\events\message.js" />
@@ -81,10 +79,6 @@
     <Content Include="EntityClasses\Users.js" />
     <Content Include="package.json" />
     <Content Include="README.md" />
-    <Content Include="testing\tests_for_Users_class.js" />
-    <Content Include="testing\tests_for_DripDatabase_queries.js">
-      <SubType>Code</SubType>
-    </Content>
     <Content Include="scripts.txt" />
     <Content Include="TODO.txt" />
     <Content Include="utils\app_tokens.js" />
@@ -100,7 +94,6 @@
     <Folder Include="EntityClasses\" />
     <Folder Include="utils\" />
     <Folder Include="bot\" />
-    <Folder Include="testing\" />
   </ItemGroup>
   <Import Project="$(VSToolsPath)\Node.js Tools\Microsoft.NodejsToolsV2.targets" />
 </Project>

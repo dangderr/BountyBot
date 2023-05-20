@@ -1,33 +1,155 @@
 const { SlashCommandBuilder } = require('discord.js');
 
-const settings = [
-    'Sickle',
-    'BM_Level',
-    'Hollowhead_Level',
-    'Muscipula',
-    'Dreagle',
-    'Bat',
-    'Mage_Class'
+const settings_toggles = [
+    'Pause_Notifications',
+    'Follow_Respawn_Timers'
 ]
 
-// TODO
-// In the future, break up into subcommands
-// Spirits, pet levels, skill levels, tools, etc
-// To get around 25 limit. Most of the logic should be the same. Maybe redirect set_settings to the appropriate method
+const settings_spirits = [
+    'Muscipula',
+    'Dreagle',
+    'Bat'
+]
+
+const settings_class = [
+    'Assassin',
+    'Mage',
+    'Rogue',
+    'Barbarian',
+    'Cleric',
+    'Dark_Elf'
+]
+
+const settings_skills = [
+    'Combat',
+    'Slayer',
+    'Summoning',
+    'Jewelcrafting',
+    'Magic',
+    'Mining',
+    'Blacksmithing',
+    'Fishing',
+    'Cooking',
+    'Hunter',
+    'Crafting',
+    'Woodworking',
+    'Herbalism',
+    'Alchemy',
+    'Exploration',
+    'Beastmastery'
+]
+
+const settings_pets = [
+    'Crow',
+    'Cat',
+    'Owl',
+    'Woodchipper',
+    'Oozy',
+    'Robert',
+    'Lochy',
+    'Wolf',
+    'Phoenix',
+    'Imp',
+    'Mimic',
+    'Drake',
+    'Hollowhead',
+    'Icicle',
+    'Kaiju',
+    'Wyrm'
+]
+
+const settings_tools = [
+    'Bow',
+    'Pickaxe',
+    'Sickle',
+    'Axe',
+    'Hook'
+]
 
 function create_slash_command() {
     return new SlashCommandBuilder()
         .setName('settings')
         .setDescription('Set some user settings')
-        .addStringOption(option =>
-            option.setName('key')
-                .setDescription('Enter the setting you want to change')
+        .addSubcommand(subcommand => subcommand
+            .setName('toggles')
+            .setDescription('A few random settings to toggle on/off')
+            .addStringOption(option => option
+                .setName('name')
+                .setDescription('Choose a setting')
                 .setRequired(true)
-                .addChoices(...settings.map(i => ({ name: i, value: i })))
+                .addChoices(...settings_toggles.map(i => ({ name: i, value: i })))
+            )
         )
-        .addIntegerOption(option => option
-            .setName('integer_value')
-            .setDescription('Enter the value, percentage, whatever')
+        .addSubcommand(subcommand => subcommand
+            .setName('spirits')
+            .setDescription('Toggle spirits on/off')
+            .addStringOption(option => option
+                .setName('name')
+                .setDescription('Choose which spirit')
+                .setRequired(true)
+                .addChoices(...settings_spirits.map(i => ({ name: i, value: i })))
+            )
+        )
+        .addSubcommand(subcommand => subcommand
+            .setName('class')
+            .setDescription('Set your class')
+            .addStringOption(option => option
+                .setName('name')
+                .setDescription('Select a class')
+                .setRequired(true)
+                .addChoices(...settings_class.map(i => ({ name: i, value: i })))
+            )
+        )
+        .addSubcommand(subcommand => subcommand
+            .setName('skills')
+            .setDescription('Set the level of your skills')
+            .addStringOption(option => option
+                .setName('name')
+                .setDescription('Select a skill')
+                .setRequired(true)
+                .addChoices(...settings_skills.map(i => ({ name: i, value: i })))
+            )
+            .addIntegerOption(option => option
+                .setName('level')
+                .setDescription('Enter your level')
+                .setMinValue(0)
+                .setMaxValue(200)
+                .setRequired(true)
+            )
+        )
+        .addSubcommand(subcommand => subcommand
+            .setName('pets')
+            .setDescription('Set the level of your skills')
+            .addStringOption(option => option
+                .setName('name')
+                .setDescription('Select a pet')
+                .setRequired(true)
+                .addChoices(...settings_pets.map(i => ({ name: i, value: i })))
+            )
+            .addIntegerOption(option => option
+                .setName('level')
+                .setDescription('Enter the pet level')
+                .setMinValue(0)
+                .setMaxValue(200)
+                .setRequired(true)
+            )
+        )
+        .addSubcommand(subcommand => subcommand
+            .setName('tools')
+            .setDescription('Set the % of your tools')
+            .addStringOption(option => option
+                .setName('name')
+                .setDescription('Select a tool')
+                .setRequired(true)
+                .addChoices(...settings_tools.map(i => ({ name: i, value: i })))
+            )
+            .addIntegerOption(option => option
+                .setName('percent')
+                .setDescription('Enter the percentage as an integer (e.g. 6 for 6%)')
+                .setMinValue(0)
+                .setMaxValue(99)
+                .setRequired(true)
+            )
         )
 }
 
@@ -38,58 +160,34 @@ async function execute(interaction) {
         return;
     }
 
-    const key = interaction.options.getString('key')
-
-    if (!settings.includes(key)) {
-        await interaction.reply(`Invalid setting`);
-    }
-
-    const user = interaction.User;
-    const int_value = interaction.options.getInteger('integer_value');
-    const str_value = ''; //interaction.options.getString('str_value');
-
-    const content = set_setting(user, key, int_value, str_value);
+    const content = set_setting(interaction.User, interaction.options);
 
     interaction.reply(content);
 }
 
-function set_setting(user, key, int_value, str_value) {
-    switch (key) {
-        //===========================
-        //      Percents MAX 99
-        //===========================
-        case 'Sickle':
-            if (!int_value) {
-                return `You have to set a number... idjit`;
-            } else if (int_value < 0 || int_value > 99) {
-                return `You have to set a REASONABLE number... idjit`;
-            }
-            user.update_user_setting(key, int_value);
-            return `${key} set to ${int_value}%`;
+function set_setting(user, options) {
+    const name = options.getString('name');
+    const subcommand = options.getSubcommand();
 
-        //==========================
-        //      Levels MAX 200
-        //==========================
-        case 'BM_Level':
-        case 'Hollowhead_Level':
-            if (!int_value) {
-                return `You have to set a number... idjit`;
-            } else if (int_value < 0 || int_value > 200) {
-                return `You have to set a REASONABLE number... idjit`;
-            }
-            user.update_user_setting(key, int_value);
-            return `${key} set to ${int_value}`;
-            
-        //========================
-        //      True / False
-        //========================
-        case 'Muscipula':
-        case 'Dreagle':
-        case 'Bat':
-        case 'Mage_Class':
-            const new_value = user.get_user_setting(key) !== 'true';
-            user.update_user_setting(key, new_value);
-            return `${key} set to ${new_value}`;
+    switch (subcommand) {
+        case 'spirits':
+        case 'toggles':
+            const new_value = user.get_user_setting(name) !== 'true';
+            user.update_user_setting(name, new_value);
+            return `${name} set to ${new_value}`;
+        case 'class':
+            user.update_user_setting('Class', name);
+            return `Class set to ${name}`;
+        case 'skills':
+        case 'pets':
+            const level = options.getInteger('level');
+            user.update_user_setting(name, level);
+            return `${name} set to ${level}`;
+        case 'tools':
+            const percent = options.getInteger('percent');
+            user.update_user_setting(name, percent);
+            return `${name} set to ${percent}%`;
+        default: return;
     }
 }
 

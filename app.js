@@ -10,7 +10,6 @@ const GlobalSettings = require('./EntityClasses/GlobalSettings.js');
 const PingController = require('./ControlClasses/PingController.js');
 const MessageHandler = require('./BoundaryClasses/MessageHandler.js');
 
-
 async function main() {
     const client = await new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent] });
 
@@ -19,7 +18,7 @@ async function main() {
 }
 
 async function init_bot(client) {
-    const redeploy_commands = false;
+    const redeploy_commands = true;
     await BountyBot.init(client, redeploy_commands);
 
     require('dotenv').config();

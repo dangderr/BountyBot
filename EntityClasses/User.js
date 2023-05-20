@@ -36,8 +36,6 @@ class User {
         this.#discord_username = users_record.discord_username;
         this.#drip_username = users_record.drip_username;
         this.#bounty_done = users_record.bounty_done;
-        this.#follow_respawn_timers = users_record.follow_respawn_timers;
-        this.#pause_notifications = users_record.pause_notifications;
         this.#parse_and_update_active_hours(users_record.active_hours_start, users_record.active_hours_end);
 
         this.#bounties_followed = (await this.#db.get_bounties_followed(this.#discord_id)).map(i => i.mob);
@@ -72,36 +70,8 @@ class User {
         this.#db.set_bounty_done(this.#discord_id, this.#bounty_done);
     }
 
-    get follow_respawn_timers() { return this.#follow_respawn_timers == 1; }
-    set follow_respawn_timers(bool_value) {
-        if (bool_value !== true && bool_value !== false) {
-            console.log('Failed to set follow_upcoming_events for user ' + this.#discord_id + ' because bool_value was invalid');
-            return;
-        }
-
-        const input_value = bool_value ? 1 : 0;
-        if (input_value !== this.#follow_respawn_timers) {
-            this.#follow_respawn_timers = input_value;
-            this.#db.set_follow_respawn_timers(this.#discord_id, input_value);
-        }
-    }
-
-    get pause_notifications() { return this.#pause_notifications == 1; }
-    set pause_notifications(bool_value) {
-        if (bool_value !== true && bool_value !== false) {
-            console.log('Failed to set pause_notifications for user ' + this.#discord_id + ' because bool_value was invalid');
-            return;
-        }
-
-        const input_value = bool_value ? 1 : 0;
-        if (input_value !== this.#pause_notifications) {
-            this.#pause_notifications = input_value;
-            this.#db.set_pause_notifications(this.#discord_id, input_value);
-        }
-    }
-
     get active() {
-        if (this.pause_notifications) {
+        if (this.get_user_setting('Pause_Notifications') === 'true') {
             return false;
         }
         const current_time = new Date();

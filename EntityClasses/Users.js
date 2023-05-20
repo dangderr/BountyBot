@@ -82,7 +82,7 @@ class Users {
     }
 
     get_user_ids_following_respawn_timers() {
-        return this.#users.filter(i => i.follow_respawn_timers).map(i => i.discord_id);
+        return this.#users.filter(i => i.get_user_setting('Follow_Respawn_Timers') === 'true').map(i => i.discord_id);
     }
 }
 

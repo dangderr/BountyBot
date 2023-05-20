@@ -96,7 +96,7 @@ class PingScheduler {
     #create_pet_restart_buttons(ping, component_array) {
         const user = this.#users.get_user(ping.user_id);
 
-        const BM_Level = user.get_user_setting('BM_Level') ?? 0;
+        const BM_Level = user.get_user_setting('Beastmastery') ?? 0;
         const pet_tile = this.#globals.get_global_setting('Pet_Tile') === 'true' ? 0.1 : 0;
         const timer_reduction = parseInt(BM_Level) / 300 + pet_tile;
 
@@ -208,7 +208,7 @@ class PingScheduler {
             if(imp) training = training.replace('_imp', '');
 
             let minutes = this.#data.pet_trainings.find(i => i[0] == training)[1];
-            const BM_Level = user.get_user_setting('BM_Level') ?? 0;
+            const BM_Level = user.get_user_setting('Beastmastery') ?? 0;
             const timer_reduction = parseInt(BM_Level) / 300;
             minutes *= (1 - timer_reduction);
             minutes /= (imp ? 2 : 1);
@@ -292,9 +292,9 @@ class PingScheduler {
                 minutes = 60 * 4;           // 4 hour base time
                 if (user.get_user_setting('Bat') === 'true')
                     minutes -= 6;
-                if (user.get_user_setting('Mage_Class') === 'true')
+                if (user.get_user_setting('Class') === 'Mage')
                     minutes -= 10;
-                const HH_Level = parseInt(user.get_user_setting('Hollowhead_Level') ?? 0);
+                const HH_Level = parseInt(user.get_user_setting('Hollowhead') ?? 0);
                 minutes -= HH_Level * 0.75;
             } else {
                 minutes = ping.delay / 1000 / 60;
