@@ -26,6 +26,7 @@ class PingController {
         hades_dragon: 'AHHHH DRAAGGGONNNN',
         clan_wars_mob: '~~Lyr dungeon~~ Clan wars room is finished.',
         clan_titan_ready: 'Release the Titan!',
+        ff_slayer: 'Your FF Slayer or Bounty is finished.',
 
         pot_atk: 'Your attack pot is about to expire',
         pot_def: 'Your defense pot is about to expire',

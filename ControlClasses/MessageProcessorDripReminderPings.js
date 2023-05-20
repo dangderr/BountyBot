@@ -2,6 +2,8 @@ const datetime_methods = require('../utils/datetime_methods.js');
 
 class MessageProcessDripReminderPings {
     #ping_controller;
+    #mobs;
+
     #replies = [
         'k',
         'aight',
@@ -30,6 +32,7 @@ class MessageProcessDripReminderPings {
         clan_titan_ready: [['The Titan of Rock and Metal begins to rise'],
                            ['The Titan of Beasts and Prey begins to rise'],
                            ['The Titan of Magic and Nature begins to rise']],
+        ff_slayer: [[]],
         unknown: [['Time left:']]
     };
 
@@ -42,8 +45,10 @@ class MessageProcessDripReminderPings {
         pot_lvl: 'LVL'
     }
 
-    constructor (ping_controller) {
+
+    constructor (ping_controller, mobs) {
         this.#ping_controller = ping_controller;
+        this.#mobs = mobs;
     }
 
     async check_ping_message(message) {
@@ -56,6 +61,32 @@ class MessageProcessDripReminderPings {
         let message_arr = message.content.split('\n');
         let delay = datetime_methods.parse_drip_time_string(message_arr);
         let timestamp = new Date();
+
+        if (this.#mobs.filter(i => i[1] === 'ff').includes(message_arr[0]) &&
+            message_arr[1].includes('/')
+        ) {
+            const key = 'ff_slayer';
+            const mobs_remaining = message_arr[1].split(' / ');
+            try {
+                const current = parseInt(mobs_remaining[0]);
+                const total = parseInt(mobs_remaining[1]);
+                const LATENCY_DELAY = 1.05;
+                const TIME_PER_MOB = 1000 * 6;
+                delay = (total - current) * TIME_PER_MOB * LATENCY_DELAY;
+                timestamp.setUTCMilliseconds(timestamp.getUTCMilliseconds + delay);
+
+                this.#ping_controller.add_ping(null, null, message.channel.id, message.id,
+                    this.#get_random_reply() + ` ping <t:${Math.round(timestamp.getTime() / 1000)}:R>`, 'response', null, null);
+
+                this.#ping_controller.add_ping(message.author.id, null, message.channel.id, message.id,
+                    null, 'ff_slayer', timestamp, delay);
+            } catch (err) {
+                console.log('Could not parse ff_slayer numbers');
+            }
+
+            this.#send_pings(message, key, timestamp, delay);
+            return;
+        }
 
         for (const key of Object.keys(this.#search_terms)) {
             for (const row of this.#search_terms[key]) {

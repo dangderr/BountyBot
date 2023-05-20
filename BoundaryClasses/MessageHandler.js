@@ -15,7 +15,7 @@ class MessageHandler {
         this.#amar = new MessageProcessorAmar(client.PingController);
         this.#drip_bounties = new MessageProcessorDripBounties(client.PingController, client.drip_db);
         this.#drip_events = new MessageProcessorDripEvents(client.PingController, client.drip_db);
-        this.#drip_reminders = new MessageProcessorDripReminderPings(client.PingController);
+        this.#drip_reminders = new MessageProcessorDripReminderPings(client.PingController, client.Data.mobs);
         this.#drip_queries = new MessageProcessorDripQueries(client.PingController, client.Users);
     }
 
