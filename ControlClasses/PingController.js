@@ -50,7 +50,7 @@ class PingController {
     #unique_per_user = [
         'botcheck', 'cauldron', 'herbalism', 'replanting',
         'pet_training', 'pet_exploration', 'hades_training', 'soulhounds_attack',
-        'hades_attack', 'hades_dragon', 'clan_wars_mob',
+        'hades_attack', 'hades_dragon', 'clan_wars_mob', 'ff_slayer',
         'pot_atk', 'pot_def', 'pot_mystery', 'pot_xp', 'pot_lvl'
     ];
 

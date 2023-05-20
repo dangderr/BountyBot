@@ -218,7 +218,7 @@ class PingScheduler {
             timestamp.setUTCMilliseconds(timestamp.getUTCMilliseconds() + delay);
             const time_unix = Math.round(timestamp.getTime() / 1000);
 
-            const content = `Your timer was restarted for ${training}. You'll get a ping <t:${time_unix}:R> at <t:${time_unix}:T>`;
+            const content = `Your timer was restarted for ${training}. You'll get a ping <t:${time_unix}:R>`;
             await i.update({
                 content: content,
                 components: []
@@ -259,7 +259,7 @@ class PingScheduler {
             timestamp.setUTCMilliseconds(timestamp.getUTCMilliseconds() + delay);
             const time_unix = Math.round(timestamp.getTime() / 1000);
 
-            const content = `Your timer was restarted for ${herb}. You'll get a ping <t:${time_unix}:R> at <t:${time_unix}:T>`;
+            const content = `Your timer was restarted for ${herb}. You'll get a ping <t:${time_unix}:R>`;
             await i.update({
                 content: content,
                 components: []
@@ -305,7 +305,7 @@ class PingScheduler {
             timestamp.setUTCMilliseconds(timestamp.getUTCMilliseconds() + delay);
             const time_unix = Math.round(timestamp.getTime() / 1000);
 
-            const content = `Your timer was restarted. You'll get a ping <t:${time_unix}:R> at <t:${time_unix}:T>`;
+            const content = `Your timer was restarted. You'll get a ping <t:${time_unix}:R>`;
             await i.update({ content: content, components: [] });
 
 

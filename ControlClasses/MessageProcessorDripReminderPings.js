@@ -32,7 +32,6 @@ class MessageProcessDripReminderPings {
         clan_titan_ready: [['The Titan of Rock and Metal begins to rise'],
                            ['The Titan of Beasts and Prey begins to rise'],
                            ['The Titan of Magic and Nature begins to rise']],
-        ff_slayer: [[]],
         unknown: [['Time left:']]
     };
 
@@ -62,31 +61,7 @@ class MessageProcessDripReminderPings {
         let delay = datetime_methods.parse_drip_time_string(message_arr);
         let timestamp = new Date();
 
-        if (this.#mobs.filter(i => i[1] === 'ff').includes(message_arr[0]) &&
-            message_arr[1].includes('/')
-        ) {
-            const key = 'ff_slayer';
-            const mobs_remaining = message_arr[1].split(' / ');
-            try {
-                const current = parseInt(mobs_remaining[0]);
-                const total = parseInt(mobs_remaining[1]);
-                const LATENCY_DELAY = 1.05;
-                const TIME_PER_MOB = 1000 * 6;
-                delay = (total - current) * TIME_PER_MOB * LATENCY_DELAY;
-                timestamp.setUTCMilliseconds(timestamp.getUTCMilliseconds + delay);
-
-                this.#ping_controller.add_ping(null, null, message.channel.id, message.id,
-                    this.#get_random_reply() + ` ping <t:${Math.round(timestamp.getTime() / 1000)}:R>`, 'response', null, null);
-
-                this.#ping_controller.add_ping(message.author.id, null, message.channel.id, message.id,
-                    null, 'ff_slayer', timestamp, delay);
-            } catch (err) {
-                console.log('Could not parse ff_slayer numbers');
-            }
-
-            this.#send_pings(message, key, timestamp, delay);
-            return;
-        }
+        this.#check_ff_slayer(message, message_arr);
 
         for (const key of Object.keys(this.#search_terms)) {
             for (const row of this.#search_terms[key]) {
@@ -112,6 +87,36 @@ class MessageProcessDripReminderPings {
                     return;
                 }
             }
+        }
+    }
+
+    async #check_ff_slayer(message, message_arr) {
+        const key = 'ff_slayer';
+
+        if (this.#mobs.filter(i => i[1] === 'ff').map(i => i[0]).includes(message_arr[0]) &&
+            message_arr[1].includes('/')
+        ) {
+            const mobs_remaining = message_arr[1].split(' / ');
+            try {
+                const LATENCY_DELAY = 1.05;
+                const TIME_PER_MOB = 1000 * 6;
+
+                const current = parseInt(mobs_remaining[0]);
+                const total = parseInt(mobs_remaining[1]);
+
+                let timestamp = new Date();
+                let delay = (total - current) * TIME_PER_MOB * LATENCY_DELAY;
+                timestamp.setUTCMilliseconds(timestamp.getUTCMilliseconds() + delay);
+
+                this.#ping_controller.add_ping(null, null, message.channel.id, message.id,
+                    this.#get_random_reply() + ` ping <t:${Math.round(timestamp.getTime() / 1000)}:R>`, 'response', null, null);
+
+                this.#ping_controller.add_ping(message.author.id, null, message.channel.id, message.id,
+                    null, key, timestamp, delay);
+            } catch (err) {
+                console.log('Could not parse ff_slayer numbers');
+            }
+            return;
         }
     }
 
