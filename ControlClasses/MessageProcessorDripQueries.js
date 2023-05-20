@@ -75,11 +75,12 @@ class MessageProcessDripQueries {
 
         output_arr.sort((a, b) => a[1] - b[1]);
         const formatted_arr = output_arr
-            .map(i => `${i[0] + ' '.repeat(length_of_longest_type - i[0].length)} - ${datetime_methods.get_time_str_from_hours(i[1] / 3600000)}`);
+            .map(i => `${i[0].padEnd(length_of_longest_type, ' ')} - ${datetime_methods.get_time_str_from_hours(i[1] / 3600000)}`);
 
 
-        let content = 'You have the following pings scheduled:\n';
+        let content = '\nYou have the following pings scheduled:\n```';
         content += formatted_arr.join('\n');
+        content += '```';
 
         return content;
     }
