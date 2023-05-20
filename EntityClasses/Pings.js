@@ -24,6 +24,10 @@ class Pings {
         return this.#pings;
     }
 
+    get_pings_by_user(user_id) {
+        return this.#pings.filter(i => i.user_id == user_id);
+    }
+
     get_ping(id) {
         return this.#pings.find(i => i.id == id);
     }
@@ -48,7 +52,7 @@ class Pings {
     async remove_ping(id) {
         const index = this.#pings.findIndex(i => i.id == id);
         if (index < 0) {
-            console.log(`Error: Pings - Tried to delete a ping that does not exist, id: ${id}`);
+            //console.log(`Error: Pings - Tried to delete a ping that does not exist, id: ${id}`);
             return;
         }
 

@@ -2,18 +2,21 @@ const MessageProcessorAmar = require('../ControlClasses/MessageProcessorAmar.js'
 const MessageProcessorDripBounties = require('../ControlClasses/MessageProcessorDripBounties.js');
 const MessageProcessorDripEvents = require('../ControlClasses/MessageProcessorDripEvents.js');
 const MessageProcessorDripReminderPings = require('../ControlClasses/MessageProcessorDripReminderPings.js');
+const MessageProcessorDripQueries = require('../ControlClasses/MessageProcessorDripQueries.js');
 
 class MessageHandler {
     #amar;
     #drip_bounties;
     #drip_events;
     #drip_reminders;
+    #drip_queries;
 
-    constructor(ping_controller, db) {
-        this.#amar = new MessageProcessorAmar(ping_controller);
-        this.#drip_bounties = new MessageProcessorDripBounties(ping_controller, db);
-        this.#drip_events = new MessageProcessorDripEvents(ping_controller, db);
-        this.#drip_reminders = new MessageProcessorDripReminderPings(ping_controller);
+    constructor(client) {
+        this.#amar = new MessageProcessorAmar(client.PingController);
+        this.#drip_bounties = new MessageProcessorDripBounties(client.PingController, client.drip_db);
+        this.#drip_events = new MessageProcessorDripEvents(client.PingController, client.drip_db);
+        this.#drip_reminders = new MessageProcessorDripReminderPings(client.PingController);
+        this.#drip_queries = new MessageProcessorDripQueries(client.PingController, client.Users);
     }
 
     async init() {
@@ -47,15 +50,9 @@ class MessageHandler {
             case 'drops': this.#drip_events.check_drops_message(message); break;
             case 'soulhounds': this.#drip_events.check_soulhounds_message(message); break;
             case 'pings': this.#drip_reminders.check_ping_message(message); break;
+            case 'queries': this.#drip_queries.check_query_message(message); break;
             default: console.log(`Error: MessageHandler cannot route message. No route for ${message_type}.`)
         }
-
-        /*
-        if (this.#message_routes.hasOwnProperty(message_type)) {
-            this.#message_routes[message_type](message);
-        } else {
-            console.log(`Error: MessageHandler cannot route message. No route for ${message_type}.`)
-        }*/
     }
 }
 

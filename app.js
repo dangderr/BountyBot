@@ -47,7 +47,7 @@ async function init_classes(client) {
     client.PingController = new PingController(client);
     await client.PingController.init();
 
-    client.MessageHandler = new MessageHandler(client.PingController, client.drip_db);
+    client.MessageHandler = new MessageHandler(client);
     await client.MessageHandler.init();
 }
 

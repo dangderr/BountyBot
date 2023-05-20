@@ -52,6 +52,7 @@
     <Content Include="ControlClasses\MessageProcessorAmar.js" />
     <Content Include="ControlClasses\MessageProcessorDripBounties.js" />
     <Content Include="ControlClasses\MessageProcessorDripEvents.js" />
+    <Content Include="ControlClasses\MessageProcessorDripQueries.js" />
     <Content Include="ControlClasses\MessageProcessorDripReminderPings.js" />
     <Content Include="ControlClasses\PingController.js" />
     <Content Include="database\Database.js" />
