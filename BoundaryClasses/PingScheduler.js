@@ -223,6 +223,8 @@ class PingScheduler {
                 content: content,
                 components: []
             });
+            this.#ping_controller.add_ping(ping.user_id, null, message.channel.id, message.id,
+                null, 'pet_training', timestamp.toISOString(), delay);
         } catch (err) {
             await bot_message.edit({ components: [] });
         }
