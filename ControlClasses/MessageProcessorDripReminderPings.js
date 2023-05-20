@@ -97,7 +97,7 @@ class MessageProcessDripReminderPings {
                 return;
             }
         } else if (type == 'clan_titan_ready') {
-            delay = 1000 * 60 * 60 * 2;     //2 hours
+            delay = 1000 * 60 * 60 * 1.5;     //1.5 hours
         } else if (type.includes('pot_')) {
             delay -= 1000 * 60 * 2;         // Two minute advanced notice
         }

@@ -13,6 +13,7 @@ const channels = [
     ["1052656050668572754", "bounties", "drip"],
     ["1082617920863080478", "spit-bot", "drip"],
     ["1006798906170032148", "hellllama", "drip"],
+    ["945298363547545631", "raids", "drip"],
     ["634542930928861186", "thunderstorms", "amar"],
     ["778342000607887455", "general", "testserver"]
 ];
