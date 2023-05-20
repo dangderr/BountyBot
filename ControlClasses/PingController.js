@@ -118,12 +118,6 @@ class PingController {
     }
 
     async add_ping(user_id, role_id, channel_id, message_id, content, type, timestamp, delay) {
-        //  Check pings that are NOT a response or error
-        //      AND are either an instant ping or are soulhounds
-        /*if ((type != 'response' && type != 'error')
-            && ( (!user_id && !timestamp) || (type == 'soulhounds')) )*/
-
-        //Should only check pings that are to roles?
         if(role_id)
         {
             if (this.#double_ping_tracker.check_double_ping(type, Date.now())) {

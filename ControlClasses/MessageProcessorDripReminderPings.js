@@ -5,13 +5,13 @@ class MessageProcessDripReminderPings {
     #replies = [
         'k',
         'aight',
-        'i gotchu',
-        'sure if i remember',
-        'maybe later',
-        'lol gl with that thoughts and prayers',
-        'u gonna ignore the ping anyways...',
+        'i gotchu.',
+        'sure if i remember to',
+        "maybe i'll",
+        'lol gl with that thoughts and prayers...',
+        'u gonna ignore the ping anyways... but i guess i should still',
         'sure sure sure',
-        'you even gonna be awake?'
+        'you even gonna be awake for the'
     ];
 
     // Format [[a,b],[c,d]]
@@ -111,7 +111,7 @@ class MessageProcessDripReminderPings {
         timestamp.setMilliseconds(timestamp.getMilliseconds() + delay);
 
         this.#ping_controller.add_ping(null, null, message.channel.id, message.id,
-            this.#get_random_reply(), 'response', null, null);
+            this.#get_random_reply() + ` ping <t:${Math.round(timestamp.getTime() / 1000)}:R>`, 'response', null, null);
 
         this.#ping_controller.add_ping(message.author.id, null, message.channel.id, message.id,
             null, type, timestamp, delay);

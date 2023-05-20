@@ -216,9 +216,11 @@ class PingScheduler {
             const delay = minutes * 60 * 1000;
             const timestamp = new Date();
             timestamp.setUTCMilliseconds(timestamp.getUTCMilliseconds() + delay);
+            const time_unix = Math.round(timestamp.getTime() / 1000);
 
+            const content = `Your timer was restarted for ${training}. You'll get a ping <t:${time_unix}:R> at <t:${time_unix}:T>`;
             await i.update({
-                content: `${user.drip_username}, your timer was restarted for ${datetime_methods.get_time_str_from_hours(minutes / 60)} for ${training}`,
+                content: content,
                 components: []
             });
         } catch (err) {
@@ -253,9 +255,11 @@ class PingScheduler {
             const delay = minutes * 60 * 1000;
             const timestamp = new Date();
             timestamp.setUTCMilliseconds(timestamp.getUTCMilliseconds() + delay);
+            const time_unix = Math.round(timestamp.getTime() / 1000);
 
+            const content = `Your timer was restarted for ${herb}. You'll get a ping <t:${time_unix}:R> at <t:${time_unix}:T>`;
             await i.update({
-                content: `${user.drip_username}, your timer was restarted for ${datetime_methods.get_time_str_from_hours(minutes / 60)} for ${herb}`,
+                content: content,
                 components: []
             });
             this.#ping_controller.add_ping(ping.user_id, null, message.channel.id, message.id,
@@ -294,12 +298,14 @@ class PingScheduler {
                 minutes = ping.delay / 1000 / 60;
             }
 
-            const content = `Your timer was restarted for ${datetime_methods.get_time_str_from_hours(minutes / 60)}`;
-            await i.update({ content: content, components: [] });
-
             const delay = minutes * 60 * 1000;
             const timestamp = new Date();
             timestamp.setUTCMilliseconds(timestamp.getUTCMilliseconds() + delay);
+            const time_unix = Math.round(timestamp.getTime() / 1000);
+
+            const content = `Your timer was restarted. You'll get a ping <t:${time_unix}:R> at <t:${time_unix}:T>`;
+            await i.update({ content: content, components: [] });
+
 
             this.#ping_controller.add_ping(ping.user_id, null, message.channel.id, message.id,
                 null, ping.type, timestamp.toISOString(), delay);

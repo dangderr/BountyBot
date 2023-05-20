@@ -62,25 +62,11 @@ class MessageProcessDripQueries {
             return 'You have no pings scheduled right now.'
         }
 
-        let output_arr = new Array();
-
-        let length_of_longest_type = 0;
-        for (const ping of user_pings) {
-            let time_remaining = new Date(ping.timestamp).getTime() - Date.now();
-            output_arr.push([ping.type, time_remaining]);
-            if (ping.type.length > length_of_longest_type) {
-                length_of_longest_type = ping.type.length;
-            }
-        }
-
+        let output_arr = user_pings.map(i => [i.type, Math.round(new Date(i.timestamp).getTime() / 1000)]);
         output_arr.sort((a, b) => a[1] - b[1]);
-        const formatted_arr = output_arr
-            .map(i => `${i[0].padEnd(length_of_longest_type, ' ')} - ${datetime_methods.get_time_str_from_hours(i[1] / 3600000)}`);
-
-
-        let content = '\nYou have the following pings scheduled:\n```';
-        content += formatted_arr.join('\n');
-        content += '```';
+        output_arr = output_arr.map(i => `${i[0]} - <t:${i[1]}:R> at <t:${i[1]}:T>`);
+        let content = '\nYou have the following pings scheduled:\n';
+        content += output_arr.join('\n');
 
         return content;
     }
