@@ -100,6 +100,7 @@ class MessageProcessDripReminderPings {
 
     async #send_pings(message, type, delay) {
         delay = this.#delay_correction(message, type, delay);
+
         if (delay <= 0) {
             this.#ping_controller.add_ping(null, null, message.channel.id, message.id,
                 'Something went wrong, idk what time to ping you', 'error', null, null);
@@ -117,6 +118,8 @@ class MessageProcessDripReminderPings {
     }
 
     #delay_correction(message, type, delay) {
+        let user = message.client.Users.get_user(message.author.id);
+
         switch (type) {
             case 'botcheck':
                 return delay - (29 * 60 * 1000);
@@ -133,7 +136,19 @@ class MessageProcessDripReminderPings {
                     const actions_remaining = message.content.split('\n')[1].split(' / ');
                     const current = parseInt(actions_remaining[0]);
                     const total = parseInt(actions_remaining[1]);
-                    return (total - current) * this.#TIME_PER_ACTION * this.#LATENCY_DELAY;
+                    let delay = (total - current) * this.#TIME_PER_ACTION * this.#LATENCY_DELAY;
+
+                    if (message.content.includes('Successful Hunting attempts')) {
+                        let bow_percent = user.get_user_setting('Bow') ?? 50;
+                        bow_percent = parseInt(bow_percent) / 100;
+                        delay /= bow_percent;
+                    } else if (message.content.includes('Woodworking')) {
+                        let axe_percent = user.get_user_setting('Axe') ?? 0;
+                        axe_percent = parseInt(axe_percent) / 100 + 0.5;
+                        delay /= axe_percent ;
+                    }
+
+                    return delay;
                 } catch (err) {
                     console.log('Error: MessageProcessorDripReminderPings - Could not parse ff_slayer/challenge message');
                     return -1;
