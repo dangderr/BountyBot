@@ -209,7 +209,8 @@ class PingScheduler {
 
             let minutes = this.#data.pet_trainings.find(i => i[0] == training)[1];
             const BM_Level = user.get_user_setting('Beastmastery') ?? 0;
-            const timer_reduction = parseInt(BM_Level) / 300;
+            const pet_tile = this.#globals.get_global_setting('Pet_Tile') === 'true' ? 0.1 : 0;
+            const timer_reduction = parseInt(BM_Level) / 300 + pet_tile;
             minutes *= (1 - timer_reduction);
             minutes /= (imp ? 2 : 1);
 
