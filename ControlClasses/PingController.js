@@ -28,8 +28,8 @@ class PingController {
         clan_titan_ready: 'Release the Titan!',
         scorch: 'You scorched some food',
 
-
         ff_slayer: 'Your FF Slayer or Bounty is finished.',
+        challenge: 'Your challenge should be done... Unless you slacked off...',
 
         pot_atk: 'Your attack pot is about to expire',
         pot_def: 'Your defense pot is about to expire',
@@ -53,7 +53,8 @@ class PingController {
     #unique_per_user = [
         'botcheck', 'cauldron', 'herbalism', 'replanting',
         'pet_training', 'pet_exploration', 'hades_training', 'soulhounds_attack',
-        'hades_attack', 'hades_dragon', 'clan_wars_mob', 'ff_slayer',
+        'hades_attack', 'hades_dragon', 'clan_wars_mob', 'ff_slayer', 'challenge',
+        'scorch',
         'pot_atk', 'pot_def', 'pot_mystery', 'pot_xp', 'pot_lvl'
     ];
 

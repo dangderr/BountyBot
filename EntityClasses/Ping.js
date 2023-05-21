@@ -21,6 +21,10 @@ class Ping {
         this.timestamp = ping_log_record.timestamp;
         this.delay = ping_log_record.delay;
     }
+
+    get unix_time() {
+        return Math.round(new Date(this.timestamp).getTime() / 1000);
+    }
 }
 
 module.exports = Ping;

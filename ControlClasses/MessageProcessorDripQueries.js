@@ -7,7 +7,7 @@ class MessageProcessDripQueries {
     // Format [[a,b],[c,d]]
     // Searches for (a AND b) OR (c AND d)
     #search_terms = {
-        timers: [['what timers be runnin']]
+        timers: [['timers']]
     };
 
     //Look for exact match
@@ -21,7 +21,16 @@ class MessageProcessDripQueries {
     }
 
     async check_query_message(message) {
-        if (message.content.substring(0, 7) !== 'yo dawg') {
+        if (message.content.substring(0, 7) !== 'yo dawg'
+            && message.content.substring(0, 7) !== 'ay dawg'
+            && message.content.substring(0, 1) !== '!'
+        ) {
+            return;
+        }
+
+        if (message.content === '!') {
+            this.#ping_controller.add_ping(message.author.id, null, message.channel.id, message.id,
+                'Pick a plant', 'herbalism', null, null);
             return;
         }
 
@@ -62,11 +71,8 @@ class MessageProcessDripQueries {
             return 'You have no pings scheduled right now.'
         }
 
-        let output_arr = user_pings.map(i => [i.type, Math.round(new Date(i.timestamp).getTime() / 1000)]);
-        output_arr.sort((a, b) => a[1] - b[1]);
-        output_arr = output_arr.map(i => `${i[0]} - <t:${i[1]}:R> at <t:${i[1]}:T>`);
-        let content = '\nYou have the following pings scheduled:\n';
-        content += output_arr.join('\n');
+        let content = 'You have the following pings scheduled:\n';
+        content += user_pings.sort((a, b) => a.unix_time - b.unix_time).map(i => `${i.type} - <t:${i.unix_time}:R> at <t:${i.unix_time}:T>`).join('\n');
 
         return content;
     }
