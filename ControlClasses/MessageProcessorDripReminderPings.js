@@ -32,6 +32,7 @@ class MessageProcessDripReminderPings {
         clan_titan_ready: [['The Titan of Rock and Metal begins to rise'],
                            ['The Titan of Beasts and Prey begins to rise'],
                            ['The Titan of Magic and Nature begins to rise']],
+        scorch: [['food is cooking...', 'Come back to pick up your food in: ']],
         unknown: [['Time left:']]
     };
 

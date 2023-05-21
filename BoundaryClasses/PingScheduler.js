@@ -341,13 +341,11 @@ class PingScheduler {
     }
 
     async process_delay(ping_id, timestamp) {
-        if (!timestamp) return true;
-        if (new Date(timestamp).getTime() < 100) return true;
-
-        const delay = new Date(timestamp).getTime() - Date.now();
-        if (delay < 0) return false;
-
-        await wait(delay);
+        if (timestamp && new Date(timestamp).getTime() > 100) {
+            const delay = new Date(timestamp).getTime() - Date.now();
+            if (delay < 0) return false;
+            await wait(delay);
+        }
 
         return this.#ping_controller.revalidate_ping(ping_id);
     }

@@ -26,7 +26,7 @@ async function execute(interaction) {
 
         interaction.User.set_active_hours(starttime, endtime);
 
-        let str = 'Bounty active hours set to ' + starttime + " until " + endtime;
+        let str = 'Active hours set to ' + starttime + " until " + endtime;
         interaction.reply(str);
     }
     catch (err) {

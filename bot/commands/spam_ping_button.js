@@ -2,7 +2,8 @@ const { SlashCommandBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, Compo
 
 const allowed_users = [
     'Hiro',
-    'Athena'
+    'Athena',
+    'Chronos'
 ]
 
 
