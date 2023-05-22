@@ -342,10 +342,19 @@ class PingScheduler {
     }
 
     async process_delay(ping_id, timestamp) {
-        if (timestamp && new Date(timestamp).getTime() > 100) {
-            const delay = new Date(timestamp).getTime() - Date.now();
-            if (delay < 0) return false;
-            await wait(delay);
+        if (timestamp) {
+            const ping_time_in_ms = new Date(timestamp).getTime();
+            if (ping_time_in_ms > 100) {
+                let delay = ping_time_in_ms - Date.now();
+                if (delay < 0) return false;
+
+                while (delay > 100000000) {
+                    await wait(1000 * 60 * 60 * 24);
+                    delay = ping_time_in_ms - Date.now();
+                }
+
+                await wait(delay);
+            }
         }
 
         return this.#ping_controller.revalidate_ping(ping_id);
