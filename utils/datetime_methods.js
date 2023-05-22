@@ -27,16 +27,29 @@ function check_same_day(first, second) {
 
 //Returns milliseconds
 function parse_drip_time_string(msg_arr) {
+    let days = 0;
     let hours = 0;
     let minutes = 0;
     let seconds = 0;
 
     for (let row = 0; row < msg_arr.length; row++) {
-        //let arr = msg_arr[row].replace('Hades...','').split(' ');
         let arr = msg_arr[row].split(' ');
         try {
             for (let i = 0; i < arr.length; i++) {
-                if (arr[i].includes('h.')) {
+                if (arr[i].includes('d.')) {
+                    if (arr[i] == 'd.' && i > 0) {
+                        try {
+                            let temp = parseInt(arr[i - 1]);
+                            if (temp) days = temp;
+                        } catch (err) { }
+                    }
+                    else {
+                        try {
+                            let temp = parseInt(arr[i]);
+                            if (temp) days = temp;
+                        } catch (err) { }
+                    }
+                } else if (arr[i].includes('h.')) {
                     if (arr[i] == 'h.' && i > 0) {
                         try {
                             let temp = parseInt(arr[i - 1]);
@@ -85,7 +98,7 @@ function parse_drip_time_string(msg_arr) {
             console.log(err);
         }
     }
-    return ((hours * 60 + minutes) * 60 + seconds) * 1000;
+    return (((days * 24 + hours) * 60 + minutes) * 60 + seconds) * 1000;
 }
 
 function check_active_time(activehourstart, activehourend) {  //hh:mm format

@@ -47,6 +47,7 @@ class MessageProcessDripReminderPings {
             ['Making', 'LVL Potions', ' / '],
             ['Woodworking', ' / '],
             ['Invoke Spirits', ' / ']],
+        berserk: [['Berserk State:']],
         unknown: [['Time left:']]
     };
 
@@ -155,6 +156,8 @@ class MessageProcessDripReminderPings {
                 }
             case 'clan_titan_ready':
                 return 1000 * 60 * 60 * 1.5;            //1.5 hours
+            case 'berserk':
+                return delay - (1000 * 60 * 60 * 24);   //1 day advanced notice
             default:
                 if (type.includes('pot_')) {
                     return delay - 1000 * 60 * 2;      //2 minutes advanced notice
