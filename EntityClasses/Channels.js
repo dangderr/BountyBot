@@ -3,12 +3,22 @@ const Channel = require('./Channel.js');
 const Role = require('./Role.js');
 
 class Channels {
+    #db;
     #channels = new Array();
     #roles = new Array();
 
     constructor(db) {
-        for (const channel_row of channel_info.channels) {
-            this.#channels.push(new Channel(channel_row[0], channel_row[1], channel_row[2]));
+        this.#db = db;
+
+        for (const role of channel_info.roles) {
+            this.#roles.push(new Role(role[0], role[1], role[2]));
+        }
+    }
+
+    async init(client) {
+        const channel_records = await this.#db.get_channels();
+        for (const record of channel_records) {
+            this.#channels.push(new Channel(record.id, record.name, record.server));
         }
 
         const testserver = this.get_channel_by_name_server('general', 'testserver');
@@ -27,12 +37,10 @@ class Channels {
             }
         }
 
-        for (const role of channel_info.roles) {
-            this.#roles.push(new Role(role[0], role[1], role[2]));
+        for (const thread of this.#channels.filter(i => i.server === 'thread')) {
+            this.#add_message_types_to_thread(thread);
         }
-    }
 
-    async init(client) {
         let promises = new Array();
         for (const channel of this.#channels) {
             promises.push(channel.init(client));
@@ -55,7 +63,8 @@ class Channels {
     async add_thread_to_channels_list(id, client) {
         const channel = this.get_channel_by_id(id);
         if (!channel) {
-            const thread = new Channel(id, id, 'thread');
+            const thread = new Channel(id, `thread-${id}`, 'thread');
+            await this.#db.add_channel(id, `thread-${id}`, 'thread')
             this.#channels.push(thread);
             this.#add_message_types_to_thread(thread);
             thread.init(client);

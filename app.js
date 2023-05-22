@@ -35,7 +35,7 @@ async function init_classes(client) {
     client.Users = new Users(client.drip_db, client.GlobalSettings);
     await client.Users.init();
 
-    client.Channels = new Channels();
+    client.Channels = new Channels(client.drip_db);
     await client.Channels.init(client);
 
     client.Data = new Object;

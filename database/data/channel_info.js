@@ -7,7 +7,7 @@ const roles = [
     ["827581098812899370", "soulhounds", "drip"],
     ["1067145939720097894", "aura", "drip"]
 ];
-
+/*
 const channels = [
     ["624515808558710787", "llamainchat", "drip"],
     ["1052656050668572754", "bounties", "drip"],
@@ -16,7 +16,7 @@ const channels = [
     ["945298363547545631", "raids", "drip"],
     ["634542930928861186", "thunderstorms", "amar"],
     ["778342000607887455", "general", "testserver"]
-];
+];*/
 
 const channel_message_types = [
     ["thunderstorms", "amar", "amar_storm"],
@@ -63,7 +63,6 @@ const thread_command_types = [
 
 module.exports = {
     roles,
-    channels,
     channel_message_types,
     channel_command_types,
     thread_message_types,

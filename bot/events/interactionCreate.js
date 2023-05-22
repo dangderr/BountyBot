@@ -17,7 +17,7 @@ module.exports = {
 
 				if (interaction.channel.isThread()) {
 					//return;
-					interaction.client.Channels.add_thread_to_channels_list(interaction.channel.id, interaction.client);
+					await interaction.client.Channels.add_thread_to_channels_list(interaction.channel.id, interaction.client);
 				}
 
 				interaction.Channel = interaction.client.Channels.get_channel_by_id(interaction.channelId);

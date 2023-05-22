@@ -454,6 +454,32 @@ class DripDatabase extends Database {
                 .get_result()
         );
     }
+
+
+    /*******************
+     *                 *
+     *  channels table *
+     *                 *
+     *******************/
+
+    async get_channels() {
+        return await this.query_all(
+            new SqlQueryBuilder()
+                .select(['*'])
+                .from('channels')
+                .get_result()
+        );
+    }
+
+    async add_channel(id, name, server) {
+        return await this.query_run(
+            new SqlQueryBuilder()
+                .insert_into_values('channels',
+                    ['id', 'name', 'server'],
+                    [id, name, server])
+                .get_result()
+        );
+    }
 }
 
 module.exports = DripDatabase;

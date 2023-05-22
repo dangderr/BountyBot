@@ -21,9 +21,9 @@ class Pings {
             this.#pings.push(new Ping(ping_log));
             channel_ids.add(ping_log.channel_id);
         }
-
+        
         for (const channel_id of channel_ids) {
-            Channels.add_thread_to_channels_list(channel_id, client);
+            await Channels.add_thread_to_channels_list(channel_id, client);
         }
     }
 
