@@ -44,7 +44,7 @@ async function init_classes(client) {
     client.Data.pet_trainings = require('./database/data/pet_trainings.js');
 
     client.PingController = new PingController(client);
-    await client.PingController.init(client);
+    await client.PingController.init();
 
     client.MessageHandler = new MessageHandler(client);
     await client.MessageHandler.init();

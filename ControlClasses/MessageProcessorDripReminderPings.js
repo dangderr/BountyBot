@@ -170,6 +170,10 @@ class MessageProcessDripReminderPings {
     #get_random_reply() {
         return this.#replies[Math.floor(Math.random() * this.#replies.length)];
     }
+
+    get_categories() {
+        return Object.keys(this.#search_terms);
+    }
 }
 
 module.exports = MessageProcessDripReminderPings;

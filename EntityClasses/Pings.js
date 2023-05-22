@@ -8,7 +8,7 @@ class Pings {
         this.#db = db;
     }
 
-    async init(Channels, client) {
+    async init(Channels) {
         const ping_logs = await this.#db.get_all_ping_logs();
 
         for (const ping_log of ping_logs) {

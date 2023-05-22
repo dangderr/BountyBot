@@ -3,11 +3,13 @@ const datetime_methods = require('../utils/datetime_methods.js');
 class MessageProcessDripQueries {
     #ping_controller;
     #users;
+    #drip_reminders
 
     // Format [[a,b],[c,d]]
     // Searches for (a AND b) OR (c AND d)
     #search_terms = {
-        timers: [['timers']]
+        missing_timers: [['missing','timers']],
+        timers: [['timers']],
     };
 
     //Look for exact match
@@ -15,9 +17,10 @@ class MessageProcessDripQueries {
         temp:'asdfasdfasdfasdfasdf'
     }
 
-    constructor (ping_controller, users) {
+    constructor(ping_controller, users, drip_reminders) {
         this.#ping_controller = ping_controller;
         this.#users = users;
+        this.#drip_reminders = drip_reminders;
     }
 
     async check_query_message(message) {
@@ -58,6 +61,9 @@ class MessageProcessDripQueries {
             case 'timers':
                 content = this.#get_content_timers(message);
                 break;
+            case 'missing_timers':
+                content = this.#get_content_missing_timers(message);
+                break;
             default: return;
         }
 
@@ -73,6 +79,37 @@ class MessageProcessDripQueries {
 
         let content = 'You have the following pings scheduled:\n';
         content += user_pings.sort((a, b) => a.unix_time - b.unix_time).map(i => `${i.type} - <t:${i.unix_time}:R> at <t:${i.unix_time}:T>`).join('\n');
+
+        return content;
+    }
+
+    #get_content_missing_timers(message) {
+        const user_pings = this.#ping_controller.get_pings_by_user(message.author.id);
+        let missing_timers = this.#drip_reminders.get_categories();
+
+        const remove = ['unknown', 'clan_titan_ready', 'clan_wars_mob'];
+
+        for (const type of remove) {
+            const index = missing_timers.findIndex(i => i == type);
+            if (index >= 0) {
+                missing_timers.splice(index, 1);
+            }
+        }
+
+        for (const ping of user_pings) {
+            const index = missing_timers.findIndex(i => i == ping.type);
+            if (index >= 0) {
+                missing_timers.splice(index, 1);
+            }
+        }
+
+        if (missing_timers.length == 0) {
+            return 'Wow, you have all the possible timers running right now. What are you, some kind of bot??';
+        }
+
+        let content = 'You are missing the following pings:\n';
+        content += missing_timers.join('\n');
+        content += '\nslacker.......';
 
         return content;
     }
