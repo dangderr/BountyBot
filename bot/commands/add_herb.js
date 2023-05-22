@@ -19,13 +19,7 @@ const data = new SlashCommandBuilder()
     );
 
 async function execute(interaction) {
-    const channel = interaction.Channel;
     const user = interaction.User;
-
-    if ((channel.server != 'drip' || channel.name != 'spit-bot') && channel.server != 'testserver') {
-        interaction.reply('Please keep bot spam in #spit-bot channel');
-        return;
-    }
 
     const tier = interaction.options.getString('tier');
     const herb_menu_list = interaction.client.Data.herbs.filter(i => i[2] == tier).map(i => i[0]);

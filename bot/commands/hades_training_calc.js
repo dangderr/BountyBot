@@ -33,13 +33,6 @@ const data = (new SlashCommandBuilder()
 );
 
 async function execute(interaction) {
-    const channel = interaction.Channel;
-
-    if ((channel.server != 'drip' || channel.name != 'hellllama') && channel.server != 'testserver') {
-        interaction.reply('Please keep Hades spam in the #helllllllllama channel');
-        return;
-    }
-
     let base_time;
     const unit = interaction.options.getString('unit');
     switch (unit) {

@@ -154,12 +154,6 @@ function create_slash_command() {
 }
 
 async function execute(interaction) {
-    const channel = interaction.Channel;
-    if ((channel.server != 'drip' || channel.name != 'spit-bot') && channel.server != 'testserver') {
-        interaction.reply('Please keep bot spam in #spit-bot channel');
-        return;
-    }
-
     const content = set_setting(interaction.User, interaction.options);
 
     interaction.reply(content);

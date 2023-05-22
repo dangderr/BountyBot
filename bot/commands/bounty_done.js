@@ -6,12 +6,6 @@ const data = new SlashCommandBuilder()
 
 async function execute(interaction) {
     const user = interaction.User;
-    const channel = interaction.Channel;
-
-    if ((channel.server != 'drip' || channel.name != 'bounties') && channel.server != 'testserver') {
-        interaction.reply('Please keep bounties spam in #bounties channel');
-        return;
-    }
 
     if (user.bounty_done) {
         interaction.reply('Your bounty notifications are now unpaused for the day');

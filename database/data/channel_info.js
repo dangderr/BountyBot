@@ -32,8 +32,40 @@ const channel_message_types = [
     ["spit-bot", "drip", "queries"]
 ];
 
+const thread_message_types = [
+    ["threads", "drip", "pings"],
+    ["threads", "drip", "queries"]
+]
+
+const channel_command_types = [
+    ["spit-bot", "drip", "active_hours"],
+    ["bounties", "drip", "active_hours"],
+    ["spit-bot", "drip", "add_herb"],
+    ["bounties", "drip", "bounty"],
+    ["bounties", "drip", "bounty_done"],
+    ["bounties", "drip", "check_bounty_done"],
+    ["llamainchat", "drip", "global_settings"],
+    ["spit-bot", "drip", "global_settings"],
+    ["hellllama", "drip", "hades_training_calc"],
+    ["spit-bot", "drip", "settings"],
+    ["raids", "drip", "spam_ping_button"]
+]
+
+const thread_command_types = [
+    ["threads", "drip", "active_hours"],
+    ["threads", "drip", "add_herb"],
+    ["threads", "drip", "bounty"],
+    ["threads", "drip", "bounty_done"],
+    ["threads", "drip", "check_bounty_done"],
+    ["threads", "drip", "hades_training_calc"],
+    ["threads", "drip", "settings"]
+]
+
 module.exports = {
     roles,
     channels,
-    channel_message_types
+    channel_message_types,
+    channel_command_types,
+    thread_message_types,
+    thread_command_types
 }

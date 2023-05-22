@@ -18,13 +18,6 @@ const data = new SlashCommandBuilder()
     )
 
 async function execute(interaction) {
-    const channel = interaction.Channel;
-
-    if ((channel.server != 'drip' || channel.name != 'raids') && channel.server != 'testserver') {
-        interaction.reply('Please keep abuse to the #raids channel');
-        return;
-    }
-
     const username = interaction.options.getString('name');
     const user = interaction.client.Users.get_user_by_drip_username(username);
 

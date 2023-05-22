@@ -14,11 +14,22 @@ module.exports = {
 				console.log(`Received ${interaction.commandName} command from user ${interaction.user.username}`);
 
 				interaction.User = await interaction.client.Users.add_user(interaction.user);
-				interaction.Channel = await interaction.client.Channels.get_channel_by_id(interaction.channelId);
+
+				if (interaction.channel.isThread()) {
+					//return;
+					interaction.client.Channels.add_thread_to_channels_list(interaction.channel.id, interaction.client);
+				}
+
+				interaction.Channel = interaction.client.Channels.get_channel_by_id(interaction.channelId);
 				if (!interaction.Channel) {
-					interaction.reply("You're not allowed to do that in this channel");
+					interaction.reply("You're not allowed to use slash commands in this channel");
 					return;
 				}
+
+				if (!interaction.Channel.command_types.includes(interaction.commandName)) {
+					interaction.reply(`You're not allowed to use ${interaction.commandName} in this channel`);
+					return;
+                }
 
 				await command.execute(interaction);
 			} catch (error) {

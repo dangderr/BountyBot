@@ -27,12 +27,10 @@ class MessageHandler {
     async message(message) {
         if (message.author.bot) return;
 
-        message.User = await message.client.Users.add_user(message.author);
         message.Channel = message.client.Channels.get_channel_by_id(message.channelId);
-
         if (!message.Channel) return;
 
-
+        message.User = await message.client.Users.add_user(message.author);
         for (const message_type of message.Channel.message_types) {
             this.#route_message(message, message_type);
         }

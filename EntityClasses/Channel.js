@@ -6,6 +6,7 @@ class Channel {
     #server
 
     #message_types = new Array();
+    #command_types = new Array();
 
     constructor(id, name, server) {
         this.#id = id;
@@ -22,12 +23,14 @@ class Channel {
     get name() { return this.#name; }
     get server() { return this.#server; }
     get message_types() { return this.#message_types; }
+    get command_types() { return this.#command_types; }
 
     set channel(invalid) { console.log(`Something tried to set channel obj for ${this.id} - ${this.name} - ${this.server}`); }
     set id(invalid) { console.log(`Something tried to set id for ${this.id} - ${this.name} - ${this.server}`); }
     set name(invalid) { console.log(`Something tried to set name for ${this.id} - ${this.name} - ${this.server}`); }
     set server(invalid) { console.log(`Something tried to set server for ${this.id} - ${this.name} - ${this.server}`); }
     set message_types(message_type) { this.#message_types.push(message_type); }
+    set command_types(command_type) { this.#command_types.push(command_type); }
 }
 
 module.exports = Channel;

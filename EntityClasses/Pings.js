@@ -8,8 +8,10 @@ class Pings {
         this.#db = db;
     }
 
-    async init() {
+    async init(Channels, client) {
         const ping_logs = await this.#db.get_all_ping_logs();
+
+        let channel_ids = new Set();
 
         for (const ping_log of ping_logs) {
             if (new Date(ping_log.timestamp).getTime() < Date.now()) {
@@ -17,6 +19,11 @@ class Pings {
                 continue;
             }
             this.#pings.push(new Ping(ping_log));
+            channel_ids.add(ping_log.channel_id);
+        }
+
+        for (const channel_id of channel_ids) {
+            Channels.add_thread_to_channels_list(channel_id, client);
         }
     }
 

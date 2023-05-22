@@ -15,9 +15,15 @@ class Channels {
 
         for (const message_type of channel_info.channel_message_types) {
             this.get_channel_by_name_server(message_type[0], message_type[1]).message_types = message_type[2];
-
             if (!testserver.message_types.includes(message_type)) {
                 testserver.message_types = message_type[2];
+            }
+        }
+
+        for (const command_type of channel_info.channel_command_types) {
+            this.get_channel_by_name_server(command_type[0], command_type[1]).command_types = command_type[2];
+            if (!testserver.command_types.includes(command_type)) {
+                testserver.command_types = command_type[2];
             }
         }
 
@@ -44,6 +50,25 @@ class Channels {
 
     get_role_id(name, server) {
         return this.#roles.find(i => i.name == name && i.server == server).id;
+    }
+
+    async add_thread_to_channels_list(id, client) {
+        const channel = this.get_channel_by_id(id);
+        if (!channel) {
+            const thread = new Channel(id, id, 'thread');
+            this.#channels.push(thread);
+            this.#add_message_types_to_thread(thread);
+            thread.init(client);
+        }
+    }
+
+    #add_message_types_to_thread(thread) {
+        for (const message_type of channel_info.thread_message_types) {
+            thread.message_types = message_type[2];
+        }
+        for (const command_type of channel_info.thread_command_types) {
+            thread.command_types = command_type[2];
+        }
     }
 }
 

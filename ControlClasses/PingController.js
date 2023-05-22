@@ -80,11 +80,11 @@ class PingController {
         this.#double_ping_tracker = new DoublePingTracker(client.drip_db);
     }
 
-    async init() {
+    async init(client) {
         await this.#event_timers.init();
         this.#events_to_track = this.#event_timers.get_event_names();
 
-        await this.#pings.init();
+        await this.#pings.init(this.#Channels, client);
         for (const ping of this.#pings.get_all_pings()) {
             this.#schedule_ping(ping);
         }
