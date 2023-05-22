@@ -1,8 +1,7 @@
 node_modules
 .env
 config.json
-*drip.db
-*drip - Copy.db
+*.db
 TODO.txt
 *secret_chronos_commands.js
 *scripts.txt
