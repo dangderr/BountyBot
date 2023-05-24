@@ -1,4 +1,5 @@
 const datetime_methods = require('../utils/datetime_methods');
+const all_herbs = require('../database/data/herbs.js');
 
 class User {
     #db;
@@ -8,15 +9,13 @@ class User {
     #drip_username;
 
     #bounty_done;               // timestamp in ISOstring format
-    #follow_respawn_timers;     // 1 or 0
-    #pause_notifications;       // 1 or 0
 
     #active_hours_start;        // hh:dd
     #active_hours_end;          // hh:dd
 
     #bounties_followed;         // [ mob, mob ]
     #equips;                    // ???
-    #herbs;                     // [ herb, herb, herb ]
+    #herbs;                     // [ { id: id, user_id: this.discord_id, herb: herb } ]
     #settings;                  // [ { key: key, value: value }, { key: key, value: value }]
     #globals;                   // [ { key: key, value: value }, { key: key, value: value }]
 
@@ -184,12 +183,16 @@ class User {
 
             if (initial_list.includes(herb)) {
                 removed.push(herb);
-                this.#delete_herb(herb);
+                await this.#delete_herb(herb);
             } else {
                 added.push(herb);
-                this.#add_herb(herb);
+                await this.#add_herb(herb);
             }
         }
+
+        const sort_arr = all_herbs.map(i => i[0]);
+        this.#herbs.sort((a, b) => sort_arr.indexOf(a.herb) - sort_arr.indexOf(b.herb));
+
         return [added, removed];
     }
 

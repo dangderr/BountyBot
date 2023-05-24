@@ -42,7 +42,14 @@ class PingController {
         treant_reminder: 'Treant last spawned 3 hours ago.',
         quartz_titan_reminder: 'Quartz Titan last spawned 6 hours ago.',
         pumpkin_reminder: 'Pumpkin last spawned 3 hours ago.',
-        snowman_reminder: 'Snowman last spawned 3 hours ago.'
+        snowman_reminder: 'Snowman last spawned 3 hours ago.',
+
+
+        amar_botcheck: 'y u idle on amar',
+        amar_timer_spells: 'Time for timer spells',
+        amar_dd_spells: 'dd% is done',
+        amar_success_spells: 'You are now unsuccessful on amar',
+        amar_rd_spells: 'rd% is gone',
     };
 
     #unique_pings = [
@@ -55,7 +62,9 @@ class PingController {
         'pet_training', 'pet_exploration', 'hades_training', 'soulhounds_attack',
         'hades_attack', 'hades_dragon', 'clan_wars_mob', 'scorch',
         'ff_slayer', 'challenge', 'berserk',
-        'pot_atk', 'pot_def', 'pot_mystery', 'pot_xp', 'pot_lvl'
+        'pot_atk', 'pot_def', 'pot_mystery', 'pot_xp', 'pot_lvl',
+
+        'amar_botcheck', 'amar_timer_spells', 'amar_dd_spells', 'amar_success_spells', 'amar_rd_spells',
     ];
 
     #FALLBACK_MESSAGE = 'idk why im pinging you... figure it out';
@@ -152,6 +161,7 @@ class PingController {
         const ping = await this.#pings
             .add_ping(user_id, role_id, channel_id, message_id, content, type, timestamp, delay);
         this.#schedule_ping(ping);
+        return ping;
     }
 
     #schedule_replanting_ping(user_id, channel_id, message_id, timestamp) {

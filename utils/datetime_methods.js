@@ -101,6 +101,54 @@ function parse_drip_time_string(msg_arr) {
     return (((days * 24 + hours) * 60 + minutes) * 60 + seconds) * 1000;
 }
 
+function parse_amar_time_string(msg_arr) {
+    let days = 0;
+    let hours = 0;
+    let minutes = 0;
+    let seconds = 0;
+
+    for (let row = 0; row < msg_arr.length; row++) {
+        let arr = msg_arr[row].split(' ');
+        try {
+            for (let i = 0; i < arr.length; i++) {
+                if (arr[i].includes('hr')) {
+                    if (arr[i] == 'hr' && i > 0) {
+                        try {
+                            let temp = parseInt(arr[i - 1]);
+                            if (temp) hours = temp;
+                        } catch (err) { }
+                    }
+                    else {
+                        try {
+                            let temp = parseInt(arr[i]);
+                            if (temp) hours = temp;
+                        } catch (err) { }
+                    }
+                }
+                else if (arr[i].includes('min')) {
+                    if (arr[i] == 'min' && i > 0) {
+                        try {
+                            let temp = parseInt(arr[i - 1]);
+                            if (temp) minutes = temp;
+                        } catch (err) { }
+                    }
+                    else {
+                        try {
+                            let temp = parseInt(arr[i]);
+                            if (temp) minutes = temp;
+                        } catch (err) { }
+                    }
+                }
+            }
+        }
+        catch (err) {
+            console.log('Error in parsing time string.');
+            console.log(err);
+        }
+    }
+    return (((days * 24 + hours) * 60 + minutes) * 60 + seconds) * 1000;
+}
+
 function check_active_time(activehourstart, activehourend) {  //hh:mm format
     //true == active
 
@@ -216,6 +264,7 @@ module.exports = {
     sqlite_date_string_to_Date_obj,
     check_same_day,
     parse_drip_time_string,
+    parse_amar_time_string,
     check_active_time,
     parse_global_timestamp,
     get_time_str_from_hours

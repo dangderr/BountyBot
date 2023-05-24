@@ -1,6 +1,34 @@
+const datetime_methods = require('../utils/datetime_methods.js');
+
 class MessageProcessorAmar {
     #ping_controller;
 
+    #replies = [
+        'k',
+        'aight',
+        'i gotchu.',
+        'sure if i remember to',
+        "maybe i'll",
+        'lol gl with that thoughts and prayers...',
+        'u gonna ignore the ping anyways... but i guess i should still',
+        'sure sure sure',
+        'you even gonna be awake for the'
+    ];
+
+    // Format [[a,b],[c,d]]
+    // Searches for (a AND b) OR (c AND d)
+    #search_terms = {
+        amar_botcheck: [['Active']],
+        amar_timer_spells: [['Timer']],
+        amar_dd_spells: [['Double Drops']],
+        amar_success_spells: [['Success']],
+        amar_rd_spells: [['Random Drops']],
+    };
+
+    //Look for exact match
+    #exact_search_terms = {
+        temp: 'asdfasdf'
+    }
     constructor(ping_controller) {
         this.#ping_controller = ping_controller;
     }
@@ -54,6 +82,84 @@ class MessageProcessorAmar {
         }
 
         this.#ping_controller.add_ping(null, role_id, message.channel.id, message.id, content, type, null, null);
+    }
+
+    async check_ping_message(message) {
+        let message_arr = message.content.split('\n');
+        let delay = datetime_methods.parse_amar_time_string(message_arr);
+
+        for (const key of Object.keys(this.#search_terms)) {
+            for (const row of this.#search_terms[key]) {
+                let match = true;
+                for (const search_term of row) {
+                    if (!message.content.includes(search_term)) {
+                        match = false;
+                        break;
+                    }
+                }
+                if (match) {
+                    this.#send_pings(message, key, delay);
+                    return;
+                }
+            }
+        }
+
+        for (const key of Object.keys(this.#exact_search_terms)) {
+            for (let line of message_arr) {
+                line = line.trim();
+                if (line === this.#exact_search_terms[key]) {
+                    this.#send_pings(message, key, delay);
+                    return;
+                }
+            }
+        }
+
+        /*
+        if (!message.content.includes('Active') || !message.content.includes('min')) {
+            return;
+        }
+
+        let time = message.content.split('Active')[1].split('min')[0];
+        try {
+            let minutes = parseInt(time);
+            let timestamp = new Date();
+            timestamp.setUTCMinutes(timestamp.getUTCMinutes() + minutes);
+            const delay = minutes * 60 * 1000;
+
+
+            const ping = await this.#ping_controller.add_ping(message.author.id, null, message.channel.id, message.id,
+                'Amar botcheck', 'amar_botcheck', timestamp, delay);
+
+            this.#ping_controller.add_ping(null, null, message.channel.id, message.id,
+                `Botcheck reminder <t:${ping.unix_time}:R>`, 'response', null, null);
+
+
+        } catch (err) { }
+        */
+    }
+
+
+    async #send_pings(message, type, delay) {
+        //delay = this.#delay_correction(message, type, delay);
+
+        if (delay <= 0) {
+            this.#ping_controller.add_ping(null, null, message.channel.id, message.id,
+                'Something went wrong, idk what time to ping you', 'error', null, null);
+            return;
+        }
+
+        let timestamp = new Date();
+        timestamp.setMilliseconds(timestamp.getMilliseconds() + delay);
+
+        this.#ping_controller.add_ping(null, null, message.channel.id, message.id,
+            this.#get_random_reply() + ` ping <t:${Math.round(timestamp.getTime() / 1000)}:R>`, 'response', null, null);
+
+        this.#ping_controller.add_ping(message.author.id, null, message.channel.id, message.id,
+            null, type, timestamp, delay);
+    }
+
+    #get_random_reply() {
+        return this.#replies[Math.floor(Math.random() * this.#replies.length)];
     }
 }
 

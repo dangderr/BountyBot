@@ -7,19 +7,10 @@ const roles = [
     ["827581098812899370", "soulhounds", "drip"],
     ["1067145939720097894", "aura", "drip"]
 ];
-/*
-const channels = [
-    ["624515808558710787", "llamainchat", "drip"],
-    ["1052656050668572754", "bounties", "drip"],
-    ["1082617920863080478", "spit-bot", "drip"],
-    ["1006798906170032148", "hellllama", "drip"],
-    ["945298363547545631", "raids", "drip"],
-    ["634542930928861186", "thunderstorms", "amar"],
-    ["778342000607887455", "general", "testserver"]
-];*/
 
 const channel_message_types = [
     ["thunderstorms", "amar", "amar_storm"],
+    ["bot-spam", "amar", "amar_pings"],
     ["bounties", "drip", "bounty"],
     ["hellllama", "drip", "soulhounds"],
     ["llamainchat", "drip", "hell"],
@@ -34,7 +25,8 @@ const channel_message_types = [
 
 const thread_message_types = [
     ["threads", "drip", "pings"],
-    ["threads", "drip", "queries"]
+    ["threads", "drip", "queries"],
+    ["threads", "amar", "amar_pings"]
 ]
 
 const channel_command_types = [

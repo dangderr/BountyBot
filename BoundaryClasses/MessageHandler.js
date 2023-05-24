@@ -39,6 +39,7 @@ class MessageHandler {
     async #route_message(message, message_type) {
         switch (message_type) {
             case 'amar_storm': this.#amar.check_storm_message(message); break;
+            case 'amar_pings': this.#amar.check_ping_message(message); break;
             case 'bounty': this.#drip_bounties.check_bounty_message(message); break;
             case 'hell': this.#drip_events.check_hell_message(message); break;
             case 'event': this.#drip_events.check_event_message(message); break;
