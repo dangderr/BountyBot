@@ -47,7 +47,7 @@ async function create_component_collector(bot_message, ping_controller, user) {
         componentType: ComponentType.Button
     })
 
-    const content = `WAKE UP ` + user.drip_username.toUpperCase();
+    const content = `WAKE UP ` + (user.drip_username ?? user.discord_username).toUpperCase();
 
     collector.on('collect', async i => {
         ping_controller.add_ping(user.discord_id, null, bot_message.channel.id, null, content, 'spam', null, null);

@@ -45,11 +45,14 @@ class PingController {
         snowman_reminder: 'Snowman last spawned 3 hours ago.',
 
 
-        amar_botcheck: 'y u idle on amar',
+        amar_botcheck: 'Amar botcheck in 5 mins',
         amar_timer_spells: 'Time for timer spells',
         amar_dd_spells: 'dd% is done',
         amar_success_spells: 'You are now unsuccessful on amar',
         amar_rd_spells: 'rd% is gone',
+
+        amar_garden_picking: 'You are done picking your garden',
+        amar_garden_planting: 'You are done planting your garden',
     };
 
     #unique_pings = [
@@ -65,6 +68,10 @@ class PingController {
         'pot_atk', 'pot_def', 'pot_mystery', 'pot_xp', 'pot_lvl',
 
         'amar_botcheck', 'amar_timer_spells', 'amar_dd_spells', 'amar_success_spells', 'amar_rd_spells',
+        'amar_garden_picking',
+        'amar_herb_garden', 'amar_vegetable_garden', 'amar_tropical_garden', 'amar_orchard_garden',
+        'amar_seaside_garden', 'amar_flower_garden', 'amar_celestial_garden', 'amar_grain_garden',
+        'amar_spice_garden', 'amar_winter_garden', 'amar_coastal_garden', 
     ];
 
     #FALLBACK_MESSAGE = 'idk why im pinging you... figure it out';
@@ -72,9 +79,11 @@ class PingController {
 
     #message_components = {
         herbalism: ['restart_button', 'herb'],
+        pet_exploration: ['restart_button'],
         pet_training: ['restart_button', 'pet'],
         cauldron: ['restart_button'],
-        blace: ['blace_buttons']
+        blace: ['blace_buttons'],
+        amar_botcheck: ['restart_button']
     };
 
     #events_to_track;
@@ -151,9 +160,14 @@ class PingController {
             this.#remove_stale_pings({ user_id: user_id, type: type });
         }
 
-        if (this.#events_to_track.includes(type)) {
+        let event_checker_type = type;
+        if (type.includes('_timer_update')) {
+            event_checker_type = type.replace('_timer_update', '');
+        }
+
+        if (this.#events_to_track.includes(event_checker_type)) {
             if (timestamp) {
-                this.#schedule_event_respawn_reminders(channel_id, type, timestamp);
+                this.#schedule_event_respawn_reminders(channel_id, event_checker_type, timestamp);
             }
             timestamp = null;
         }

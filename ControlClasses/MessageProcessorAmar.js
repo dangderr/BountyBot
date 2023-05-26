@@ -23,6 +23,11 @@ class MessageProcessorAmar {
         amar_dd_spells: [['Double Drops']],
         amar_success_spells: [['Success']],
         amar_rd_spells: [['Random Drops']],
+
+        amar_garden_picking: [['You have', 'plants remaining!']],
+        amar_garden_planting: [['You have', 'free slots!']],
+
+        amar_unknown: [['hr'],['mins']]
     };
 
     //Look for exact match
@@ -113,34 +118,11 @@ class MessageProcessorAmar {
                 }
             }
         }
-
-        /*
-        if (!message.content.includes('Active') || !message.content.includes('min')) {
-            return;
-        }
-
-        let time = message.content.split('Active')[1].split('min')[0];
-        try {
-            let minutes = parseInt(time);
-            let timestamp = new Date();
-            timestamp.setUTCMinutes(timestamp.getUTCMinutes() + minutes);
-            const delay = minutes * 60 * 1000;
-
-
-            const ping = await this.#ping_controller.add_ping(message.author.id, null, message.channel.id, message.id,
-                'Amar botcheck', 'amar_botcheck', timestamp, delay);
-
-            this.#ping_controller.add_ping(null, null, message.channel.id, message.id,
-                `Botcheck reminder <t:${ping.unix_time}:R>`, 'response', null, null);
-
-
-        } catch (err) { }
-        */
     }
 
 
     async #send_pings(message, type, delay) {
-        //delay = this.#delay_correction(message, type, delay);
+        delay = this.#delay_correction(message, type, delay);
 
         if (delay <= 0) {
             this.#ping_controller.add_ping(null, null, message.channel.id, message.id,
@@ -156,6 +138,35 @@ class MessageProcessorAmar {
 
         this.#ping_controller.add_ping(message.author.id, null, message.channel.id, message.id,
             null, type, timestamp, delay);
+    }
+
+    #delay_correction(message, type, delay) {
+        if (type == 'amar_botcheck') {
+            return delay -= 1000 * 60 * 5;          // 5 min advanced notice
+        } else if (type == 'amar_garden_picking') {
+            try {
+                const plants = parseInt(message.content.split('You have ')[1].split('plants remaining!')[0]);
+                return plants * 1000 * 15 / 2;      //15s per action and 2 plants per action.
+            }
+            catch (err) {
+                console.log('Error: MessageProcessorAmar - Could not parse plants remaining');
+                return -1;
+            }
+        } else if (type == 'amar_garden_planting') {
+            try {
+                const slots = message.content.split('You have ')[1].split('free slots!')[0].replace(',', '').split(' / ')[0];
+                console.log(slots);
+                //const slots_remaining = parseInt(slots[1]) - parseInt(slots[0]);
+                return slots * 1000 * 15 / 2;      //15s per action and 2 plants per action.
+            }
+            catch (err) {
+                console.log('Error: MessageProcessorAmar - Could not parse slots remaining');
+                return -1;
+            }
+        }
+
+
+        return delay;
     }
 
     #get_random_reply() {

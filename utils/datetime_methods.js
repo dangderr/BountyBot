@@ -112,7 +112,7 @@ function parse_amar_time_string(msg_arr) {
         try {
             for (let i = 0; i < arr.length; i++) {
                 if (arr[i].includes('hr')) {
-                    if (arr[i] == 'hr' && i > 0) {
+                    if ((arr[i] == 'hr' || arr[i] == 'hrs') && i > 0) {
                         try {
                             let temp = parseInt(arr[i - 1]);
                             if (temp) hours = temp;
@@ -126,7 +126,7 @@ function parse_amar_time_string(msg_arr) {
                     }
                 }
                 else if (arr[i].includes('min')) {
-                    if (arr[i] == 'min' && i > 0) {
+                    if ((arr[i] == 'min' || arr[i] == 'mins') && i > 0) {
                         try {
                             let temp = parseInt(arr[i - 1]);
                             if (temp) minutes = temp;

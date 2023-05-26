@@ -52,12 +52,6 @@ class DripDatabase extends Database {
                     [discord_id, discord_username, tokens.generate_token(16)])
                 .get_result()
         );
-
-        this.query_run(
-            new SqlQueryBuilder()
-                .insert_into_values('user_ping_timers', ['discord_id'], [discord_id])
-                .get_result()
-        );
     }
 
     //Not used in program, but for here for manual removal. Maybe just make a script that does this.

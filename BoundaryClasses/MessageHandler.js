@@ -27,6 +27,12 @@ class MessageHandler {
     async message(message) {
         if (message.author.bot) return;
 
+        if (message.content === '.') {
+            message.client.PingController.add_ping(null, null, message.channel.id, message.id,
+                new Date().toUTCString(), 'time_check', null, null);
+            return;
+        }
+
         message.Channel = message.client.Channels.get_channel_by_id(message.channelId);
         if (!message.Channel) return;
 

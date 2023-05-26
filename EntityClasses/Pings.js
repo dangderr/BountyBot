@@ -25,7 +25,7 @@ class Pings {
     }
 
     get_pings_by_user(user_id) {
-        return this.#pings.filter(i => i.user_id == user_id);
+        return this.#pings.filter(i => i.user_id.includes(user_id));
     }
 
     get_ping(id) {

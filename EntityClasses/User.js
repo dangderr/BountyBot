@@ -54,7 +54,7 @@ class User {
     get discord_username() { return this.#discord_username; }
     set discord_username(invalid_action) { console.log('Something tried to set discord_username of a User object'); }
 
-    get drip_username() { return this.#drip_username ?? this.#discord_username; }
+    get drip_username() { return this.#drip_username; }
     set drip_username(invalid_action) { console.log('Something tried to set drip_username of a User object'); }
 
     get bounty_done() {
@@ -191,7 +191,7 @@ class User {
         }
 
         const sort_arr = all_herbs.map(i => i[0]);
-        this.#herbs.sort((a, b) => sort_arr.indexOf(a.herb) - sort_arr.indexOf(b.herb));
+        await this.#herbs.sort((a, b) => sort_arr.indexOf(a.herb) - sort_arr.indexOf(b.herb));
 
         return [added, removed];
     }

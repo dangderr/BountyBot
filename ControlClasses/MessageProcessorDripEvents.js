@@ -16,6 +16,17 @@ class MessageProcessorDripEvents {
 
     async check_blace_frenzy(message) {
         let name;
+
+        if (message.content.includes("Ace last seen")
+            || message.content.includes("Blaze last seen")
+        ) {
+            const milliseconds_ago = datetime_methods.parse_drip_time_string(message.content.split('\n'));
+            this.#ping_controller.add_ping(null, null, message.channel.id, message.id,
+                'Blace respawn timer updated', 'blace_timer_update', Date.now() - milliseconds_ago, null);
+            return;
+        }
+
+
         if (message.content.includes("Event: Ace appeared in the Arctic Ruins!"))
             name = 'Ace';
         else if (message.content.includes("Event: Blaze appeared in the Ashlands!"))
@@ -141,7 +152,7 @@ class MessageProcessorDripEvents {
             const content = 'Soulhound respawn time updated';
 
             this.#ping_controller.add_ping(null, null, message.channel.id, null,
-                content, 'soulhounds', soulhound_spawn_time.toISOString(), null);
+                content, 'soulhounds_timer_update', soulhound_spawn_time.toISOString(), null);
         }
     }
 

@@ -5,9 +5,13 @@ class MessageProcessDripQueries {
     #users;
     #drip_reminders
 
+    #ONE_HOUR = 1000 * 60 * 60;
+    #FIVE_MINUTES = 1000 * 60 * 5;
+
     // Format [[a,b],[c,d]]
     // Searches for (a AND b) OR (c AND d)
     #search_terms = {
+        help: [['help']],
         missing_timers: [['missing','timers']],
         timers: [['timers']],
     };
@@ -31,9 +35,17 @@ class MessageProcessDripQueries {
             return;
         }
 
-        if (message.content === '!') {
+        if (message.content === '!h') {
             this.#ping_controller.add_ping(message.author.id, null, message.channel.id, message.id,
                 'Pick a plant', 'herbalism', null, null);
+            return;
+        } else if (message.content === '!a') {
+            const delay = this.#ONE_HOUR - this.#FIVE_MINUTES;
+            const timestamp = Date.now() + delay;
+            this.#ping_controller.add_ping(message.author.id, null, message.channel.id, message.id,
+                `Amar botcheck reminder set <t:${Math.round(timestamp / 1000)}:R>`, 'response', null, null);
+            this.#ping_controller.add_ping(message.author.id, null, message.channel.id, message.id,
+                null, 'amar_botcheck', timestamp, delay);
             return;
         }
 
@@ -58,6 +70,9 @@ class MessageProcessDripQueries {
         //const user = this.#users.get_user(message.author.id);
         let content;
         switch (key) {
+            case 'help':
+                content = this.#get_content_help();
+                break;
             case 'timers':
                 content = this.#get_content_timers(message);
                 break;
@@ -69,6 +84,16 @@ class MessageProcessDripQueries {
 
         this.#ping_controller.add_ping(null, null, message.channel.id, message.id,
             content, key, null, null);
+    }
+
+    #get_content_help() {
+        let content = 'Available commands are:```\n'
+        content += '!h               Start herbalism timer\n';
+        content += '!a               Restart amar botcheck timer\n';
+        content += '!timers          View list of running timers\n';
+        content += '!missing timers  View list of timers not running\n';
+        content += '```';
+        return content;
     }
 
     #get_content_timers(message) {

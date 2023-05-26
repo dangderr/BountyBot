@@ -48,7 +48,8 @@ class MessageProcessDripReminderPings {
             ['Woodworking', ' / '],
             ['Invoke Spirits', ' / ']],
         berserk: [['Berserk State:']],
-        unknown: [['Time left:']]
+
+        unknown: [['h.'],['min.']],
     };
 
     //Look for exact match
@@ -72,6 +73,16 @@ class MessageProcessDripReminderPings {
         let message_arr = message.content.split('\n');
         let delay = datetime_methods.parse_drip_time_string(message_arr);
 
+        for (const key of Object.keys(this.#exact_search_terms)) {
+            for (let line of message_arr) {
+                line = line.trim();
+                if (line === this.#exact_search_terms[key]) {
+                    this.#send_pings(message, key, delay);
+                    return;
+                }
+            }
+        }
+
         for (const key of Object.keys(this.#search_terms)) {
             for (const row of this.#search_terms[key]) {
                 let match = true;
@@ -82,16 +93,6 @@ class MessageProcessDripReminderPings {
                     }
                 }
                 if (match) {
-                    this.#send_pings(message, key, delay);
-                    return;
-                }
-            }
-        }
-
-        for (const key of Object.keys(this.#exact_search_terms)) {
-            for (let line of message_arr) {
-                line = line.trim();
-                if (line === this.#exact_search_terms[key]) {
                     this.#send_pings(message, key, delay);
                     return;
                 }
