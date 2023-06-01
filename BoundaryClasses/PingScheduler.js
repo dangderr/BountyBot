@@ -31,38 +31,46 @@ class PingScheduler {
 
     async send_to_channel(ping, timestamp, channel, content, components) {
         this.log(ping);
-        if (!await this.process_delay(ping.id, timestamp)) {
+        if (!await this.process_delay(ping, timestamp)) {
             return;
         }
 
-        if (!components) {
-            channel.send(content);
-            return;
-        }
-         
-        //channel.send({ content: content, components: components });
+        try {
+            content = this.#get_ping_string(ping) + content;
+            if (!components) {
+                channel.send(content);
+                return;
+            }
 
-        //Start some collector here??
-        //What type of channel.send pings will need a collector?
+        }
+        catch (err) {
+            console.log(err);
+        }
     }
 
     async reply_to_message(ping, timestamp, message, content, components) {
         this.log(ping);
-        if (!await this.process_delay(ping.id, timestamp)) {
+        if (!await this.process_delay(ping, timestamp)) {
             return;
         }
 
-        if (!components) {
-            message.reply(content);
-            return;
+        try {
+            content = this.#get_ping_string(ping) + content;
+            if (!components) {
+                message.reply(content);
+                return;
+            }
+
+            let component_array = new Array();
+            this.#create_components(ping, components, component_array);
+
+            const bot_message = await message.reply({ content: content, components: component_array.slice(0, 5) });
+
+            this.#create_component_collectors(ping, message, bot_message, components);
         }
-
-        let component_array = new Array();
-        this.#create_components(ping, components, component_array);
-
-        const bot_message = await message.reply({ content: content, components: component_array.slice(0, 5) });
-
-        this.#create_component_collectors(ping, message, bot_message, components);
+        catch (err) {
+            console.log(err);
+        }
     }
 
     #create_components(ping, types, arr) {
@@ -341,7 +349,7 @@ class PingScheduler {
         }
     }
 
-    async process_delay(ping_id, timestamp) {
+    async process_delay(ping, timestamp) {
         if (timestamp) {
             const ping_time_in_ms = new Date(timestamp).getTime();
             if (ping_time_in_ms > 100) {
@@ -357,7 +365,24 @@ class PingScheduler {
             }
         }
 
-        return this.#ping_controller.revalidate_ping(ping_id);
+        return this.#ping_controller.revalidate_ping(ping);
+    }
+
+    #get_ping_string(ping) {
+        let ping_string = '';
+        if (ping.user_id) {
+            for (const user_id of ping.user_id.split(',')) {
+                if (user_id == '') continue;
+                ping_string += '<@' + user_id + '> ';
+            }
+        }
+        if (ping.role_id) {
+            for (const role_id of ping.role_id.split(',')) {
+                if (role_id == '') continue;
+                ping_string += '<@&' + role_id + '> ';
+            }
+        }
+        return ping_string;
     }
 }
 

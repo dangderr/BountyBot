@@ -20,9 +20,9 @@ class MessageProcessorAmar {
     #search_terms = {
         amar_botcheck: [['Active']],
         amar_timer_spells: [['Timer']],
-        amar_dd_spells: [['Double Drops']],
-        amar_success_spells: [['Success']],
-        amar_rd_spells: [['Random Drops']],
+        amar_dd_spells: [['Double Drops', '%']],
+        amar_success_spells: [['Success', '%']],
+        amar_rd_spells: [['Random Drops', '%']],
 
         amar_garden_picking: [['You have', 'plants remaining!']],
         amar_garden_planting: [['You have', 'free slots!']],
@@ -126,7 +126,7 @@ class MessageProcessorAmar {
 
         if (delay <= 0) {
             this.#ping_controller.add_ping(null, null, message.channel.id, message.id,
-                'Something went wrong, idk what time to ping you', 'error', null, null);
+                'Something went wrong, idk what time to ping you', `error ${type}`, null, null);
             return;
         }
 

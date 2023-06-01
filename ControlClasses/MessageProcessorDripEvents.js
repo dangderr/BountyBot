@@ -172,6 +172,7 @@ class MessageProcessorDripEvents {
         this.#item_drops.add_item_drop(global_str);
 
         const username = this.#get_username_from_global_string(global_str);
+        console.log(username);
 
         const luck_sack = await message.client.Users.get_user_by_drip_username(username);
         const hiro = await message.client.Users.get_user_by_drip_username('Hiro');
@@ -205,7 +206,7 @@ class MessageProcessorDripEvents {
     #get_username_from_global_string(str) {
         const str_arr = str.split(' ');
         const index = str_arr.indexOf('Global:') + 1;
-        return index === 0 ? null : index;
+        return index === 0 ? null : str_arr[index];
     }
 }
 

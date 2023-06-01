@@ -113,8 +113,7 @@ class PingController {
     async #schedule_ping(ping) {
         const channel = this.#Channels.get_channel_by_id(ping.channel_id).channel;
 
-        const content = this.get_ping_string(ping)
-            + (ping.content
+        const content = (ping.content
                 ?? this.#message_content[ping.type]
                 ?? (ping.type.includes('_reminder') ? this.#REMINDER_FALLBACK_MESSAGE : this.#FALLBACK_MESSAGE));
 
@@ -203,28 +202,30 @@ class PingController {
         }
     }
 
-    get_ping_string(ping) {
-        let ping_string = '';
-        if (ping.user_id) {
-            for (const user_id of ping.user_id.split(',')) {
-                ping_string += '<@' + user_id + '> ';
-            }
-        }
-        if (ping.role_id) {
-            for (const role_id of ping.role_id.split(',')) {
-                ping_string += '<@&' + role_id + '> ';
-            }
-        }
-        return ping_string;
-    }
-
-    revalidate_ping(ping_id) {
-        const ping = this.#pings.get_ping(ping_id);
+    revalidate_ping(_ping) {
+        const ping = this.#pings.get_ping(_ping.id);
         if (!ping) {
             return false;
         }
 
-        if (ping.user_id && !this.#Users.get_user(ping.user_id).active) {
+        if (!ping.user_id) {
+            return true;
+        }
+
+        if (ping.user_id.includes(',')) {
+            const users = ping.user_id.split(',');
+            let active_users = '';
+            users.forEach(i => {
+                if (this.#Users.get_user(i).active) {
+                    active_users += i + ',';
+                }
+            });
+            if (active_users == '') {
+                return false;
+            }
+            ping.user_id = active_users.slice(0, -1);
+            return true;
+        } else if (!this.#Users.get_user(ping.user_id).active) {
             return false;
         }
 
