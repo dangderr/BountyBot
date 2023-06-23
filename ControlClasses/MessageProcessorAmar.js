@@ -24,7 +24,7 @@ class MessageProcessorAmar {
         amar_success_spells: [['Success', '%']],
         amar_rd_spells: [['Random Drops', '%']],
 
-        amar_garden_picking: [['You have', 'plants remaining!']],
+        amar_garden_picking: [['You have', 'remaining!']],
         amar_garden_planting: [['You have', 'free slots!']],
 
         amar_unknown: [['hr'],['mins']]
@@ -155,8 +155,6 @@ class MessageProcessorAmar {
         } else if (type == 'amar_garden_planting') {
             try {
                 const slots = message.content.split('You have ')[1].split('free slots!')[0].replace(',', '').split(' / ')[0];
-                console.log(slots);
-                //const slots_remaining = parseInt(slots[1]) - parseInt(slots[0]);
                 return slots * 1000 * 15 / 2;      //15s per action and 2 plants per action.
             }
             catch (err) {

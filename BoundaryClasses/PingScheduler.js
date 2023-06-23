@@ -57,14 +57,25 @@ class PingScheduler {
         try {
             content = this.#get_ping_string(ping) + content;
             if (!components) {
-                message.reply(content);
+                message.reply({
+                    content: content,
+                    allowedMentions: {
+                        repliedUser: false
+                    }
+                });
                 return;
             }
 
             let component_array = new Array();
             this.#create_components(ping, components, component_array);
 
-            const bot_message = await message.reply({ content: content, components: component_array.slice(0, 5) });
+            const bot_message = await message.reply({
+                content: content,
+                components: component_array.slice(0, 5),
+                allowedMentions: {
+                    repliedUser: false
+                }
+            });
 
             this.#create_component_collectors(ping, message, bot_message, components);
         }

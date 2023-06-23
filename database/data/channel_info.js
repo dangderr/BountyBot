@@ -26,7 +26,8 @@ const channel_message_types = [
 const thread_message_types = [
     ["threads", "drip", "pings"],
     ["threads", "drip", "queries"],
-    ["threads", "amar", "amar_pings"]
+    ["threads", "amar", "amar_pings"],
+    ["threads", "yr", "lyr_pings"]
 ]
 
 const channel_command_types = [

@@ -48,6 +48,7 @@
     <Content Include="bot\events\ready.js" />
     <Content Include="BoundaryClasses\MessageHandler.js" />
     <Content Include="BoundaryClasses\PingScheduler.js" />
+    <Content Include="ControlClasses\MessageProcessorLyr.js" />
     <Content Include="ControlClasses\MessageProcessorAmar.js" />
     <Content Include="ControlClasses\MessageProcessorDripBounties.js" />
     <Content Include="ControlClasses\MessageProcessorDripEvents.js" />

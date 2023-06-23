@@ -38,7 +38,7 @@ class PingController {
         pot_lvl: 'Your LVL pot is about to expire',
 
         blace_reminder: 'Blaze/Ace last spawned 4 hours ago.',
-        soulhounds_reminder: 'Soulhounds last spawned 5.5 hours ago.',
+        soulhounds_reminder: 'Soulhounds last spawned 5 hours ago.',
         treant_reminder: 'Treant last spawned 3 hours ago.',
         quartz_titan_reminder: 'Quartz Titan last spawned 6 hours ago.',
         pumpkin_reminder: 'Pumpkin last spawned 3 hours ago.',
@@ -51,8 +51,10 @@ class PingController {
         amar_success_spells: 'You are now unsuccessful on amar',
         amar_rd_spells: 'rd% is gone',
 
-        amar_garden_picking: 'You are done picking your garden',
-        amar_garden_planting: 'You are done planting your garden',
+        amar_garden_picking: 'You are done picking your garden/workshop',
+        amar_garden_planting: 'You are done planting your garden/workshop',
+
+        lyr_dungeon: 'You are done with your lyr dungeon',
     };
 
     #unique_pings = [
@@ -71,7 +73,9 @@ class PingController {
         'amar_garden_picking',
         'amar_herb_garden', 'amar_vegetable_garden', 'amar_tropical_garden', 'amar_orchard_garden',
         'amar_seaside_garden', 'amar_flower_garden', 'amar_celestial_garden', 'amar_grain_garden',
-        'amar_spice_garden', 'amar_winter_garden', 'amar_coastal_garden', 
+        'amar_spice_garden', 'amar_winter_garden', 'amar_coastal_garden',
+
+        'lyr_dungeon',
     ];
 
     #FALLBACK_MESSAGE = 'idk why im pinging you... figure it out';

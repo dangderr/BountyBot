@@ -1,4 +1,5 @@
 const MessageProcessorAmar = require('../ControlClasses/MessageProcessorAmar.js');
+const MessageProcessorLyr = require('../ControlClasses/MessageProcessorLyr.js');
 const MessageProcessorDripBounties = require('../ControlClasses/MessageProcessorDripBounties.js');
 const MessageProcessorDripEvents = require('../ControlClasses/MessageProcessorDripEvents.js');
 const MessageProcessorDripReminderPings = require('../ControlClasses/MessageProcessorDripReminderPings.js');
@@ -6,6 +7,7 @@ const MessageProcessorDripQueries = require('../ControlClasses/MessageProcessorD
 
 class MessageHandler {
     #amar;
+    #lyr;
     #drip_bounties;
     #drip_events;
     #drip_reminders;
@@ -13,6 +15,7 @@ class MessageHandler {
 
     constructor(client) {
         this.#amar = new MessageProcessorAmar(client.PingController);
+        this.#lyr = new MessageProcessorLyr(client.PingController);
         this.#drip_bounties = new MessageProcessorDripBounties(client.PingController, client.drip_db);
         this.#drip_events = new MessageProcessorDripEvents(client.PingController, client.drip_db);
         this.#drip_reminders = new MessageProcessorDripReminderPings(client.PingController, client.Data.mobs);
@@ -46,6 +49,7 @@ class MessageHandler {
         switch (message_type) {
             case 'amar_storm': this.#amar.check_storm_message(message); break;
             case 'amar_pings': this.#amar.check_ping_message(message); break;
+            case 'lyr_pings': this.#lyr.check_ping_message(message); break;
             case 'bounty': this.#drip_bounties.check_bounty_message(message); break;
             case 'hell': this.#drip_events.check_hell_message(message); break;
             case 'event': this.#drip_events.check_event_message(message); break;
