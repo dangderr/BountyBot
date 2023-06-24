@@ -87,7 +87,8 @@ class PingController {
         pet_training: ['restart_button', 'pet'],
         cauldron: ['restart_button'],
         blace: ['blace_buttons'],
-        amar_botcheck: ['restart_button']
+        amar_botcheck: ['restart_button'],
+        botcheck: ['restart_button']
     };
 
     #events_to_track;

@@ -38,7 +38,7 @@ class PingScheduler {
         try {
             content = this.#get_ping_string(ping) + content;
             if (!components) {
-                channel.send(content);
+                await channel.send(content);
                 return;
             }
 
@@ -56,12 +56,20 @@ class PingScheduler {
 
         try {
             content = this.#get_ping_string(ping) + content;
-            if (!components) {
-                message.reply({
+
+            if (ping.type == 'response') {
+                await message.reply({
                     content: content,
                     allowedMentions: {
                         repliedUser: false
                     }
+                });
+                return;
+            }
+
+            if (!components) {
+                await message.reply({
+                    content: content
                 });
                 return;
             }
@@ -71,10 +79,7 @@ class PingScheduler {
 
             const bot_message = await message.reply({
                 content: content,
-                components: component_array.slice(0, 5),
-                allowedMentions: {
-                    repliedUser: false
-                }
+                components: component_array.slice(0, 5)
             });
 
             this.#create_component_collectors(ping, message, bot_message, components);
@@ -316,6 +321,8 @@ class PingScheduler {
                     minutes -= 10;
                 const HH_Level = parseInt(user.get_user_setting('Hollowhead') ?? 0);
                 minutes -= HH_Level * 0.75;
+            } else if (ping.type == 'botcheck'){
+                minutes = 450;
             } else {
                 minutes = ping.delay / 1000 / 60;
             }
