@@ -164,7 +164,8 @@ class MessageProcessorDripEvents {
 
         if (!(message.content.includes("killed") && message.content.includes("and obtained")) &&
             !(message.content.includes("Treasure and obtained")) &&
-            !(message.content.includes("completed") && message.content.includes("Bounty") && message.content.includes("and obtained"))
+            !(message.content.includes("completed") && message.content.includes("Bounty") && message.content.includes("and obtained")) &&
+            !(message.content.includes("obtained") && message.content.includes("from Golden Dragon"))
         ) {
             return;
         }

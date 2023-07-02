@@ -39,6 +39,10 @@ class MessageProcessDripQueries {
             this.#ping_controller.add_ping(message.author.id, null, message.channel.id, message.id,
                 'Pick a plant', 'herbalism', null, null);
             return;
+        } else if (message.content === '!p') {
+            this.#ping_controller.add_ping(message.author.id, null, message.channel.id, message.id,
+                'Pick a time', 'pet_training', null, null);
+            return;
         } else if (message.content === '!a') {
             const delay = this.#ONE_HOUR - this.#FIVE_MINUTES;
             const timestamp = Date.now() + delay;
