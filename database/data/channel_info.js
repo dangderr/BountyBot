@@ -41,7 +41,10 @@ const channel_command_types = [
     ["spit-bot", "drip", "global_settings"],
     ["hellllama", "drip", "hades_training_calc"],
     ["spit-bot", "drip", "settings"],
-    ["raids", "drip", "spam_ping_button"]
+    ["raids", "drip", "spam_ping_button"],
+    ["llamainchat", "drip", "game_time_to_chronos_time"],
+    ["spit-bot", "drip", "game_time_to_chronos_time"],
+    ["raids", "drip", "game_time_to_chronos_time"]
 ]
 
 const thread_command_types = [
@@ -51,7 +54,8 @@ const thread_command_types = [
     ["threads", "drip", "bounty_done"],
     ["threads", "drip", "check_bounty_done"],
     ["threads", "drip", "hades_training_calc"],
-    ["threads", "drip", "settings"]
+    ["threads", "drip", "settings"],
+    ["threads", "drip", "game_time_to_chronos_time"]
 ]
 
 module.exports = {
