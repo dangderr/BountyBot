@@ -25,6 +25,14 @@ class Ping {
     get unix_time() {
         return Math.round(new Date(this.timestamp).getTime() / 1000);
     }
+
+    add_user_to_ping(user_id) {
+        if (!this.user_id) {
+            this.user_id = user_id;
+        } else {
+            this.user_id += ',' + user_id;
+        }
+    }
 }
 
 module.exports = Ping;

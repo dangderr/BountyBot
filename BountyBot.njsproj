@@ -44,11 +44,14 @@
     <Content Include="bot\commands\global_settings.js" />
     <Content Include="bot\commands\settings.js" />
     <Content Include="bot\commands\check_bounty_done.js" />
+    <Content Include="bot\events\messageReactionAdd.js" />
     <Content Include="bot\events\interactionCreate.js" />
     <Content Include="bot\events\message.js" />
     <Content Include="bot\events\ready.js" />
+    <Content Include="BoundaryClasses\ReactionHandler.js" />
     <Content Include="BoundaryClasses\MessageHandler.js" />
     <Content Include="BoundaryClasses\PingScheduler.js" />
+    <Content Include="ControlClasses\ReactionProcessorAmar.js" />
     <Content Include="ControlClasses\MessageProcessorLyr.js" />
     <Content Include="ControlClasses\MessageProcessorAmar.js" />
     <Content Include="ControlClasses\MessageProcessorDripBounties.js" />

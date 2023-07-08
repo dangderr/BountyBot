@@ -9,16 +9,25 @@ const GlobalSettings = require('./EntityClasses/GlobalSettings.js');
 
 const PingController = require('./ControlClasses/PingController.js');
 const MessageHandler = require('./BoundaryClasses/MessageHandler.js');
+const ReactionHandler = require('./BoundaryClasses/ReactionHandler.js');
 
 async function main() {
-    const client = await new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent] });
+    const client = await new Client({
+        intents: [
+            GatewayIntentBits.Guilds,
+            GatewayIntentBits.GuildMessages,
+            GatewayIntentBits.GuildMessageReactions,
+            GatewayIntentBits.MessageContent
+        ],
+        partials: ['MESSAGE', 'CHANNEL', 'REACTION']
+    });
 
     await init_bot(client);
     await init_classes(client);
 }
 
 async function init_bot(client) {
-    const redeploy_commands = true;
+    const redeploy_commands = false;
     await BountyBot.init(client, redeploy_commands);
 
     require('dotenv').config();
@@ -48,6 +57,9 @@ async function init_classes(client) {
 
     client.MessageHandler = new MessageHandler(client);
     await client.MessageHandler.init();
+
+    client.ReactionHandler = new ReactionHandler(client);
+    await client.ReactionHandler.init();
 }
 
 main();

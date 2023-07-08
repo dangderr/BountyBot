@@ -240,6 +240,10 @@ class PingController {
     get_pings_by_user(user_id) {
         return this.#pings.get_pings_by_user(user_id);
     }
+
+    get_pings_by_message_id(message_id) {
+        return this.#pings.get_pings_by_message_id(message_id);
+    }
 }
 
 module.exports = PingController;

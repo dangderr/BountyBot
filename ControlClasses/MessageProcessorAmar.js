@@ -87,6 +87,13 @@ class MessageProcessorAmar {
         }
 
         this.#ping_controller.add_ping(null, role_id, message.channel.id, message.id, content, type, null, null);
+
+        let reminder_content = type == 'amar_storm' ? 'Thunderstorm' : 'Event';
+        reminder_content += " started 60 minutes ago. It's gotta be over by now, right?";
+        current_time.setUTCMinutes(current_time.getUTCMinutes() + (2 - minutes_ago));
+
+        this.#ping_controller.add_ping(null, null, message.channel.id, message.id,
+            reminder_content, type + '_end_reminder', current_time.toUTCString(), null);
     }
 
     async check_ping_message(message) {
