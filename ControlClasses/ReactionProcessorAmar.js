@@ -22,7 +22,7 @@ class ReactionProcessorAmar {
             if (ping.type == 'amar_storm_end_reminder'
                 || ping.type == 'amar_event_end_reminder'
             ) {
-                ping.add_user_to_ping(reaction.User.discord_id);
+                this.#ping_controller.add_user_to_ping(ping, reaction.User.discord_id);
             }
         }
     }

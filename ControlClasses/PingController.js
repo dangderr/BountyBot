@@ -244,6 +244,10 @@ class PingController {
     get_pings_by_message_id(message_id) {
         return this.#pings.get_pings_by_message_id(message_id);
     }
+
+    add_user_to_ping(ping, user_id) {
+        this.#pings.add_user_to_ping(ping, user_id);
+    }
 }
 
 module.exports = PingController;

@@ -82,6 +82,11 @@ class Pings {
         }
         return matches;
     }
+
+    add_user_to_ping(ping, user_id) {
+        ping.add_user_to_ping(user_id);
+        this.#db.ping_update_users(ping.id, ping.user_id);
+    }
 }
 
 module.exports = Pings;

@@ -221,6 +221,16 @@ class DripDatabase extends Database {
         );
     }
 
+    async ping_update_users(id, users_str) {
+        this.query_run(
+            new SqlQueryBuilder()
+                .update('ping_logs')
+                .set(['user_id'], [users_str])
+                .where_column_equals(['id'], [id])
+                .get_result()
+        );
+    }
+
 
     /***********************
      *                     *
