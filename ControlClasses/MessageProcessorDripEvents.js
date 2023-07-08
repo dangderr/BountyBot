@@ -67,6 +67,23 @@ class MessageProcessorDripEvents {
     }
 
     async check_event_message(message) {
+        if (message.content.includes("last seen")) {
+            const name = message.content.split(' last seen')[0];
+            let type;
+            switch (name) {
+                case 'Treant Elder': type = 'treant'; break;
+                case 'Quartz Titan': type = 'quartz_titan'; break;
+                case 'Pumpkin King': type = 'pumpkin'; break;
+                case 'Snowman': type = 'snowman'; break;
+                default: return;
+            }
+
+            const milliseconds_ago = datetime_methods.parse_drip_time_string(message.content.split('\n'));
+            this.#ping_controller.add_ping(null, null, message.channel.id, message.id,
+                'Event respawn timer updated', type + '_timer_update', Date.now() - milliseconds_ago, null);
+            return;
+        }
+
         if (!message.content.includes("Event: Treant Elder appeared in the Reaper's Garden. [Reaper's Garden]")
             && !message.content.includes("Event: Quartz Titan appeared in the Azure Coastline. [Azure Coastline]")
             && !message.content.includes("Event: Pumpkin King appeared in the Pumpkin Field. [Pumpkin Field]")
