@@ -28,10 +28,6 @@ class Pings {
         return this.#pings.filter(i => i.user_id?.includes(user_id));
     }
 
-    get_pings_by_message_id(message_id) {
-        return this.#pings.filter(i => i.message_id == message_id);
-    }
-
     get_ping(id) {
         return this.#pings.find(i => i.id == id);
     }

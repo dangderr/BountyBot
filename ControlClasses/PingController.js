@@ -159,9 +159,9 @@ class PingController {
         }
 
         if (this.#unique_pings.includes(type)) {
-            this.#remove_stale_pings({ type: type });
+            this.remove_pings({ type: type });
         } else if (this.#unique_per_user.includes(type)) {
-            this.#remove_stale_pings({ user_id: user_id, type: type });
+            this.remove_pings({ user_id: user_id, type: type });
         }
 
         let event_checker_type = type;
@@ -200,7 +200,7 @@ class PingController {
         this.add_ping(user_list, null, channel_id, null, null, type + '_reminder', ping_time, null);
     }
 
-    async #remove_stale_pings(options) {
+    async remove_pings(options) {
         const matching_pings = this.#pings.find_pings(options);
         for (const p of matching_pings) {
             await this.#pings.remove_ping(p.id);
@@ -242,7 +242,13 @@ class PingController {
     }
 
     get_pings_by_message_id(message_id) {
-        return this.#pings.get_pings_by_message_id(message_id);
+        const options = { message_id: message_id };
+        return this.#pings.find_pings(options);
+    }
+
+    get_pings_by_type(type) {
+        const options = { type: type };
+        return this.#pings.find_pings(options);
     }
 
     add_user_to_ping(ping, user_id) {

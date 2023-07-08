@@ -39,6 +39,32 @@ class MessageProcessorAmar {
     }
 
     async check_storm_message(message) {
+        //If early storm end message detected, then send out the end ping early.
+        if (message.content.includes(message.client.Channels.get_role_id('stormend', 'amar'))) {
+            const ping_arr = this.#ping_controller.get_pings_by_type('amar_storm_end_reminder');
+            if (!ping_arr || ping_arr.length == 0) return;
+
+            const ping = ping_arr[0];
+
+            const content = "Someone sent a Storm End ping, so I guess the storm's over now.";
+
+            this.#ping_controller.add_ping(
+                ping.user_id,
+                ping.role_id,
+                ping.channel_id,
+                ping.message_id,
+                content,
+                ping.type,
+                null,
+                null
+            );
+
+            this.#ping_controller.remove_pings({id : ping.id});
+
+            return;
+        }
+
+
         let role_id;
         let location;
         let time_str;
@@ -90,7 +116,7 @@ class MessageProcessorAmar {
 
         let reminder_content = type == 'amar_storm' ? 'Thunderstorm' : 'Event';
         reminder_content += " started 60 minutes ago. It's gotta be over by now, right?";
-        current_time.setUTCMinutes(current_time.getUTCMinutes() + (2 - minutes_ago));
+        current_time.setUTCMinutes(current_time.getUTCMinutes() + (60 - minutes_ago));
 
         this.#ping_controller.add_ping(null, null, message.channel.id, message.id,
             reminder_content, type + '_end_reminder', current_time.toUTCString(), null);
