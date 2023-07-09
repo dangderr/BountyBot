@@ -214,6 +214,9 @@ class PingController {
         }
 
         if (!ping.user_id) {
+            if (ping.type == 'amar_storm_end_reminder' || ping.type == 'amar_event_end_reminder') {
+                return false;
+            }
             return true;
         }
 

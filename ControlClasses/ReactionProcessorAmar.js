@@ -19,9 +19,7 @@ class ReactionProcessorAmar {
         if (!pings_for_message_id || pings_for_message_id.length == 0) return;
 
         for (const ping of pings_for_message_id) {
-            if (ping.type == 'amar_storm_end_reminder'
-                || ping.type == 'amar_event_end_reminder'
-            ) {
+            if (ping.type == 'amar_storm_end_reminder' || ping.type == 'amar_event_end_reminder') {
                 this.#ping_controller.add_user_to_ping(ping, reaction.User.discord_id);
             }
         }
