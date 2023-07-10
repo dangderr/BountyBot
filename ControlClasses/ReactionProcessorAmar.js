@@ -8,7 +8,7 @@ class ReactionProcessorAmar {
     async route_reaction(reaction) {
         switch (reaction.Channel.name) {
             case 'general':
-            case 'thunderstorm': this.#process_storm_reaction(reaction); break;
+            case 'thunderstorms': this.#process_storm_reaction(reaction); break;
             default: //console.log(`Error: ReactionProcessorAmar cannot route reaction. No route for ${reaction.Channel.name}.`)
         }
     }
