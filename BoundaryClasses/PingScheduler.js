@@ -57,7 +57,7 @@ class PingScheduler {
         try {
             content = this.#get_ping_string(ping) + content;
 
-            const no_ping_message_types = ['response', 'amar_storm', 'amar_event'];
+            const no_ping_message_types = ['response'];
 
             if (no_ping_message_types.includes(ping.type)) {
                 await message.reply({
