@@ -57,12 +57,14 @@ class PingScheduler {
         try {
             content = this.#get_ping_string(ping) + content;
 
-            const no_ping_message_types = ['response'];
+            const no_ping_message_types = ['response', 'amar_storm_end_reminder', 'amar_event_end_reminder'];
 
             if (no_ping_message_types.includes(ping.type)) {
                 await message.reply({
                     content: content,
                     allowedMentions: {
+                        users: (ping.user_id ? ping.user_id.split(',') : []),
+                        roles: (ping.role_id ? [ping.role_id] : []),
                         repliedUser: false
                     }
                 });

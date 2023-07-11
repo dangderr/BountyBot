@@ -190,13 +190,13 @@ class DripDatabase extends Database {
         );
     }
 
-    async add_ping(user_id, channel_id, message_id, content, type, timestamp, delay) {
+    async add_ping(user_id, role_id, channel_id, message_id, content, type, timestamp, delay) {
         return await this.query_run(
             new SqlQueryBuilder()
                 .insert_into_values(
                     'ping_logs',
-                    ['user_id', 'channel_id', 'message_id', 'content', 'type', 'timestamp', 'delay', 'active'],
-                    [user_id, channel_id, message_id, content, type, timestamp, delay, 1]
+                    ['user_id', 'role_id', 'channel_id', 'message_id', 'content', 'type', 'timestamp', 'delay', 'active'],
+                    [user_id, role_id, channel_id, message_id, content, type, timestamp, delay, 1]
                 )
                 .get_result()
         );

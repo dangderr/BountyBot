@@ -33,7 +33,7 @@ class Pings {
     }
 
     async add_ping(user_id, role_id, channel_id, message_id, content, type, timestamp, delay) {
-        const ping_id = await this.#db.add_ping(user_id, channel_id, message_id, content, type, new Date(timestamp).toISOString(), delay);
+        const ping_id = await this.#db.add_ping(user_id, role_id, channel_id, message_id, content, type, new Date(timestamp).toISOString(), delay);
         const new_ping = new Ping({
             id: ping_id,
             user_id: user_id,
